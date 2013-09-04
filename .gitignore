@@ -11,3 +11,18 @@
 *.lai
 *.la
 *.a
+
+#Dirs
+Debug/
+Release/
+
+#Project files
+*.sdf
+*.opensdf
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.vsp
+*.psess
+*.v11.suo
