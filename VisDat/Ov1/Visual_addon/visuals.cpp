@@ -35,7 +35,6 @@ void Resize(int w, int h)
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
 
-
     //         L,      R,      B,     T,     N,      F
     glOrtho (-50.0f, 50.0f, -50.0f, 50.0f, 100.0f, -100.0f);
 
