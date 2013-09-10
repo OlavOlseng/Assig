@@ -22,7 +22,7 @@ int main(int argc, char **argv) {
 	/    -RGB color model + Alpha Channel = GLUT_RGBA
 	/    -RGB color model + Alpha Channel = GLUT_RGBA
 	*/
-    glutInitDisplayMode(GLUT_RGBA|GLUT_DOUBLE);
+	glutInitDisplayMode(GLUT_RGBA|GLUT_DOUBLE);
      
     //Configure Window Postion
     glutInitWindowPosition(50, 25);
