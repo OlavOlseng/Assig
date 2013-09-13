@@ -13,6 +13,7 @@
 //GLuint VertexArrayID;
 GLuint vertexbuffer;
 GLuint programID;
+GLuint trainglesbuffer;
 
 void ReshapeGL( int w, int h )
 {
@@ -77,6 +78,12 @@ void KeyboardGL( unsigned char c, int x, int y )
         g_eCurrentScene = 5;
     }
         break;
+	case '6' :
+	{
+		glClearColor( 0.7f, 0.7f, 0.7f, 1.0f );                      // Light-Gray background
+        g_eCurrentScene = 6;
+	}
+		break;
     case 's':
     case 'S':
     {
@@ -170,7 +177,13 @@ void DisplayGL()
         RenderScene5();
     }
         break;
-    }
+	case 6:
+	{
+		RenderScene6();
+		break;
+	}
+	}
+
 
 
     glutSwapBuffers();
@@ -187,9 +200,7 @@ void RenderScene1()
     glLoadIdentity();
 
     glColor3f(1.0, 0.5, 0.2);							   // Set drawing colour = orange
-    glutSolidCube(20.0 );							   // Draw a built-in primitive
-
-
+    glutSolidTorus(10.0f, 20.0f, 20, 20);					   // Draw a built-in primitive
 
 }
 
@@ -294,6 +305,28 @@ void RenderScene5()
 
 }
 
+void RenderScene6()
+{
+    // Use our shader
+    glUseProgram(programID);
+
+    // 1rst attribute buffer : vertices
+    glEnableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, trainglesbuffer);
+    glVertexAttribPointer(
+                0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
+                3,                  // size
+                GL_FLOAT,           // type
+                GL_FALSE,           // normalized?
+                0,                  // stride
+                (void*)0            // array buffer offset
+                );
+
+    // Draw the triangle !
+	glDrawArrays(GL_TRIANGLES, 0, 9); // 9 indices starting at 0 -> 3 triangles
+    glDisableVertexAttribArray(0);
+
+}
 
 
 
@@ -336,7 +369,7 @@ void SetupGL() //
     }
 
     // Setup initial GL State
-    glClearColor( 1.0f, 1.0f, 1.0f, 1.0f );
+    glClearColor( 0.3f, 0.3f, 0.3f, 1.0f );
     glClearDepth( 1.0f );
 
     std::cout << "Initialise OpenGL: Success!" << std::endl;
@@ -349,15 +382,36 @@ void SetupGL() //
 
     //VBO
     static const GLfloat g_vertex_buffer_data[] = {
+        -1.0f, -0.5f, 0.0f,
+        0.5f, -0.5f, 0.0f,
+        -1.0f,  1.0f, 0.0f,
+	};
+	
+	static const GLfloat g_vertex_buffer_data2[] = {
         -1.0f, -1.0f, 0.0f,
-        1.0f, -1.0f, 0.0f,
-        0.0f,  1.0f, 0.0f,
-    };
+        -0.3f, -1.0f, 0.0f,
+        -1.0f, -0.3f, 0.0f,
+		
+		1.0f, 1.0f, 0.0f,
+		0.3f, 1.0f, 0.0f,
+		1.0f, 0.3f, 0.0f,
+
+		-0.2f, -0.2f, 0.0f,
+		0.2f, -0.2f, 0.0f,
+		0.2f, 0.2f, 0.0f,
+	};
 
     // Generate 1 buffer, put the resulting identifier in vertexbuffer
     glGenBuffers(1, &vertexbuffer);
-    // The following commands will talk about our 'vertexbuffer' buffer
+	// The following commands will talk about our 'vertexbuffer' buffer
     glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
     // Give our vertices to OpenGL.
     glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
+
+	//Making and filling my own buffer
+	glGenBuffers(1, &trainglesbuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, trainglesbuffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data2), g_vertex_buffer_data2, GL_STATIC_DRAW);
+
+
 }

@@ -29,11 +29,13 @@ int main(int argc, char **argv) {
     // Configure Window Position
     int iScreenWidth = glutGet(GLUT_SCREEN_WIDTH);
     int iScreenHeight = glutGet(GLUT_SCREEN_HEIGHT);
+	int iWindowWidth = 512;
+	int iDisplayHeight = 512;
 
     glutInitDisplayMode( GLUT_RGBA | GLUT_ALPHA | GLUT_DOUBLE | GLUT_DEPTH );
 
-    glutInitWindowPosition( 0,0 );
-    glutInitWindowSize( 512, 512 );
+	glutInitWindowPosition((iScreenWidth - iWindowWidth)/2,(iScreenHeight - iDisplayHeight)/2);
+	glutInitWindowSize(iWindowWidth, iDisplayHeight);
 
     g_iGLUTWindowHandle = glutCreateWindow( "OpenGL" );
 
