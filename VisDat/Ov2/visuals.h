@@ -1,5 +1,4 @@
-#include<ctime>
-//#include <time.h>
+
 //-------- Variables -------------------------------
 
 extern int g_iWindowWidth;
@@ -8,7 +7,8 @@ extern int g_iGLUTWindowHandle;
 extern int g_iErrorCode ;
 
 extern unsigned char g_eCurrentScene;
-extern  float rot_angle;
+
+
 //-------- Functions --------------------------------
 // Cleanup : This is the exist function.
 void Cleanup( int exitCode, bool bExit = true );
@@ -37,12 +37,11 @@ void MouseGL( int button, int state, int x, int y );
 // system and projection type
 void ReshapeGL( int w, int h );
 
-//Function called when screen is idle.
-void Idle();
+
 // Functions called to draw different scenes
 void RenderScene1();
 void RenderScene2();
 void RenderScene3();
 void RenderScene4();
 void RenderScene5();
-
+void RenderScene6();

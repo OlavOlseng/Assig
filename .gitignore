@@ -15,6 +15,7 @@
 #Dirs
 Debug/
 Release/
+glm/
 
 #Project files
 *.sdf
