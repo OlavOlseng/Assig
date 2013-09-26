@@ -7,6 +7,6 @@ void main()
 {
 
 	// Output color = red 
-	color = inColor;
+	color = inColor*1.5f;
 
 }

@@ -23,6 +23,7 @@ GLuint MatrixID; // Handler Matrix for moving the cam
 glm::mat4 MVP; // FInal Homogeneous Matrix
 glm::mat4 Projection,View,Model;
 glm::mat4 Rot, Trans, Scale;
+glm::mat4 Models[100];
 
 void Idle()
 {
@@ -76,6 +77,20 @@ void Idle()
 			Rot = glm::rotate(Rot, current_time/5.0f, glm::vec3(1.0f, 0.0f, 0.0f));
 			Rot = glm::rotate(Rot, current_time/7.0f, glm::vec3(0.0f, 1.0f, 0.0f));
 			Rot = glm::rotate(Rot, current_time/9.0f, glm::vec3(1.0f, 0.0f, 1.0f));
+		}
+		else if (g_eCurrentScene == 7)
+		{
+			float fraction = 2*PI/100.0f;
+			float radius = 40.0f;
+			for(int i = 0; i < 100; i++) 
+			{
+				if (i % 2 == 0) radius = 30.0f;
+				else radius = 40.0f;
+				float position = i*fraction + current_time/1000.0f;
+				Models[i] = glm::translate(glm::mat4(1.0f), glm::vec3(-radius*cos(position), 0.0f, radius*sin(position)));
+				Models[i] = glm::scale(Models[i], glm::vec3(0.5f, 0.5f, 0.5f));
+				Models[i] = glm::rotate(Models[i], position*1000, glm::vec3(0.0f, 0.0f, 1.0f));
+			}
 		}
     }
     glutPostRedisplay();
@@ -145,6 +160,13 @@ void KeyboardGL( unsigned char c, int x, int y )
         g_eCurrentScene = 6;
     }
         break;
+
+	  case '7':
+	{
+			 glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+			 g_eCurrentScene = 7;
+	}
+		break;
     case 's':
     case 'S':
     {
@@ -239,6 +261,11 @@ void DisplayGL()
         RenderScene5();
     }
         break;
+	case 7:
+	{
+		RenderScene7();
+	}
+	break;
     }
 
 
@@ -458,6 +485,49 @@ void RenderScene5()
     glDrawArrays(GL_TRIANGLES, 0, 36); // From index 0 to 3 -> 1 triangle
 
     glDisableVertexAttribArray(0);
+}
+
+void RenderScene7() {
+	 Projection = glm::perspective(45.0f, 4.0f/3.0f, 0.1f, 500.0f);
+
+	View       = glm::lookAt(
+                glm::vec3(0,100,1), // Camera is at (4,3,3), in World Space
+                glm::vec3(0,0,0), // and looks at the origin
+                glm::vec3(0,1,0)  // Head is up (set to 0,-1,0 to look upside-down)
+                );
+    // Model matrix : an identity matrix (model will be at the origin)
+    // Our ModelViewProjection : multiplication of our 3 matrices
+	    
+
+	//init model transformations
+	for(int i = 0; i < 100; i++)
+	{
+	MVP        = Projection * View * Models[i]; // Remember, matrix multiplication is the other way around
+
+	glUseProgram(programID_2);
+
+    // Send our transformation to the currently bound shader,
+    // in the "MVP" uniform
+	
+    glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
+    // 1rst attribute buffer : vertices
+    glEnableVertexAttribArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+    glVertexAttribPointer(
+                0,                  // attribute. No particular reason for 0, but must match the layout in the shader.
+                3,                  // size
+                GL_FLOAT,           // type
+                GL_FALSE,           // normalized?
+                0,                  // stride
+                (void*)0            // array buffer offset
+                );
+
+    // Draw the triangle !
+    glDrawArrays(GL_TRIANGLES, 0, 36); // From index 0 to 3 -> 1 triangle
+
+    glDisableVertexAttribArray(0);
+	}
 }
 
 void SetupGL() //
