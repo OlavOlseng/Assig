@@ -162,27 +162,19 @@ void Idle()
 	{
 
 		counter =counter+0.002*dt;
-		MODEL_EVERYTHING = glm::translate(MODEL_EVERYTHING,glm::vec3(0,0,0.0013*counter));
-
+		MODEL_EVERYTHING = glm::translate(glm::mat4(1.0f),glm::vec3(0,0,-counter));
 		
+		MODEL_LEG_1 = glm::rotate(glm::mat4(1.0f),float(80*cos(counter)),glm::vec3(1,0,0));
+		
+		MODEL_LEG_2 = glm::rotate(glm::mat4(1.0f),float(-80*cos(counter)),glm::vec3(1,0,0));
 
-		MODEL_LEG_1 = glm::rotate(MODEL_LEG_1,float(cos(counter)/3.0f),glm::vec3(1,0,0));
+		MODEL_FOOT_1 = glm::rotate(glm::mat4(1.0f), float(40*cos(counter)),glm::vec3(1,0,0));
 
-
-		MODEL_LEG_2 = glm::rotate(MODEL_LEG_2,float(-cos(counter)/3.0f),glm::vec3(1,0,0));
-
-		MODEL_FOOT_1 = glm::rotate(MODEL_FOOT_1, float(cos(counter)/5.0f),glm::vec3(1,0,0));
-
-		MODEL_FOOT_2 = glm::rotate(MODEL_FOOT_2, float(-cos(counter)/5.0f),glm::vec3(1,0,0));
+		MODEL_FOOT_2 = glm::rotate(glm::mat4(1.0f), float(-40*cos(counter)),glm::vec3(1,0,0));
 
 
 	}
 	
-	if (g_eCurrentScene > 5) 
-	{
-		
-	}
-
 	glutPostRedisplay();
 	last_time =current_time;// update when the last timer;
 }
@@ -242,11 +234,11 @@ void KeyboardGL( unsigned char c, int x, int y )
 		break;
 	case '5':
 		{
+			counter = 0;
 			glClearColor( 0.7f, 0.7f, 0.7f, 1.0f );                      // Light-Gray background
 			g_eCurrentScene = 5;
 			// THIS MODEL WILL BE APPLIED TO THE WHOLE SCENE 5
 			MODEL_EVERYTHING=glm::mat4(1.0f); // Identity
-			
 
 			// THIS MODEL WILL BE APPLIED TO LEG 1
 			MODEL_LEG_1=glm::mat4(1.0f);
@@ -262,6 +254,7 @@ void KeyboardGL( unsigned char c, int x, int y )
 		break;
 	case '6':
 		{
+			counter = 0;
 			g_eCurrentScene = 6;
 			glClearColor( 0.7f, 0.7f, 0.7f, 1.0f );                      // Light-Gray background
 			// THIS MODEL WILL BE APPLIED TO THE WHOLE SCENE 5
@@ -669,9 +662,10 @@ void RenderScene5()
 
 
 	// transform the cube
-	Model      = glm::rotate(glm::mat4(1.0f),90.0f,glm::vec3(0,0,1));
-	Model      = glm::scale(Model,glm::vec3(0.8,0.8,1.5));
-	Model      = glm::translate(Model,glm::vec3(0,1.5,-0.3));
+	Model      = glm::translate(glm::mat4(1.0f),glm::vec3(-1.0f, -0.4f, -0.0f));
+	Model      = glm::rotate(Model,270.0f,glm::vec3(1,0,0));
+	Model      = glm::scale(Model,glm::vec3(0.8f,0.8,1.5));
+
 	// MVP
 	MVP4        = Projection * View * MODEL_EVERYTHING* MODEL_LEG_1* Model;
 	glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP4[0][0]);
@@ -685,9 +679,10 @@ void RenderScene5()
 	// ========== LEG 2
 	// =================================================================================
 	// Transform the cube
-	Model      = glm::rotate(glm::mat4(1.0f),-90.0f,glm::vec3(0,0,1));
-	Model      = glm::scale(Model,glm::vec3(0.8,0.8,1.5));
-	Model      = glm::translate(Model,glm::vec3(0,1.5,-0.3));
+	Model      = glm::translate(glm::mat4(1.0f),glm::vec3(1.0f, -0.4f, -0.0f));
+	Model      = glm::rotate(Model,270.0f,glm::vec3(1,0,0));
+	Model      = glm::scale(Model,glm::vec3(0.8f,0.8,1.5));
+	
 	// MVP
 	MVP5        = Projection * View *MODEL_EVERYTHING* MODEL_LEG_2* Model;
 	glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP5[0][0]);
@@ -704,11 +699,10 @@ void RenderScene5()
 	//==============================================================================
 
 	// Transform the cube
-	Model      = glm::rotate(glm::mat4(1.0f),90.0f,glm::vec3(1,0,0));
+	Model      = glm::translate(glm::mat4(1.0f), glm::vec3(-1.0,-1.8, 0.2));
 	Model      = glm::scale(Model,glm::vec3(0.8,0.8,0.8));
-	Model      = glm::translate(Model,glm::vec3(-1.3,-2.2,0.0));
 	// MVP
-	MVP6        = Projection * View *MODEL_EVERYTHING* MODEL_LEG_1 * Model* MODEL_FOOT_1;
+	MVP6        = Projection * View *MODEL_EVERYTHING* MODEL_LEG_1 * Model * MODEL_FOOT_1;
 	
 	color = glm::vec3(0.3f, 0.3f, 0.3f);
 	glUniform3fv(colorID, 1, &color[0]);
@@ -718,9 +712,9 @@ void RenderScene5()
 	glDrawArrays(GL_TRIANGLES, 0, 8*3); // 12*3 indices starting at 0 -> 12 triangles
 
 
-	Model      = glm::rotate(glm::mat4(1.0f),90.0f,glm::vec3(1,0,0));
+	Model      = glm::translate(glm::mat4(1.0f), glm::vec3(1.0,-1.8, 0.2));
 	Model      = glm::scale(Model,glm::vec3(0.8,0.8,0.8));
-	Model      = glm::translate(Model,glm::vec3(1.3,-2.2,0.0));
+	
 	// MVP
 	MVP7        = Projection * View *MODEL_EVERYTHING* MODEL_LEG_2 * Model * MODEL_FOOT_2;
 	glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP7[0][0]);
@@ -730,7 +724,6 @@ void RenderScene5()
 
 	//END
 	glDisableVertexAttribArray(0);
-	glDisableVertexAttribArray(1);
 }
 void RenderScene6() 
 {
@@ -819,9 +812,10 @@ void RenderScene6()
 
 
 	// transform the cube
-	Model      = glm::rotate(glm::mat4(1.0f),90.0f,glm::vec3(0,0,1));
-	Model      = glm::scale(Model,glm::vec3(0.8,0.8,1.5));
-	Model      = glm::translate(Model,glm::vec3(0,1.5,-0.3));
+	Model      = glm::translate(glm::mat4(1.0f),glm::vec3(-1.0f, -0.4f, -0.0f));
+	Model      = glm::rotate(Model,270.0f,glm::vec3(1,0,0));
+	Model      = glm::scale(Model,glm::vec3(0.8f,0.8,1.5));
+
 	// MVP
 	MVP4        = Projection * View * MODEL_EVERYTHING* MODEL_LEG_1* Model;
 	glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP4[0][0]);
@@ -835,9 +829,10 @@ void RenderScene6()
 	// ========== LEG 2
 	// =================================================================================
 	// Transform the cube
-	Model      = glm::rotate(glm::mat4(1.0f),-90.0f,glm::vec3(0,0,1));
-	Model      = glm::scale(Model,glm::vec3(0.8,0.8,1.5));
-	Model      = glm::translate(Model,glm::vec3(0,1.5,-0.3));
+	Model      = glm::translate(glm::mat4(1.0f),glm::vec3(1.0f, -0.4f, -0.0f));
+	Model      = glm::rotate(Model,270.0f,glm::vec3(1,0,0));
+	Model      = glm::scale(Model,glm::vec3(0.8f,0.8,1.5));
+	
 	// MVP
 	MVP5        = Projection * View *MODEL_EVERYTHING* MODEL_LEG_2* Model;
 	glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP5[0][0]);
@@ -854,11 +849,10 @@ void RenderScene6()
 	//==============================================================================
 
 	// Transform the cube
-	Model      = glm::rotate(glm::mat4(1.0f),90.0f,glm::vec3(1,0,0));
+	Model      = glm::translate(glm::mat4(1.0f), glm::vec3(-1.0,-1.8, 0.2));
 	Model      = glm::scale(Model,glm::vec3(0.8,0.8,0.8));
-	Model      = glm::translate(Model,glm::vec3(-1.3,-2.2,0.0));
 	// MVP
-	MVP6        = Projection * View *MODEL_EVERYTHING* MODEL_LEG_1 * Model* MODEL_FOOT_1;
+	MVP6        = Projection * View *MODEL_EVERYTHING* MODEL_LEG_1 * Model * MODEL_FOOT_1;
 	
 	color = glm::vec3(0.3f, 0.3f, 0.3f);
 	glUniform3fv(colorID, 1, &color[0]);
@@ -868,9 +862,9 @@ void RenderScene6()
 	glDrawArrays(GL_TRIANGLES, 0, 8*3); // 12*3 indices starting at 0 -> 12 triangles
 
 
-	Model      = glm::rotate(glm::mat4(1.0f),90.0f,glm::vec3(1,0,0));
+	Model      = glm::translate(glm::mat4(1.0f), glm::vec3(1.0,-1.8, 0.2));
 	Model      = glm::scale(Model,glm::vec3(0.8,0.8,0.8));
-	Model      = glm::translate(Model,glm::vec3(1.3,-2.2,0.0));
+	
 	// MVP
 	MVP7        = Projection * View *MODEL_EVERYTHING* MODEL_LEG_2 * Model * MODEL_FOOT_2;
 	glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP7[0][0]);
@@ -880,7 +874,6 @@ void RenderScene6()
 
 	//END
 	glDisableVertexAttribArray(0);
-	glDisableVertexAttribArray(1);
 }
 
 
