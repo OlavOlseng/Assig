@@ -37,7 +37,6 @@ int main(int argc, char **argv) {
     g_iGLUTWindowHandle = glutCreateWindow( "OpenGL" );
 
     SetupGL();
-
     // Loop require by OpenGL
     glutMainLoop();
     return 0;

@@ -11,6 +11,7 @@ extern unsigned char g_eCurrentScene;
 extern  float rot_angle;
 //-------- Functions --------------------------------
 // Cleanup : This is the exist function.
+
 void Cleanup( int exitCode, bool bExit = true );
 
 
@@ -47,3 +48,4 @@ void RenderScene2();
 void RenderScene3();
 void RenderScene4();
 void RenderScene5();
+void RenderScene6();
