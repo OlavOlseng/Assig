@@ -13,7 +13,7 @@ public class CheckerTest {
 	AsState startState;
 	AStar astar;
 	//Change this variable to try different puzzle sizes
-	public static final int PIECES_PR_SIDE = 12;
+	public static final int PIECES_PR_SIDE = 16;
 	
 	
 	public CheckerTest(int piecesPerSide) {
