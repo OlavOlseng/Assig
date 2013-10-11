@@ -441,7 +441,6 @@ Projection = glm::perspective(45.0f, 4.0f/3.0f, 0.1f, 100.0f);
 
     // Draw the triangle !
     glDrawArrays(GL_TRIANGLES, 0, 36); // From index 0 to 3 -> 1 triangle
-
     glDisableVertexAttribArray(0);
 }
 
