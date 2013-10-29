@@ -6,8 +6,9 @@ public class SA<T extends SADataStruct> {
 	
 	SAObjectiveFunction<T> f; 
 	SAStateGenerator<T> generator;
-	public boolean satisfied;
-	public int run;
+	
+	public boolean satisfied; //Tells if the algorithm terminated on Ftarget
+	public int iterations; //Counts iterations 
 	
 	public SA(SAObjectiveFunction<T> f, SAStateGenerator<T> generator) {
 		this.f = f;
@@ -28,20 +29,24 @@ public class SA<T extends SADataStruct> {
 	public SADataStruct run(T P, double Ftarget, double Tmax, double dT, int n) {
 		satisfied = false;
 		double Tcurrent = Tmax;
-		run = 0;
-		//Loop begins here
+		iterations = 0;
+		
+		//Loop begins here, I use the supplied algorithm form the paper
 		while(Tcurrent > 0) {
 			double Fcurrent = f.calc(P);
 			if(Fcurrent >= Ftarget) {
 				satisfied = true;
 				break;
 			}
+			
+			//Neighbour generation
 			ArrayList<T> neighbours = new ArrayList<T>(); 
 			neighbours = generator.getNeighbours(P, n);
 			
-			double Fmax = Integer.MIN_VALUE;
+			double Fmax = f.calc(neighbours.get(0));
 			T Pmax = neighbours.get(0);
 			
+			//Find best neighbour
 			for(int i = 0; i < neighbours.size(); i++) {
 				double Ftemp = f.calc(neighbours.get(i)); 
 				if(Ftemp > Fmax) {
@@ -50,16 +55,14 @@ public class SA<T extends SADataStruct> {
 				}
 			}
 				
-//			System.out.println(Tcurrent);
 			double delta = Fmax - Fcurrent;
 			double q = (delta)/Fcurrent;
 			double temp = Math.pow(Math.E, -q / Tcurrent);
 			double p = Math.min(1.0d, temp);
-//			System.out.println("temp: " + temp + " p: "+ p);
 			double x = Math.random();
 			
-			Tcurrent -= dT/(double)(run*1.25 + 1);
-			run++;
+			iterations++;
+			Tcurrent -= dT/(double)(iterations * 1.25); // Dividing by iterations will make a curve that converges to zero
 			
 //			System.out.println("Tcurrent: " + Tcurrent);
 //			System.out.println("Fcurrent: " + Fcurrent);
@@ -67,6 +70,8 @@ public class SA<T extends SADataStruct> {
 //			System.out.println("P :" + p);
 //			System.out.println("X: " + x + " P: " + p);
 			
+			
+			///If best new solution was better, discard it with probability p, else, pick a random one. 
 			if(x > p) {
 				P = Pmax;
 			}

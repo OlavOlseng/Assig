@@ -2,6 +2,12 @@ package eggPuzzle;
 
 import framework.SADataStruct;
 
+//#############################################################
+//Standard one-dimensional array implementation of a board.
+//Uses helper methods for easy indexing.
+//Flip method for easy flipping between one and zero.
+//#############################################################
+
 public class EggStruct implements SADataStruct{
 	
 	int width, height;

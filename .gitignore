@@ -41,3 +41,7 @@ glm/
 *.classpath
 *.settings/
 log.txt
+
+#Other
+*.zip
+*.png

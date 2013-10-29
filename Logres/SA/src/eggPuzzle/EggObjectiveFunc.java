@@ -2,6 +2,13 @@ package eggPuzzle;
 
 import framework.SAObjectiveFunction;
 
+//############################################################################################
+//Evaluates every row, column and diagonal. 
+//It normalizes the score for each individual row/column/diagonal.
+//If it is filled with K elements, the row/column/diagonal gets a value of 1.
+//If a row/column/diagonal has a score > 1, the total row/column/diagonal score is set to 0.
+//############################################################################################
+
 public class EggObjectiveFunc implements SAObjectiveFunction<EggStruct>{
 	
 	private double weight = 1.0;
