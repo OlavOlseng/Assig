@@ -325,7 +325,7 @@ public class Simulator implements Constants
 		System.out.print("Average time between process arrivals (ms): ");
 		long avgArrivalInterval = readLong(reader);
 
-		SimulationGui gui = new SimulationGui(2048, 500, 500, 250000, 5000);
+		SimulationGui gui = new SimulationGui(2048, 500, 500, 250000, 100);
 //		SimulationGui gui = new SimulationGui(memorySize, maxCpuTime, avgIoTime, simulationLength, avgArrivalInterval);
 	}
 }
