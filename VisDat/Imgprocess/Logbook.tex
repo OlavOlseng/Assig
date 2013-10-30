@@ -304,7 +304,7 @@ end
 \end{lstlisting}
 
 \newpage
-\subsection{Averaging Filter}
+\subsubsection{Averaging Filter}
 Applying the function above, with the average filter and 3x3 filter, the results were as follows:
 \begin{figure}[h]
 	\centering
@@ -333,7 +333,7 @@ Applying the function above, with the average filter and 3x3 filter, the results
 As we can see, the results are not really satisfactory. Width a 5x5 filter the results were even smudgier.
 
 \newpage
-\subsection{Median Filtering}
+\subsubsection{Median Filtering}
 I applied both a 3x3 and a 5x5 median filter to the noisy images:
 \begin{figure}[h!]
 	\centering
@@ -363,7 +363,7 @@ I applied both a 3x3 and a 5x5 median filter to the noisy images:
 \\If we wanted to find a measure for how different the pictures are from the original, we could do a simple average difference between the intensity values pr. pixel.
 
 \newpage
-\subsection{Anti-alias Filters}
+\subsubsection{Anti-alias Filters}
 I used the built in functions of MatLab to apply the gaussian filters.
 Here are the results of the downsampling, with different $\sigma$:
 \begin{figure}[h]
@@ -393,7 +393,7 @@ Here are the results of the downsampling, with different $\sigma$:
 As we can see, the aliasing is almost completely gone when we get to $\sigma$ = 1.25.
 
 \newpage
-\subsection{Derivative Filters}
+\subsubsection{Derivative Filters}
 I chose to use the sobel filters for this task. I designed them by hand and slapped them into the \emph{imfilter(image, filter)} function.
 The magnitude is an approximation, simply adding together the absolute values of the two gradient images. The image I chose was Lena.
 The results are as follows:\\
@@ -417,8 +417,96 @@ The results are as follows:\\
 	\end{subfigure}
 \end{figure}
 
-Unfortunately, I did not understand how to display the vector field properly.
+Unfortunately, I did not figure out how to display the vector field properly.
 
+\newpage
+\subsection{Frequency Domain Filtering}
+\subsubsection{Fourier Transform}
+To compute and visualize the fourier transform of my images I used these steps:
+\begin{lstlisting}
+F = fft2(image);
+F2 =  fftshift(F);
+imshow(log(1+abs(F2)),[0 max]);
+\end{lstlisting}
+Where max is just above the highest pixel value of the image to be diplayed.
+
+
+\begin{figure}[h]
+	\centering
+	\begin{subfigure}[t]{0.45\textwidth}
+		\includegraphics[width = \textwidth]{lena.png}
+		\caption{Lena before}
+		\label{fig:lena.png}
+	\end{subfigure}
+	\begin{subfigure}[t]{0.45\textwidth}
+		\includegraphics[width = \textwidth]{head.png}
+		\caption{Head before}
+		\label{fig:head.png}
+	\end{subfigure}
+	\begin{subfigure}[b]{0.45\textwidth}
+		\includegraphics[width = \textwidth]{fftlena.png}
+		\caption{Fourier transform of Lena}
+		\label{fig:fftlena.png}
+	\end{subfigure}
+	\begin{subfigure}[b]{0.45\textwidth}
+		\includegraphics[width = \textwidth]{ffthead.png}
+		\caption{Fourier transform of head}
+		\label{fig:ffthead.png}
+	\end{subfigure}
+\end{figure}
+
+\newpage
+\subsubsection{Low- and High pass}
+I chose to work with the picture of Lena for this part of the exercise. 
+
+\begin{figure}[h]
+	\centering
+	\caption{The Filters}
+	\begin{subfigure}[t]{0.45\textwidth}
+		\includegraphics[width = \textwidth]{lowpass.png}
+		\caption{Lowpass filter}
+		\label{fig:lowpass.png}
+	\end{subfigure}
+	\begin{subfigure}[t]{0.45\textwidth}
+		\includegraphics[width = \textwidth]{highpass.png}
+		\caption{Highpass filter}
+		\label{fig:highpass.png}
+	\end{subfigure}
+\end{figure}
+
+And this is the script used to apply the transformations look like this:
+\begin{lstlisting}
+function res = fdFilter(image, filter)
+    SFT = fftshift(fft2(image));
+    filteredSFT = SFT .* filter;
+    res = ifft2(ifftshift(filteredSFT));
+end
+\end{lstlisting}
+
+\newpage
+To get a proper result, I had apply the absolute value to my images before viewing.
+
+\begin{figure}[h]
+	\caption{The results after filtering}
+	\centering
+	\begin{subfigure}[t]{0.52\textwidth}
+		\includegraphics[width = \textwidth]{lena.png}
+		\caption{Original}
+		\label{fig:lena.png}
+	\end{subfigure}
+	\begin{subfigure}[b]{0.49\textwidth}
+		\includegraphics[width = \textwidth]{lplena.png}
+		\caption{Lowpass filtered}
+		\label{fig:lplena.png}
+	\end{subfigure}
+	\begin{subfigure}[b]{0.49\textwidth}
+		\includegraphics[width = \textwidth]{hplena.png}
+		\caption{Highpass filtered}
+		\label{fig:hplena.png}
+	\end{subfigure}
+\end{figure}
+
+Since my Highpass filter is the inversed lowpass filtered, I end up with a black image if i apply both. This would not happen if the filters were not ideal, or the radiuses of the filters were different. Then I would have a band pass or band reject depending on the radiuses. 
 
 \end{document}
 
