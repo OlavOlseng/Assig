@@ -195,7 +195,7 @@ public class CSPQueens {
 	public static void main(String[] args) {
 		CSPQueens q = new CSPQueens();
 		int runs = 10;
-		int K = 64;
+		int K = 24;
 		long sum = 0;
 		for (int i = 0; i < runs; i++) {
 			long timer = System.currentTimeMillis();
