@@ -508,5 +508,107 @@ To get a proper result, I had apply the absolute value to my images before viewi
 
 Since my Highpass filter is the inversed lowpass filtered, I end up with a black image if i apply both. This would not happen if the filters were not ideal, or the radiuses of the filters were different. Then I would have a band pass or band reject depending on the radiuses. 
 
+\section{Exercise 3}
+\subsection{Thresholding}
+From the histgram of the supplied image, you can see that there is a slight peak around intensity value 180. Based on the other peak at around 50, I figured a sufficient threshold would be 130. I wrote a simple function to segment an image by a threshold $T$:
+
+\lstinputlisting{thresh.m}
+The results of the threshold function run on the cell image:
+\begin{figure}[h]
+	\centering
+	\begin{subfigure}[t]{0.3\textwidth}
+		\includegraphics[width = \textwidth]{threshold.png}
+		\caption{Original}
+		\label{fig:threshold.png}
+	\end{subfigure}
+	\begin{subfigure}[t]{0.3\textwidth}
+		\includegraphics[width = \textwidth]{threshold130.png}
+		\caption{$T = 130$}
+		\label{fig:threshold130.png}
+	\end{subfigure}
+	\begin{subfigure}[t]{0.3\textwidth}
+		\includegraphics[width = \textwidth]{thresholdLayer.png}
+		\caption{Original and segmented image layered and normalized}
+		\label{fig:thresholdLayer.png}
+	\end{subfigure}
+\end{figure}
+
+As you can see, this was quite successful.
+
+\newpage
+\subsubsection*{Global Thresholding}
+Here is the script i wrote, along with the result:
+
+\lstinputlisting{globalThresh.m}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width = 0.7\textwidth]{globalThresh.png}
+	\caption{Global Threshold algorithm applied}
+\end{figure}
+This apparently didn't work as intended. This is due to the $T$ value ending up around 50.
+
+\newpage
+\subsection{Region Growing}
+I developed this algorithm for for doing region growth:
+\lstinputlisting{imGrow.m}
+
+\newpage
+The seeds sent to the algorithm were as follows $[x1, y1, x2, y2,........]$: 
+\begin{verbatim}
+seeds = [238, 437, 337, 416, 499, 432, 612, 409, 687, 405, 756, 411]
+\end{verbatim}
+Here are the results of the growth algorithm run with the seeds given:
+\begin{figure}[h]
+	\begin{subfigure}[h]{0.45\textwidth}
+		\includegraphics[width = \textwidth]{region.png}
+		\caption{Original image}
+		\label{fig:region.png}
+	\end{subfigure}
+	\begin{subfigure}[h]{0.45\textwidth}
+		\includegraphics[width = \textwidth]{grow.png}
+		\caption{The result}
+		\label{fig:grow.png}
+	\end{subfigure}
+\end{figure}
+
+\newpage
+\subsection{Edge detection}
+Here are the different results. I used the built in filter2() function for the sobel filter, and the built in edge() function for the canny function.
+\begin{figure}[h]
+	\begin{subfigure}[h]{0.45\textwidth}
+		\includegraphics[width = \textwidth]{steel.png}
+		\caption{Original image}
+		\label{fig:steel.png}
+	\end{subfigure}
+	\begin{subfigure}[h]{0.45\textwidth}
+		\includegraphics[width = \textwidth]{ssobel.png}
+		\caption{Sobel 2D magnitude}
+		\label{fig:ssobel.png}
+	\end{subfigure}
+	\begin{subfigure}[h]{0.45\textwidth}
+		\includegraphics[width = \textwidth]{cannysteel.png}
+		\caption{Canny edge detection}
+		\label{fig:cannysteel.png}
+	\end{subfigure}
+\end{figure}
+
+\newpage
+\subsection{Hough Transform}
+I had some issues making it work, but I managed it in the end!
+\begin{figure}[h]
+	\begin{subfigure}[h]{0.45\textwidth}
+		\includegraphics[width = \textwidth]{houghLines.png}
+		\caption{Hough Transform}
+		\label{fig:houghLines.png}
+	\end{subfigure}
+	\begin{subfigure}[h]{0.45\textwidth}
+		\includegraphics[width = \textwidth]{houghTrans.png}
+		\caption{Hough Lines}
+		\label{fig:houghTrans.png}
+	\end{subfigure}
+\end{figure}
+
+
 \end{document}
 
