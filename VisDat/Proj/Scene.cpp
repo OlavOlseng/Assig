@@ -1,60 +1,66 @@
 #include "Scene.hpp"
+
 #include <math.h>
+#include <cstdlib>
 #include <iostream>
+#include <fstream>
 #include <ctime>
 #include <GL/glew.h>
 #include <GL/freeglut.h>
-#include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
-
-#include "shader.hpp"
 #include <time.h>
 #include <vector>
+#include <string>
 
+#include "shader.hpp"
+#include "ModelStruct.h"
 
 
 #define PI 3.14159265359
 
-#define mouseSpeed 0.00005f
+#define mouseSpeed 0.00002f
 
-#define cursor_speed 0.0218f
+#define cursor_speed 0.718f
 // units per second
 
 
 // This will be used with shader
 //GLuint VertexArrayID;
-GLuint vertexbuffer, colorbuffer, footbuffer;
-GLuint objvertexbuffer; // for obj
-GLuint programID_1, programID_2;
+GLuint vertexbuffer;
+GLuint* numbers;
+GLuint programID_1;
 
 int last_time, current_time;
 
 GLuint MatrixID; // Handler Matrix for moving the cam
-GLuint colorID;
+GLuint colorID;  //Shader handle for color vec3
 
 glm::vec3 color;
-glm::mat4 MVP; // FInal Homogeneous Matrix
+glm::mat4 MVP; // Final Homogeneous Matrix
 
-glm::mat4 MVP1;
-glm::mat4 Projection, View, Model;
+glm::mat4 Projection, View;
+std::vector<ModelStruct*> models;
+std::vector<ModelStruct*> numberModels;
 
 // Variables for moving camera with mouse
 int mouse_x = 800/2;
 int mouse_y = 600/2;
 int mouse_button =  GLUT_LEFT_BUTTON;
 int mouse_state = GLUT_UP;
-int sp_key =0;
+int sp_key = 0;
+
+int colors[6] = {0, 0, 0, 0, 0, 0};
 
 float counter=0;
 // Initial position : on +Z
-glm::vec3 position = glm::vec3(0.0f, 0.0f, -5);
+glm::vec3 position = glm::vec3(50.0f, 30.0f, 50.0f);
 // Initial horizontal angle : toward -Z
 float horizontalAngle = 0.0f;
 // Initial vertical angle : none
 float verticalAngle = 0.0f;
 // Initial Field of View
-float initialFoV = 90.0f;
-glm::vec3 direction =  glm::vec3(0, 0, 0) - position;
+float initialFoV = 80.0f;
+glm::vec3 direction =  glm::vec3(position.x, position.y, 0.0f) - position;
 glm::vec3 right  = glm::vec3(1.0f, 0, 0) ;
 glm::vec3 up = glm::vec3(0, 1, 0);
 
@@ -91,6 +97,7 @@ void Idle()
 	current_time = glutGet(GLUT_ELAPSED_TIME);
 
 	int dt = current_time - last_time;
+	counter += dt;
 
 		if(mouse_state ==  GLUT_DOWN)
 		{
@@ -152,6 +159,7 @@ void Idle()
 			up
 			);
 	
+
 	glutPostRedisplay();
 	last_time = current_time;// update when the last timer;
 }
@@ -239,33 +247,86 @@ void DisplayGL()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);  // Clean up the colour of the window
 	// and the depth buffer
 
-	Render();
+	RenderImage();
 
 	glutSwapBuffers();
 }
 
-void Render()
+void RenderImage()
 {    // Disable depth test
 	// Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
 	// Camera matrix
-	View       = glm::lookAt(
+	View = glm::lookAt(
 		position, // Camera
 		position + direction, // look at coord
 		up  // up-vec
 		);
 
-	// Model matrix : an identity matrix (model will be at the origin)
-	Model      = glm::mat4(1.0f);
-	// Our ModelViewProjection : multiplication of our 3 matrices
-	MVP        = Projection * View * Model; // Remember, matrix multiplication is the other way around
-	// Use our shader
+	for (int i = 0; i < 6; i++)
+	{
+		glm::mat4 Model = glm::mat4(1.0f);
+		glm::vec3 temp = *models[i] -> position + glm::vec3(0.0f, -5.0f, 0.0f);
+		RenderNumber(colors[i], temp, counter/12.0f);
+	}
+
+	for (int i = 0; i < models.size(); i++ )
+	{
+		glm::mat4 Model = glm::mat4(1.0f);
+		//glm::rotate(Model, *models[i] -> rotation, up);
+		Model = glm::translate(Model, *(models[i] -> position));
+
+		MVP        = Projection * View * Model; // Remember, matrix multiplication is the other way around
+		// Use our shader
+		glUseProgram(programID_1);
+		// Send our transformation to the currently bound shader,
+		// in the "MVP" uniform
+		color = *(models[i] -> color);
+		glUniform3fv(colorID, 1, &color[0]);
+		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
+		// 1rst attribute buffer : vertices
+		glEnableVertexAttribArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, *models[i] -> modelHandle);
+		glVertexAttribPointer(
+			0,                  // attribute. No particular reason for 0, but must match the layout in the shader.
+			3,                  // size
+			GL_FLOAT,           // type
+			GL_FALSE,           // normalized?
+			0,                  // stride
+			(void*)0            // array buffer offset
+			);
+
+		// Draw the triangles
+		glDrawArrays(GL_TRIANGLES, 0, models[i]->vertices);
+		glDisableVertexAttribArray(0);
+	}
+}
+
+void RenderNumber(int number, glm::vec3 position, float rotation)
+{
+	glDisable(GL_CULL_FACE);
+	
+	bool big = (number >= 10);
+	int ones = number % 10; 
+	int tens = number / 10;
+
+	glm::mat4 Offset = glm::mat4(1.0f);
+	if(big) 
+	{
+	Offset = glm::translate(Offset, glm::vec3(1.0f, 0.0f, 0.0f));
+	}
+	
+	glm::mat4 Model = glm::mat4(1.0f);
+	Model = glm::translate(Model, position);
+	Model = glm::rotate(Model, rotation, glm::vec3(0.0f, 1.0f, 0.0f));
+
 	glUseProgram(programID_1);
-	// Send our transformation to the currently bound shader,
-	// in the "MVP" uniform
+	color = glm::vec3(1.0f, 1.0f, 1.0f);
+	glUniform3fv(colorID, 1, &color[0]);
+
+	MVP        = Projection * View * Model * Offset;
 	glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
-	// 1rst attribute buffer : vertices
 	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, *numberModels[ones] -> modelHandle);
 	glVertexAttribPointer(
 		0,                  // attribute. No particular reason for 0, but must match the layout in the shader.
 		3,                  // size
@@ -275,17 +336,39 @@ void Render()
 		(void*)0            // array buffer offset
 		);
 
-	// Draw the triangles
-	glDrawArrays(GL_TRIANGLES, 0, 12*3); // 12*3 indices starting at 0 -> 12 triangles
+	glDrawArrays(GL_TRIANGLES, 0, numberModels[ones]->vertices);
 	glDisableVertexAttribArray(0);
+
+	if(!big) return;
+
+	Offset = glm::translate(glm::mat4(1.0f), glm::vec3(-1.0f, 0.0f, 0.0f));
+	MVP        = Projection * View * Model * Offset;
+
+	glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
+	glEnableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, *numberModels[tens] -> modelHandle);
+	glVertexAttribPointer(
+		0,                  // attribute. No particular reason for 0, but must match the layout in the shader.
+		3,                  // size
+		GL_FLOAT,           // type
+		GL_FALSE,           // normalized?
+		0,                  // stride
+		(void*)0            // array buffer offset
+		);
+
+	glDrawArrays(GL_TRIANGLES, 0, numberModels[tens]->vertices);
+
+	glEnable(GL_CULL_FACE);
 }
 
 void SetupGL() //
 {
 
+	glEnable(GL_CULL_FACE);
+	glEnable(GL_DEPTH);
 	//Parameter handling
 	glShadeModel (GL_SMOOTH);
-
+	numbers = new GLuint[10];
 	Projection = glm::perspective(initialFoV, 4.0f / 3.0f, 0.1f, 100.0f);
 
 	// Accept fragment if it closer to the camera than the former one
@@ -336,48 +419,813 @@ void SetupGL() //
 
 	//VBO -- VERTEX
 	static const GLfloat g_nonstop_buffer_data[] = {
-		-1.0f,-1.0f,-1.0f,
-		-1.0f,-1.0f, 1.0f,
-		-1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f,-1.0f,
-		-1.0f,-1.0f,-1.0f,
-		-1.0f, 1.0f,-1.0f,
-		1.0f,-1.0f, 1.0f,
-		-1.0f,-1.0f,-1.0f,
-		1.0f,-1.0f,-1.0f,
-		1.0f, 1.0f,-1.0f,
-		1.0f,-1.0f,-1.0f,
-		-1.0f,-1.0f,-1.0f,
-		-1.0f,-1.0f,-1.0f,
-		-1.0f, 1.0f, 1.0f,
-		-1.0f, 1.0f,-1.0f,
-		1.0f,-1.0f, 1.0f,
-		-1.0f,-1.0f, 1.0f,
-		-1.0f,-1.0f,-1.0f,
-		-1.0f, 1.0f, 1.0f,
-		-1.0f,-1.0f, 1.0f,
-		1.0f,-1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f,
-		1.0f,-1.0f,-1.0f,
-		1.0f, 1.0f,-1.0f,
-		1.0f,-1.0f,-1.0f,
-		1.0f, 1.0f, 1.0f,
-		1.0f,-1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f,-1.0f,
-		-1.0f, 1.0f,-1.0f,
-		1.0f, 1.0f, 1.0f,
-		-1.0f, 1.0f,-1.0f,
-		-1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f,
-		-1.0f, 1.0f, 1.0f,
-		1.0f,-1.0f, 1.0f
+		//Front
+		0.0f, 0.0f, 0.3f,
+		0.6f, 0.3f, 0.0f,
+		0.3f, 0.6f, 0.0f,
+
+		0.0f, 0.0f, 0.3f,
+		0.3f, 0.6f, 0.0f,
+		-0.3f, 0.6f, 0.0f,
+
+		0.0f, 0.0f, 0.3f,
+		-0.3f, 0.6f, 0.0f,
+		-0.6f, 0.3f, 0.0f,
+
+		0.0f, 0.0f, 0.3f,
+		-0.6f, 0.3f, 0.0f,
+		-0.6f, -0.3f, 0.0f,
+
+		0.0f, 0.0f, 0.3f,
+		-0.6f, -0.3f, 0.0f,
+		-0.3f, -0.6f, 0.0f,
+
+		0.0f, 0.0f, 0.3f,
+		-0.3f, -0.6f, 0.0f,
+		0.3f, -0.6f, 0.0f,
+
+		0.0f, 0.0f, 0.3f,
+		0.3f, -0.6f, 0.0f,
+		0.6f, -0.3f, 0.0f,
+
+		0.0f, 0.0f, 0.3f,
+		0.6f, -0.3f, 0.0f,
+		0.6f, 0.3f, 0.0f,
+
+		//Back
+		0.0f, 0.0f, -0.3f,
+		0.3f, 0.6f, 0.0f,
+		0.6f, 0.3f, 0.0f,
+
+		0.0f, 0.0f, -0.3f,
+		-0.3f, 0.6f, 0.0f,
+		0.3f, 0.6f, 0.0f,
+
+		0.0f, 0.0f, -0.3f,
+		-0.6f, 0.3f, 0.0f,
+		-0.3f, 0.6f, 0.0f,
+
+		0.0f, 0.0f, -0.3f,
+		-0.6f, -0.3f, 0.0f,
+		-0.6f, 0.3f, 0.0f,
+
+		0.0f, 0.0f, -0.3f,
+		-0.3f, -0.6f, 0.0f,
+		-0.6f, -0.3f, 0.0f,
+
+		0.0f, 0.0f, -0.3f,
+		0.3f, -0.6f, 0.0f,
+		-0.3f, -0.6f, 0.0f,
+
+		0.0f, 0.0f, -0.3f,
+		0.6f, -0.3f, 0.0f,
+		0.3f, -0.6f, 0.0f,
+
+		0.0f, 0.0f, -0.3f,
+		0.6f, 0.3f, 0.0f,
+		0.6f, -0.3f, 0.0f,
+
 	};
 
-	// Generate 1 buffer, put the resulting identifier in vertexbuffer
 	glGenBuffers(1, &vertexbuffer);
-	// The following commands will talk about our 'vertexbuffer' buffer
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-	// Give our vertices to OpenGL.
 	glBufferData(GL_ARRAY_BUFFER, sizeof(g_nonstop_buffer_data), g_nonstop_buffer_data, GL_STATIC_DRAW);
+	
+	static const GLfloat g_zero_buffer_data[] = 
+	{
+		//Horziontals
+		//super_
+		-0.5f, 0.8, 0.0f,
+		-0.5f, 0.6f, 0.0f,
+		0.5f, 0.8, 0.0f,
+
+		-0.5f, 0.6f, 0.0f,
+		0.5f, 0.6f, 0.0f,
+		0.5f, 0.8f, 0.0f,
+
+		//sub_
+		-0.5f, -0.6, 0.0f,
+		-0.5f, -0.8f, 0.0f,
+		0.5f, -0.6f, 0.0f,
+
+		-0.5f, -0.8f, 0.0f,
+		0.5f, -0.8f, 0.0f,
+		0.5f, -0.6f, 0.0f,
+
+
+		//Verticals
+		//Ltop |
+		-0.5f, 0.8, 0.0f,
+		-0.5f, 0.1f, 0.0f,
+		-0.3f, 0.8f, 0.0f,
+
+		-0.5f, 0.1f, 0.0f,
+		-0.3f, 0.1f, 0.0f,
+		-0.3f, 0.8f, 0.0f,
+
+		//Lbot |
+		-0.5f, -0.8, 0.0f,
+		-0.5f, -0.1f, 0.0f,
+		-0.3f, -0.8f, 0.0f,
+
+		-0.5f, -0.1f, 0.0f,
+		-0.3f, -0.1f, 0.0f,
+		-0.3f, -0.8f, 0.0f,
+
+		//Rtop |
+		0.5f, 0.8, 0.0f,
+		0.5f, 0.1f, 0.0f,
+		0.3f, 0.8f, 0.0f,
+
+		0.5f, 0.1f, 0.0f,
+		0.3f, 0.1f, 0.0f,
+		0.3f, 0.8f, 0.0f,
+
+		//Rbot |
+		0.5f, -0.8, 0.0f,
+		0.5f, -0.1f, 0.0f,
+		0.3f, -0.8f, 0.0f,
+
+		0.5f, -0.1f, 0.0f,
+		0.3f, -0.1f, 0.0f,
+		0.3f, -0.8f, 0.0f,
+	};
+
+	glGenBuffers(1, &numbers[0]);
+	glBindBuffer(GL_ARRAY_BUFFER, numbers[0]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(g_zero_buffer_data), g_zero_buffer_data, GL_STATIC_DRAW);
+
+	static const GLfloat g_one_buffer_data[] = 
+	{
+		
+		//Verticals
+		//Rtop |
+		0.5f, 0.8, 0.0f,
+		0.5f, 0.1f, 0.0f,
+		0.3f, 0.8f, 0.0f,
+
+		0.5f, 0.1f, 0.0f,
+		0.3f, 0.1f, 0.0f,
+		0.3f, 0.8f, 0.0f,
+
+		//Rbot |
+		0.5f, -0.8, 0.0f,
+		0.5f, -0.1f, 0.0f,
+		0.3f, -0.8f, 0.0f,
+
+		0.5f, -0.1f, 0.0f,
+		0.3f, -0.1f, 0.0f,
+		0.3f, -0.8f, 0.0f,
+
+	};
+
+	glGenBuffers(1, &numbers[1]);
+	glBindBuffer(GL_ARRAY_BUFFER, numbers[1]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(g_one_buffer_data), g_one_buffer_data, GL_STATIC_DRAW);
+
+	static const GLfloat g_two_buffer_data[] = 
+	{
+		//Horziontals
+		//super_
+		-0.5f, 0.8, 0.0f,
+		-0.5f, 0.6f, 0.0f,
+		0.5f, 0.8, 0.0f,
+
+		-0.5f, 0.6f, 0.0f,
+		0.5f, 0.6f, 0.0f,
+		0.5f, 0.8f, 0.0f,
+
+		//mid _
+		-0.5f, 0.1, 0.0f,
+		-0.5f, -0.1f, 0.0f,
+		0.5f, 0.1, 0.0f,
+
+		-0.5f, -0.1f, 0.0f,
+		0.5f, -0.1f, 0.0f,
+		0.5f, 0.1f, 0.0f,
+
+		//sub_
+		-0.5f, -0.6, 0.0f,
+		-0.5f, -0.8f, 0.0f,
+		0.5f, -0.6f, 0.0f,
+
+		-0.5f, -0.8f, 0.0f,
+		0.5f, -0.8f, 0.0f,
+		0.5f, -0.6f, 0.0f,
+
+
+		//Verticals
+
+		//Lbot |
+		-0.5f, -0.8, 0.0f,
+		-0.5f, -0.1f, 0.0f,
+		-0.3f, -0.8f, 0.0f,
+
+		-0.5f, -0.1f, 0.0f,
+		-0.3f, -0.1f, 0.0f,
+		-0.3f, -0.8f, 0.0f,
+
+		//Rtop |
+		0.5f, 0.8, 0.0f,
+		0.5f, 0.1f, 0.0f,
+		0.3f, 0.8f, 0.0f,
+
+		0.5f, 0.1f, 0.0f,
+		0.3f, 0.1f, 0.0f,
+		0.3f, 0.8f, 0.0f,
+	};
+
+	glGenBuffers(1, &numbers[2]);
+	glBindBuffer(GL_ARRAY_BUFFER, numbers[2]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(g_two_buffer_data), g_two_buffer_data, GL_STATIC_DRAW);
+	
+	static const GLfloat g_three_buffer_data[] = 
+	{
+		//Horziontals
+		//super_
+		-0.5f, 0.8, 0.0f,
+		-0.5f, 0.6f, 0.0f,
+		0.5f, 0.8, 0.0f,
+
+		-0.5f, 0.6f, 0.0f,
+		0.5f, 0.6f, 0.0f,
+		0.5f, 0.8f, 0.0f,
+
+		//mid _
+		-0.5f, 0.1, 0.0f,
+		-0.5f, -0.1f, 0.0f,
+		0.5f, 0.1, 0.0f,
+
+		-0.5f, -0.1f, 0.0f,
+		0.5f, -0.1f, 0.0f,
+		0.5f, 0.1f, 0.0f,
+
+		//sub_
+		-0.5f, -0.6, 0.0f,
+		-0.5f, -0.8f, 0.0f,
+		0.5f, -0.6f, 0.0f,
+
+		-0.5f, -0.8f, 0.0f,
+		0.5f, -0.8f, 0.0f,
+		0.5f, -0.6f, 0.0f,
+
+
+		//Verticals
+		//Rtop |
+		0.5f, 0.8, 0.0f,
+		0.5f, 0.1f, 0.0f,
+		0.3f, 0.8f, 0.0f,
+
+		0.5f, 0.1f, 0.0f,
+		0.3f, 0.1f, 0.0f,
+		0.3f, 0.8f, 0.0f,
+
+		//Rbot |
+		0.5f, -0.8, 0.0f,
+		0.5f, -0.1f, 0.0f,
+		0.3f, -0.8f, 0.0f,
+
+		0.5f, -0.1f, 0.0f,
+		0.3f, -0.1f, 0.0f,
+		0.3f, -0.8f, 0.0f,
+	};
+
+	glGenBuffers(1, &numbers[3]);
+	glBindBuffer(GL_ARRAY_BUFFER, numbers[3]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(g_three_buffer_data), g_three_buffer_data, GL_STATIC_DRAW);
+	
+	static const GLfloat g_four_buffer_data[] = 
+	{
+		//Horziontals
+		//mid _
+		-0.5f, 0.1, 0.0f,
+		-0.5f, -0.1f, 0.0f,
+		0.5f, 0.1, 0.0f,
+
+		-0.5f, -0.1f, 0.0f,
+		0.5f, -0.1f, 0.0f,
+		0.5f, 0.1f, 0.0f,
+
+		//Verticals
+		//Ltop |
+		-0.5f, 0.8, 0.0f,
+		-0.5f, 0.1f, 0.0f,
+		-0.3f, 0.8f, 0.0f,
+
+		-0.5f, 0.1f, 0.0f,
+		-0.3f, 0.1f, 0.0f,
+		-0.3f, 0.8f, 0.0f,
+
+		//Rtop |
+		0.5f, 0.8, 0.0f,
+		0.5f, 0.1f, 0.0f,
+		0.3f, 0.8f, 0.0f,
+
+		0.5f, 0.1f, 0.0f,
+		0.3f, 0.1f, 0.0f,
+		0.3f, 0.8f, 0.0f,
+
+		//Rbot |
+		0.5f, -0.8, 0.0f,
+		0.5f, -0.1f, 0.0f,
+		0.3f, -0.8f, 0.0f,
+
+		0.5f, -0.1f, 0.0f,
+		0.3f, -0.1f, 0.0f,
+		0.3f, -0.8f, 0.0f,
+	};
+
+	glGenBuffers(1, &numbers[4]);
+	glBindBuffer(GL_ARRAY_BUFFER, numbers[4]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(g_four_buffer_data), g_four_buffer_data, GL_STATIC_DRAW);
+
+	static const GLfloat g_five_buffer_data[] = 
+	{
+		//Horziontals
+		//super_
+		-0.5f, 0.8, 0.0f,
+		-0.5f, 0.6f, 0.0f,
+		0.5f, 0.8, 0.0f,
+
+		-0.5f, 0.6f, 0.0f,
+		0.5f, 0.6f, 0.0f,
+		0.5f, 0.8f, 0.0f,
+
+		//mid _
+		-0.5f, 0.1, 0.0f,
+		-0.5f, -0.1f, 0.0f,
+		0.5f, 0.1, 0.0f,
+
+		-0.5f, -0.1f, 0.0f,
+		0.5f, -0.1f, 0.0f,
+		0.5f, 0.1f, 0.0f,
+
+		//sub_
+		-0.5f, -0.6, 0.0f,
+		-0.5f, -0.8f, 0.0f,
+		0.5f, -0.6f, 0.0f,
+
+		-0.5f, -0.8f, 0.0f,
+		0.5f, -0.8f, 0.0f,
+		0.5f, -0.6f, 0.0f,
+
+
+		//Verticals
+		//Ltop |
+		-0.5f, 0.8, 0.0f,
+		-0.5f, 0.1f, 0.0f,
+		-0.3f, 0.8f, 0.0f,
+
+		-0.5f, 0.1f, 0.0f,
+		-0.3f, 0.1f, 0.0f,
+		-0.3f, 0.8f, 0.0f,
+
+		//Rbot |
+		0.5f, -0.8, 0.0f,
+		0.5f, -0.1f, 0.0f,
+		0.3f, -0.8f, 0.0f,
+
+		0.5f, -0.1f, 0.0f,
+		0.3f, -0.1f, 0.0f,
+		0.3f, -0.8f, 0.0f,
+	};
+
+	glGenBuffers(1, &numbers[5]);
+	glBindBuffer(GL_ARRAY_BUFFER, numbers[5]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(g_five_buffer_data), g_five_buffer_data, GL_STATIC_DRAW);
+
+	static const GLfloat g_six_buffer_data[] = 
+	{
+		//Horziontals
+		//super_
+		-0.5f, 0.8, 0.0f,
+		-0.5f, 0.6f, 0.0f,
+		0.5f, 0.8, 0.0f,
+
+		-0.5f, 0.6f, 0.0f,
+		0.5f, 0.6f, 0.0f,
+		0.5f, 0.8f, 0.0f,
+
+		//mid _
+		-0.5f, 0.1, 0.0f,
+		-0.5f, -0.1f, 0.0f,
+		0.5f, 0.1, 0.0f,
+
+		-0.5f, -0.1f, 0.0f,
+		0.5f, -0.1f, 0.0f,
+		0.5f, 0.1f, 0.0f,
+
+		//sub_
+		-0.5f, -0.6, 0.0f,
+		-0.5f, -0.8f, 0.0f,
+		0.5f, -0.6f, 0.0f,
+
+		-0.5f, -0.8f, 0.0f,
+		0.5f, -0.8f, 0.0f,
+		0.5f, -0.6f, 0.0f,
+
+
+		//Verticals
+		//Ltop |
+		-0.5f, 0.8, 0.0f,
+		-0.5f, 0.1f, 0.0f,
+		-0.3f, 0.8f, 0.0f,
+
+		-0.5f, 0.1f, 0.0f,
+		-0.3f, 0.1f, 0.0f,
+		-0.3f, 0.8f, 0.0f,
+
+		//Lbot |
+		-0.5f, -0.8, 0.0f,
+		-0.5f, -0.1f, 0.0f,
+		-0.3f, -0.8f, 0.0f,
+
+		-0.5f, -0.1f, 0.0f,
+		-0.3f, -0.1f, 0.0f,
+		-0.3f, -0.8f, 0.0f,
+
+		//Rbot |
+		0.5f, -0.8, 0.0f,
+		0.5f, -0.1f, 0.0f,
+		0.3f, -0.8f, 0.0f,
+
+		0.5f, -0.1f, 0.0f,
+		0.3f, -0.1f, 0.0f,
+		0.3f, -0.8f, 0.0f,
+	};
+
+	glGenBuffers(1, &numbers[6]);
+	glBindBuffer(GL_ARRAY_BUFFER, numbers[6]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(g_six_buffer_data), g_six_buffer_data, GL_STATIC_DRAW);
+
+	static const GLfloat g_seven_buffer_data[] = 
+	{
+		//Horziontals
+		//super_
+		-0.5f, 0.8, 0.0f,
+		-0.5f, 0.6f, 0.0f,
+		0.5f, 0.8, 0.0f,
+
+		-0.5f, 0.6f, 0.0f,
+		0.5f, 0.6f, 0.0f,
+		0.5f, 0.8f, 0.0f,
+
+		//Verticals
+		//Ltop |
+		-0.5f, 0.8, 0.0f,
+		-0.5f, 0.1f, 0.0f,
+		-0.3f, 0.8f, 0.0f,
+
+		-0.5f, 0.1f, 0.0f,
+		-0.3f, 0.1f, 0.0f,
+		-0.3f, 0.8f, 0.0f,
+
+		//Rtop |
+		0.5f, 0.8, 0.0f,
+		0.5f, 0.1f, 0.0f,
+		0.3f, 0.8f, 0.0f,
+
+		0.5f, 0.1f, 0.0f,
+		0.3f, 0.1f, 0.0f,
+		0.3f, 0.8f, 0.0f,
+
+		//Rbot |
+		0.5f, -0.8, 0.0f,
+		0.5f, -0.1f, 0.0f,
+		0.3f, -0.8f, 0.0f,
+
+		0.5f, -0.1f, 0.0f,
+		0.3f, -0.1f, 0.0f,
+		0.3f, -0.8f, 0.0f,
+	};
+
+	glGenBuffers(1, &numbers[7]);
+	glBindBuffer(GL_ARRAY_BUFFER, numbers[7]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(g_seven_buffer_data), g_seven_buffer_data, GL_STATIC_DRAW);
+
+	static const GLfloat g_eight_buffer_data[] = 
+	{
+		//Horziontals
+		//super_
+		-0.5f, 0.8, 0.0f,
+		-0.5f, 0.6f, 0.0f,
+		0.5f, 0.8, 0.0f,
+
+		-0.5f, 0.6f, 0.0f,
+		0.5f, 0.6f, 0.0f,
+		0.5f, 0.8f, 0.0f,
+
+		//mid _
+		-0.5f, 0.1, 0.0f,
+		-0.5f, -0.1f, 0.0f,
+		0.5f, 0.1, 0.0f,
+
+		-0.5f, -0.1f, 0.0f,
+		0.5f, -0.1f, 0.0f,
+		0.5f, 0.1f, 0.0f,
+
+		//sub_
+		-0.5f, -0.6, 0.0f,
+		-0.5f, -0.8f, 0.0f,
+		0.5f, -0.6f, 0.0f,
+
+		-0.5f, -0.8f, 0.0f,
+		0.5f, -0.8f, 0.0f,
+		0.5f, -0.6f, 0.0f,
+
+
+		//Verticals
+		//Ltop |
+		-0.5f, 0.8, 0.0f,
+		-0.5f, 0.1f, 0.0f,
+		-0.3f, 0.8f, 0.0f,
+
+		-0.5f, 0.1f, 0.0f,
+		-0.3f, 0.1f, 0.0f,
+		-0.3f, 0.8f, 0.0f,
+
+		//Lbot |
+		-0.5f, -0.8, 0.0f,
+		-0.5f, -0.1f, 0.0f,
+		-0.3f, -0.8f, 0.0f,
+
+		-0.5f, -0.1f, 0.0f,
+		-0.3f, -0.1f, 0.0f,
+		-0.3f, -0.8f, 0.0f,
+
+		//Rtop |
+		0.5f, 0.8, 0.0f,
+		0.5f, 0.1f, 0.0f,
+		0.3f, 0.8f, 0.0f,
+
+		0.5f, 0.1f, 0.0f,
+		0.3f, 0.1f, 0.0f,
+		0.3f, 0.8f, 0.0f,
+
+		//Rbot |
+		0.5f, -0.8, 0.0f,
+		0.5f, -0.1f, 0.0f,
+		0.3f, -0.8f, 0.0f,
+
+		0.5f, -0.1f, 0.0f,
+		0.3f, -0.1f, 0.0f,
+		0.3f, -0.8f, 0.0f,
+	};
+
+	glGenBuffers(1, &numbers[8]);
+	glBindBuffer(GL_ARRAY_BUFFER, numbers[8]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(g_eight_buffer_data), g_eight_buffer_data, GL_STATIC_DRAW);
+
+	static const GLfloat g_nine_buffer_data[] = 
+	{
+		//Horziontals
+		//super_
+		-0.5f, 0.8, 0.0f,
+		-0.5f, 0.6f, 0.0f,
+		0.5f, 0.8, 0.0f,
+
+		-0.5f, 0.6f, 0.0f,
+		0.5f, 0.6f, 0.0f,
+		0.5f, 0.8f, 0.0f,
+
+		//mid _
+		-0.5f, 0.1, 0.0f,
+		-0.5f, -0.1f, 0.0f,
+		0.5f, 0.1, 0.0f,
+
+		-0.5f, -0.1f, 0.0f,
+		0.5f, -0.1f, 0.0f,
+		0.5f, 0.1f, 0.0f,
+
+		//Verticals
+		//Ltop |
+		-0.5f, 0.8, 0.0f,
+		-0.5f, 0.1f, 0.0f,
+		-0.3f, 0.8f, 0.0f,
+
+		-0.5f, 0.1f, 0.0f,
+		-0.3f, 0.1f, 0.0f,
+		-0.3f, 0.8f, 0.0f,
+
+		//Rtop |
+		0.5f, 0.8, 0.0f,
+		0.5f, 0.1f, 0.0f,
+		0.3f, 0.8f, 0.0f,
+
+		0.5f, 0.1f, 0.0f,
+		0.3f, 0.1f, 0.0f,
+		0.3f, 0.8f, 0.0f,
+
+		//Rbot |
+		0.5f, -0.8, 0.0f,
+		0.5f, -0.1f, 0.0f,
+		0.3f, -0.8f, 0.0f,
+
+		0.5f, -0.1f, 0.0f,
+		0.3f, -0.1f, 0.0f,
+		0.3f, -0.8f, 0.0f,
+	};
+
+	glGenBuffers(1, &numbers[9]);
+	glBindBuffer(GL_ARRAY_BUFFER, numbers[9]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(g_nine_buffer_data), g_nine_buffer_data, GL_STATIC_DRAW);
+
+
+
+	
+	genScene("counter.txt");
+}
+
+void genScene(const char* path) 
+{
+	float distScale = 1.0f/12.0f;
+	float px, py;
+	
+	std::string color;
+	std::ifstream file;
+	
+	//Create the counter
+	file.open("counter.txt");
+	
+	while(file >> px >> py >> color)
+	{
+		ModelStruct* m = new ModelStruct;
+		m -> position = new glm::vec3(px * distScale, py * distScale, 0.0f);
+
+		switch(color[0]) 
+		{
+		case 'r':
+			{
+			m -> color = new glm::vec3(1.0f, 0.0f, 0.0f);
+			}
+		break;
+		case 'g':
+			{
+			m -> color = new glm::vec3(0.0f, 1.0f, 0.0f);
+			}
+		break;
+		case 'b':
+			{
+			m -> color = new glm::vec3(0.0f, 0.0f, 1.0f);
+			}
+		break;
+		case 'y':
+			{
+			m -> color = new glm::vec3(1.0f, 1.0f, 0.0f);
+			}
+		break;
+		case 'o':
+			{
+			m -> color = new glm::vec3(1.0f, 0.5f, 0.0f);
+			}
+		break;
+		case 'p':
+			{
+			m -> color = new glm::vec3(1.0f, 0.0f, 1.0f);
+			}
+		break;
+		}
+
+		m -> rotation = 0;
+		m -> vertices = 16*3*3;
+		m -> modelHandle = &vertexbuffer;
+		models.push_back(m);	
+		std::cout << "X: " << px << " Y: " << py << " C: " << color <<  std::endl;
+	}
+	file.close();
+
+	ModelStruct* m = new ModelStruct;
+	m -> color = new glm::vec3(1.0f, 1.0f, 1.0f);
+	m -> position = new glm::vec3(position);
+	m -> rotation = 0;
+	m -> modelHandle = &numbers[0];
+	m -> vertices = 3*2*6;
+	numberModels.push_back(m);
+
+	m = new ModelStruct;
+	m -> color = new glm::vec3(1.0f, 1.0f, 1.0f);
+	m -> position = new glm::vec3(position);
+	m -> rotation = 0;
+	m -> modelHandle = &numbers[1];
+	m -> vertices = 3*2*2;
+	numberModels.push_back(m);
+
+	m = new ModelStruct;
+	m -> color = new glm::vec3(1.0f, 1.0f, 1.0f);
+	m -> position = new glm::vec3(position);
+	m -> rotation = 0;
+	m -> modelHandle = &numbers[2];
+	m -> vertices = 3*2*5;
+	numberModels.push_back(m);
+
+	m = new ModelStruct;
+	m -> color = new glm::vec3(1.0f, 1.0f, 1.0f);
+	m -> position = new glm::vec3(position);
+	m -> rotation = 0;
+	m -> modelHandle = &numbers[3];
+	m -> vertices = 3*2*7;
+	numberModels.push_back(m);
+
+	m = new ModelStruct;
+	m -> color = new glm::vec3(1.0f, 1.0f, 1.0f);
+	m -> position = new glm::vec3(position);
+	m -> rotation = 0;
+	m -> modelHandle = &numbers[4];
+	m -> vertices = 3*2*4;
+	numberModels.push_back(m);
+
+	m = new ModelStruct;
+	m -> color = new glm::vec3(1.0f, 1.0f, 1.0f);
+	m -> position = new glm::vec3(position);
+	m -> rotation = 0;
+	m -> modelHandle = &numbers[5];
+	m -> vertices = 3*2*5;
+	numberModels.push_back(m);
+
+	m = new ModelStruct;
+	m -> color = new glm::vec3(1.0f, 1.0f, 1.0f);
+	m -> position = new glm::vec3(position);
+	m -> rotation = 0;
+	m -> modelHandle = &numbers[6];
+	m -> vertices = 3*2*6;
+	numberModels.push_back(m);
+
+	m = new ModelStruct;
+	m -> color = new glm::vec3(1.0f, 1.0f, 1.0f);
+	m -> position = new glm::vec3(position);
+	m -> rotation = 0;
+	m -> modelHandle = &numbers[7];
+	m -> vertices = 3*2*4;
+	numberModels.push_back(m);
+
+	m = new ModelStruct;
+	m -> color = new glm::vec3(1.0f, 1.0f, 1.0f);
+	m -> position = new glm::vec3(position);
+	m -> rotation = 0;
+	m -> modelHandle = &numbers[8];
+	m -> vertices = 3*2*7;
+	numberModels.push_back(m);
+
+	m = new ModelStruct;
+	m -> color = new glm::vec3(1.0f, 1.0f, 1.0f);
+	m -> position = new glm::vec3(position);
+	m -> rotation = 0;
+	m -> modelHandle = &numbers[9];
+	m -> vertices = 3*2*5;
+	numberModels.push_back(m);
+
+	file.open("data.txt");
+	
+	while(file >> px >> py >> color)
+	{
+		ModelStruct* m = new ModelStruct;
+		m -> position = new glm::vec3(px * distScale, 50 -py * distScale, 0.0f);
+		switch(color[0]) 
+		{
+		case 'r':
+			{
+			colors[0]++;
+			m -> color = new glm::vec3(1.0f, 0.0f, 0.0f);
+			}
+		break;
+		case 'g':
+			{
+			colors[1]++;
+			m -> color = new glm::vec3(0.0f, 1.0f, 0.0f);
+			}
+		break;
+		case 'b':
+			{
+			colors[2]++;
+			m -> color = new glm::vec3(0.0f, 0.0f, 1.0f);
+			}
+		break;
+		case 'y':
+			{
+			colors[3]++;
+			m -> color = new glm::vec3(1.0f, 1.0f, 0.0f);
+			}
+		break;
+		case 'o':
+			{
+			colors[4]++;
+			std::cout << colors[4] << std::endl; 
+			m -> color = new glm::vec3(1.0f, 0.5f, 0.0f);
+			}
+		break;
+		case 'p':
+			{
+			colors[5]++;
+			m -> color = new glm::vec3(1.0f, 0.0f, 1.0f);
+			}
+		break;
+		}
+
+		m -> rotation = 0;
+		m -> vertices = 16*3*3;
+		m -> modelHandle = &vertexbuffer;
+		models.push_back(m);	
+		std::cout << "X: " << px << " Y: " << py << " C: " << color <<  std::endl;
+	}
+	file.close();
 }

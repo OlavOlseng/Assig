@@ -9,8 +9,8 @@
 #pragma comment(lib, "glew32.lib")
 #define GLEW_STATIC
 //--------- Global Variables
-int g_iWindowWidth = 512;
-int g_iWindowHeight = 512;
+int g_iWindowWidth = 800;
+int g_iWindowHeight = 600;
 int g_iGLUTWindowHandle = 0;
 int g_iErrorCode = 0;
 float rot_angle;

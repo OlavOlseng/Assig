@@ -1,4 +1,4 @@
-
+#include <glm.hpp>
 
 //-------- Variables -------------------------------
 extern int g_iWindowHeight, g_iWindowWidth, g_iGLUTWindowHandle;
@@ -37,4 +37,8 @@ void ReshapeGL( int w, int h );
 //Function called when screen is idle.
 void Idle();
 // Functions called to draw different scenes
-void Render();
+void RenderImage();
+void RenderNumber(int number, glm::vec3 position, float rotation);
+
+//function for generating the scene
+void genScene(const char* path);
