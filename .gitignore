@@ -42,6 +42,10 @@ glm/
 *.settings/
 log.txt
 
+#IntelliJ
+*.idea
+*.iml
+
 #LateX
 *.synctex.gz
 *.aux
