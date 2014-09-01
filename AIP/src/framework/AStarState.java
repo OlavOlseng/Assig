@@ -12,18 +12,7 @@ public abstract class AStarState<T> {
 
     public AStarState(T stateData) {
         this.stateData = stateData;
-        this.hash = generateHash();
     }
-
-    /**
-     *This method should generate all valid children with their G values set.
-     * @return
-     */
-    public abstract List<AStarState<T>> generateChildren();
-
-    protected abstract int generateHash();
-
-    public abstract double calculateH();
 
     public void calculateF() {
         this.f =  g + h;
@@ -39,6 +28,11 @@ public abstract class AStarState<T> {
         return this.g;
     }
 
+    public void setH(double h) {
+        this.h = h;
+        calculateF();
+    }
+
     public double getH() {
         return this.h;
     }
@@ -49,5 +43,13 @@ public abstract class AStarState<T> {
 
     public int getHash() {
         return hash;
+    }
+
+    public void setHash(int hash) {
+        this.hash = hash;
+    }
+
+    public T getStateData() {
+        return this.stateData;
     }
 }

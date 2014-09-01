@@ -8,15 +8,16 @@ import java.util.Map;
 /**
  * Created by Olav on 27/08/2014.
  */
-public class AStarNode implements Comparable<AStarNode>{
-    private final AStarState state;
-    private List<AStarNode> children;
+public class AStarNode<T extends AStarState> implements Comparable<AStarNode>{
+    public T state;
+    private List<AStarNode<T>> children;
     private AStarNode parent;
-    private Map<AStarNode, Double> childCosts;
+    private Map<Integer, Double> childCosts;
+    public boolean isExpanded = false;
 
-    public AStarNode(AStarState state){
-        this.children  = new ArrayList<AStarNode>();
-        this.childCosts = new HashMap<AStarNode, Double>();
+    public AStarNode(T state){
+        this.children  = new ArrayList<AStarNode<T>>();
+        this.childCosts = new HashMap<Integer, Double>();
         this.state = state;
 
     }
@@ -25,21 +26,37 @@ public class AStarNode implements Comparable<AStarNode>{
         this.parent = node;
     }
 
+    public AStarNode getParent() {
+        return this.parent;
+    }
+
     public double getF() {
         return this.state.getF();
     }
+
     public int getHash() {
         return state.getHash();
     }
 
-    public void addChild(AStarNode n) {
-        //TODO: IMPLEMENT
+    public void addChild(AStarNode<T> n, double cost) {
+        if (!children.contains(n)) {
+            children.add(n);
+            childCosts.put(n.getHash(), cost);
+        }
+        else {
+            throw new RuntimeException("Child already set, this shouldn't happen");
+        }
     }
 
-    public List<AStarNode> getChildren() {
+    public List<AStarNode<T>> getChildren() {
         return this.children;
     }
 
+    /**
+     * This method checks if the hashes are equal.
+     * @param other
+     * @return true if hashes are equal, false elsewise.
+     */
     public boolean equals(AStarNode other) {
         return this.getHash() == other.getHash();
     }
@@ -53,5 +70,9 @@ public class AStarNode implements Comparable<AStarNode>{
             return 1;
         }
         return 0;
+    }
+
+    public double getArcCost(AStarNode childNode) {
+        return childCosts.get(childNode.getHash());
     }
 }
