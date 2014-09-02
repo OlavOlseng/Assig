@@ -7,7 +7,7 @@ import framework.AStarState;
  */
 public class GridState extends AStarState<int[][]> {
 
-    int width, height, x, y;
+    public int width, height, x, y;
 
     public GridState(int[][] stateData, int width, int height, int x, int y) {
         super(stateData);

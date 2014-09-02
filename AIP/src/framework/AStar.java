@@ -8,11 +8,14 @@ import java.util.Map;
 /**
  * Created by Olav on 27/08/2014.
  */
-public class AStar<T extends AStarState> {
+public class AStar<T extends AStarState> implements Runnable {
 
     public final static int TYPE_BEST_FIRST = 0;
     public final static int TYPE_BREADTH_FIRST = 1;
     public final static int TYPE_DEPTH_FIRST = 2;
+
+    private long stepInterval = 0;
+    private long lastStepTime = 0;
 
     AStarStateHandler handler;
     T initialState;
@@ -20,7 +23,7 @@ public class AStar<T extends AStarState> {
 
     public AStarNode<T> initialNode = null;
     public AStarNode<T> goalNode = null;
-    public AStarNode<T> lastExpanded = null;
+    public AStarNode<T> currentNode = null;
 
     Callback<AStar> callback;
 
@@ -30,8 +33,8 @@ public class AStar<T extends AStarState> {
     Map<Integer, AStarNode<T>> nodes;
     public List<AStarNode<T>> open;
 
-    int expandedNodes = 0;
-
+    public int expandedNodes = 0;
+    public boolean success = false;
     /**
      * @param stateHandler
      * @param initialState
@@ -43,32 +46,47 @@ public class AStar<T extends AStarState> {
         this.handler = stateHandler;
         this.callback = callback;
 
-
-        goalState.setHash(handler.generateHash(goalState));
-        this.goalState = goalState;
-
-        initialState.setHash(handler.generateHash(initialState));
-        initialState.setH(handler.calculateH(initialState, goalState));
-        this.initialState = initialState;
+        setNewStates(initialState, goalState);
 
         initialize();
     }
 
-    /**
-     * This method initializes all datastructures required to run the algorithm.
-     * This method is automagically called from the constructor.
-     */
+    public AStar(AStarStateHandler stateHandler, T initialState, T goalState) {
+        this(stateHandler, initialState, goalState, null);
+    }
+
+    public void setNewStates(T initialState, T goalState) {
+        initialState.setHash(handler.generateHash(initialState));
+        initialState.setH(handler.calculateH(initialState, goalState));
+        this.initialState = initialState;
+
+        goalState.setHash(handler.generateHash(goalState));
+        this.goalState = goalState;
+    }
+
+        /**
+         * This method initializes all datastructures required to run the algorithm.
+         * This method is automagically called from the constructor.
+         */
     public void initialize() {
         this.open = new ArrayList<AStarNode<T>>();
         this.nodes = new HashMap<Integer, AStarNode<T>>();
+        currentNode = null;
         this.expandedNodes = 0;
 
         this.initialNode = new AStarNode(initialState);
         this.goalNode = new AStarNode(goalState);
 
         nodes.put(initialNode.getHash(), initialNode);
-        nodes.put(initialNode.getHash(), initialNode);
         open.add(initialNode);
+    }
+
+    public void setStepInterval(long ms) {
+        this.stepInterval = ms;
+    }
+
+    public void setCallback(Callback<AStar> callback) {
+        this.callback = callback;
     }
 
     /**
@@ -78,26 +96,35 @@ public class AStar<T extends AStarState> {
      */
     public AStar<T> setType(int searchType) {
         this.type = searchType;
+        return this;
     }
 
-    public boolean run() {
-        boolean success = false;
+    @Override
+    public void run() {
+        success = false;
 
         do {
-            this.lastExpanded = open.remove(0);
+            //Check if we can step.
+            long now = System.currentTimeMillis();
+            if (now - lastStepTime < stepInterval) {
+                continue;
+            }
+            lastStepTime = now;
+
+            this.currentNode = open.remove(0);
             if (callback != null) {
                 callback.callback(this);
             }
             //Check success criteria
-            if (lastExpanded.equals(goalNode)){
-                goalNode = lastExpanded;
+            if (currentNode.equals(goalNode)){
+                goalNode = currentNode;
                 success = true;
                 break;
             }
 
             //Expand
-            List<T> children = handler.getChildren(lastExpanded.state);
-            lastExpanded.isExpanded = true;
+            List<T> children = handler.getChildren(currentNode.state);
+            currentNode.isExpanded = true;
             expandedNodes++;
 
             for(T child : children) {
@@ -110,16 +137,16 @@ public class AStar<T extends AStarState> {
                 }
 
                 //Add childNodeToParent and set the distance between them.
-                lastExpanded.addChild(childNode, childNode.state.getG() - lastExpanded.state.getG());
+                currentNode.addChild(childNode, childNode.state.getG() - currentNode.state.getG());
 
                 if(!nodes.containsKey(childNode.getHash())) {
-                    attachAndEval(lastExpanded, childNode);
+                    attachAndEval(currentNode, childNode);
                     nodes.put(childNode.getHash(), childNode);
-                    open.add(binarySearch(open, 0, open.size(), childNode.getF()), childNode);
+                    insert(childNode);
                 }
                 //Node was already made, check if new path is more optimal than previous path found
-                else if (childNode.state.getG() > lastExpanded.state.getG() + lastExpanded.getArcCost(childNode)) {
-                    attachAndEval(lastExpanded, childNode);
+                else if (childNode.state.getG() > currentNode.state.getG() + currentNode.getArcCost(childNode)) {
+                    attachAndEval(currentNode, childNode);
 
                     //See if propagation to grandchildren is needed.
                     if(childNode.isExpanded){
@@ -128,14 +155,30 @@ public class AStar<T extends AStarState> {
                     //If not, we need to put it in the correct place in the open list.
                     else {
                         open.remove(childNode);
-                        open.add(binarySearch(open, 0, open.size(), childNode.getF()), childNode);
+                        insert(childNode);
                     }
                 }
             }
 
         } while(open.size() > 0);
+        callback.callback(this);
         System.out.println("Nodes expanded: " + expandedNodes);
-        return success;
+    }
+
+    public void insert(AStarNode<T> node) {
+        switch(type) {
+            case TYPE_DEPTH_FIRST:
+                open.add(0, node);
+                break;
+            case TYPE_BREADTH_FIRST:
+                open.add(node);
+                break;
+            case TYPE_BEST_FIRST:
+                open.add(binarySearch(open, 0, open.size(), node.getF()), node);
+                break;
+            default:
+                throw new IllegalStateException("Searchtype is invalid");
+        }
     }
 
     private void propagate(AStarNode<T> parentNode) {
@@ -147,7 +190,7 @@ public class AStar<T extends AStarState> {
                 child.state.setG(g);
                 if(!child.isExpanded) {
                     open.remove(child);
-                    open.add(binarySearch(open, 0, open.size(), child.getF()), child);
+                    insert(child);
                 }
                 propagate(child);
             }
