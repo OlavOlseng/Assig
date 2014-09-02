@@ -12,7 +12,7 @@ import java.util.List;
 public class EuclidianGridHandler extends AStarStateHandler<GridState> {
 
     private static final double COST_STRAIGHT = 1.0;
-    private static final double COST_DIAGONAL = Math.sqrt(2.0);
+    private static final double COST_DIAGONAL = 1.4;
 
 
     @Override
@@ -30,7 +30,8 @@ public class EuclidianGridHandler extends AStarStateHandler<GridState> {
      */
     @Override
     public double calculateH(GridState state, GridState goalState) {
-        double h = Math.sqrt(Math.pow(goalState.x - state.x, 2) + Math.pow(goalState.x - state.x, 2));
+        double h = Math.sqrt(Math.pow(goalState.x - state.x, 2) + Math.pow(goalState.y - state.y, 2));
+//        System.out.println(h);
         return h;
     }
 

@@ -14,14 +14,21 @@ public class EuclidTest {
 
 
         GridState start = new GridState(board, board[0].length, board.length, 0, 0);
-        GridState end = new GridState(board, board[0].length, board.length, 9999, 0);
+        GridState end = new GridState(board, board[0].length, board.length, 9999, 1000);
 
-        AStar aStar = new AStar(new EuclidianGridHandler(), start, end, new Callback<AStarNode>() {
+        AStar aStar = new AStar(new EuclidianGridHandler(), start, end, new Callback<AStar<GridState>>() {
+
             @Override
-            public void callback(AStarNode data) {
+            public void callback(AStar<GridState> data) {
 //                System.out.println(data.state);
 //                System.out.println("G: " + data.state.getG() + "\tH: " + data.state.getH() + "\tF: " + data.state.getF());
+//                for (AStarNode n : data.open) {
+//                    System.out.println(n.state.toString() + "\t" + n.getF());
+//
+//                }
+//                System.out.println();
             }
+
         });
         long startTime = System.currentTimeMillis();
         boolean b = aStar.run();

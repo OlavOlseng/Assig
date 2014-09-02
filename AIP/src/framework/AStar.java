@@ -10,19 +10,25 @@ import java.util.Map;
  */
 public class AStar<T extends AStarState> {
 
+    public final static int TYPE_BEST_FIRST = 0;
+    public final static int TYPE_BREADTH_FIRST = 1;
+    public final static int TYPE_DEPTH_FIRST = 2;
+
     AStarStateHandler handler;
     T initialState;
     T goalState;
 
     public AStarNode<T> initialNode = null;
     public AStarNode<T> goalNode = null;
+    public AStarNode<T> lastExpanded = null;
 
-    public AStarNode lastExpanded = null;
+    Callback<AStar> callback;
 
-    Callback callback;
+    private int type;
+
 
     Map<Integer, AStarNode<T>> nodes;
-    List<AStarNode<T>> open;
+    public List<AStarNode<T>> open;
 
     int expandedNodes = 0;
 
@@ -32,7 +38,7 @@ public class AStar<T extends AStarState> {
      * @param goalState
      * @param callback - This callback will be called right after each node is popped off open.
      */
-    public AStar(AStarStateHandler stateHandler, T initialState, T goalState, Callback<AStarNode<T>> callback) {
+    public AStar(AStarStateHandler stateHandler, T initialState, T goalState, Callback<AStar> callback) {
 
         this.handler = stateHandler;
         this.callback = callback;
@@ -65,13 +71,22 @@ public class AStar<T extends AStarState> {
         open.add(initialNode);
     }
 
+    /**
+     * Sets the searchtype.
+     * @param searchType
+     * @return
+     */
+    public AStar<T> setType(int searchType) {
+        this.type = searchType;
+    }
+
     public boolean run() {
         boolean success = false;
 
         do {
             this.lastExpanded = open.remove(0);
             if (callback != null) {
-                callback.callback(lastExpanded);
+                callback.callback(this);
             }
             //Check success criteria
             if (lastExpanded.equals(goalNode)){
@@ -100,7 +115,7 @@ public class AStar<T extends AStarState> {
                 if(!nodes.containsKey(childNode.getHash())) {
                     attachAndEval(lastExpanded, childNode);
                     nodes.put(childNode.getHash(), childNode);
-                    open.add(childNode);
+                    open.add(binarySearch(open, 0, open.size(), childNode.getF()), childNode);
                 }
                 //Node was already made, check if new path is more optimal than previous path found
                 else if (childNode.state.getG() > lastExpanded.state.getG() + lastExpanded.getArcCost(childNode)) {
