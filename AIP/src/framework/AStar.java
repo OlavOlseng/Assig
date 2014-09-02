@@ -45,14 +45,12 @@ public class AStar<T extends AStarState> implements Runnable {
 
         this.handler = stateHandler;
         this.callback = callback;
-
         setNewStates(initialState, goalState);
 
-        initialize();
     }
 
-    public AStar(AStarStateHandler stateHandler, T initialState, T goalState) {
-        this(stateHandler, initialState, goalState, null);
+    public AStar(AStarStateHandler stateHandler) {
+        this.handler = stateHandler;
     }
 
     public void setNewStates(T initialState, T goalState) {
@@ -71,7 +69,7 @@ public class AStar<T extends AStarState> implements Runnable {
     public void initialize() {
         this.open = new ArrayList<AStarNode<T>>();
         this.nodes = new HashMap<Integer, AStarNode<T>>();
-        currentNode = null;
+        this.currentNode = null;
         this.expandedNodes = 0;
 
         this.initialNode = new AStarNode(initialState);
@@ -161,8 +159,9 @@ public class AStar<T extends AStarState> implements Runnable {
             }
 
         } while(open.size() > 0);
-        callback.callback(this);
-        System.out.println("Nodes expanded: " + expandedNodes);
+        if(callback != null) {
+            callback.callback(this);
+        }
     }
 
     public void insert(AStarNode<T> node) {
@@ -214,5 +213,13 @@ public class AStar<T extends AStarState> implements Runnable {
         else{
             return binarySearch(a, middle + 1, end, val);
         }
+    }
+
+    @Override
+    public String toString() {
+        String s = "Nodes expanded: " + expandedNodes
+                + "\nPath length: " + currentNode.state.getG()
+                + "\nSuccess: " + success;
+        return s;
     }
 }
