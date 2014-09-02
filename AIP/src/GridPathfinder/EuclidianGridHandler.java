@@ -12,7 +12,7 @@ import java.util.List;
 public class EuclidianGridHandler extends AStarStateHandler<GridState> {
 
     private static final double COST_STRAIGHT = 1.0;
-    private static final double COST_DIAGONAL = 1.4;
+    private static final double COST_DIAGONAL = Math.sqrt(2.0);
 
 
     @Override
@@ -54,13 +54,13 @@ public class EuclidianGridHandler extends AStarStateHandler<GridState> {
                 d = false;
 
         //directional check:
-        if(x - 1 > 0) {
+        if(x - 1 >= 0) {
             if (board[y][x-1] == 0) {
                 children.add(new GridState(board, state.width, state.height, x - 1, y, state.getG() + COST_STRAIGHT));
                 l = true;
             }
         }
-        if (y - 1 > 0) {
+        if (y - 1 >= 0) {
             if (board[y-1][x] == 0) {
                 children.add(new GridState(board, state.width, state.height, x, y-1, state.getG() + COST_STRAIGHT));
                 d = true;

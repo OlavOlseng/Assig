@@ -14,8 +14,8 @@ public class AStar<T extends AStarState> {
     T initialState;
     T goalState;
 
-    AStarNode<T> initialNode = null;
-    AStarNode<T> goalNode = null;
+    public AStarNode<T> initialNode = null;
+    public AStarNode<T> goalNode = null;
 
     public AStarNode lastExpanded = null;
 
@@ -30,7 +30,7 @@ public class AStar<T extends AStarState> {
      * @param stateHandler
      * @param initialState
      * @param goalState
-     * @param callback - This callback will be called before every node expansion and on termination.
+     * @param callback - This callback will be called right after each node is popped off open.
      */
     public AStar(AStarStateHandler stateHandler, T initialState, T goalState, Callback<AStarNode<T>> callback) {
 
@@ -119,9 +119,7 @@ public class AStar<T extends AStarState> {
             }
 
         } while(open.size() > 0);
-        if (callback != null) {
-            callback.callback(lastExpanded);
-        }
+        System.out.println("Nodes expanded: " + expandedNodes);
         return success;
     }
 
