@@ -71,14 +71,19 @@ public class AStarCanvas extends Canvas{
         g.fillRect(s.x * rectangleSide, s.y * rectangleSide, rectangleSide, rectangleSide);
 
         //Fill in walls
-        g.setColor(Color.BLACK);
         for (int y = 0; y < s.getStateData().length; y++) {
             for (int x = 0; x < s.getStateData()[0].length; x++) {
-                if (s.getStateData()[y][x] != 0) {
+                if (s.getStateData()[y][x] == 1) {
+                    g.setColor(Color.BLACK);
                     g.fillRect(x * rectangleSide, y * rectangleSide, rectangleSide, rectangleSide);
                 }
-                else {
+                else if (s.getStateData()[y][x] == 2) {
+                    g.setColor(Color.lightGray);
+                    g.fillRect(x * rectangleSide, y * rectangleSide, rectangleSide, rectangleSide);
+                }
+                else if (s.getStateData()[y][x] == 0){
                     //Draw boxes
+                    g.setColor(Color.BLACK);
                     g.drawRect(x * rectangleSide, y * rectangleSide, rectangleSide, rectangleSide);
                 }
             }

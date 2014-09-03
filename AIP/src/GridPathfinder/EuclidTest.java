@@ -7,8 +7,6 @@ import framework.AStarNode;
 import framework.Callback;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.*;
 
@@ -126,7 +124,7 @@ public class EuclidTest {
     public static void runNavigationTest() {
         startTime = System.currentTimeMillis();
 
-
+        aStar.setType(AStar.TYPE_BEST_FIRST);
         aStar.initialize();
         aStar.run();
         System.out.println();
