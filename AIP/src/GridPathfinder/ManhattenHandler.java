@@ -29,6 +29,7 @@ public class ManhattenHandler extends AStarStateHandler<GridState> {
         List<GridState> children = new ArrayList<GridState>();
 
         int[][] board = state.getStateData();
+        state.getStateData()[state.y][state.x] = 2;
 
         int x = state.x;
         int y = state.y;

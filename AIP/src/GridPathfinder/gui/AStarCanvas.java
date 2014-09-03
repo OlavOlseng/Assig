@@ -83,8 +83,8 @@ public class AStarCanvas extends Canvas{
                 }
                 else if (s.getStateData()[y][x] == 0){
                     //Draw boxes
-                    g.setColor(Color.BLACK);
-                    g.drawRect(x * rectangleSide, y * rectangleSide, rectangleSide, rectangleSide);
+//                    g.setColor(Color.BLACK);
+//                    g.drawRect(x * rectangleSide, y * rectangleSide, rectangleSide, rectangleSide);
                 }
             }
         }
