@@ -24,6 +24,7 @@ public class AStarNode<T extends AStarState> implements Comparable<AStarNode>{
 
     public void setParent(AStarNode node) {
         this.parent = node;
+        this.state.setG(parent.state.getG() + parent.getArcCost(this));
     }
 
     public AStarNode getParent() {

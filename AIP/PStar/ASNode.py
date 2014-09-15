@@ -1,11 +1,8 @@
-from abc import ABCMeta, abstractmethod
-
 #Baseclass the nodes used by the AStar algorithm 
 
 class ASNode(object):
-	__metaclass__ = ABCMeta
 	
-	__init__(self):
+	def __init__(self):
 		self.state = None
 		self.parent = None
 		self.children = []
@@ -13,18 +10,16 @@ class ASNode(object):
 		self.g = 0
 		self.h = 0
 		self.hash = None
+		self.expanded = False
 		
-	@abstractmethod
 	def generateChildren(self):
 		#This method should generate all children with the hash and g values set.
 		pass
 		
-	@abstractmethod
 	def calculateHeuristic(self, goal):
 		#this method should set and calculate the heuristic
 		pass
 	
-	@abstractmethod
 	def generateHash(self):
 		#This method should generate and set a unique hash
 		pass
@@ -35,4 +30,5 @@ class ASNode(object):
 	def addChild(self, child, cost):
 		if(not child in self.children):
 			self.children.append(child)
-			self.childCost.insert(child.hash, cost)
+			self.childCost[child.hash] = cost
+			

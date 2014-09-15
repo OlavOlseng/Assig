@@ -186,7 +186,7 @@ public class AStar<T extends AStarState> implements Runnable {
             double newG = g + parentNode.getArcCost(child);
             if (newG < child.state.getG()) {
                 child.setParent(parentNode);
-                child.state.setG(g);
+                child.state.setG(newG);
                 if(!child.isExpanded) {
                     open.remove(child);
                     insert(child);
