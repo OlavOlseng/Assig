@@ -24,7 +24,7 @@ class AStar(object):
 		self.nodes = {}
 		
 		self.OPEN.append(start)
-		self.nodes.insert(start.hash, start)
+		self.nodes[start.hash] =  start
 		
 	def setMode(self, mode):
 		self.mode = mode
@@ -64,7 +64,6 @@ class AStar(object):
 		
 		while(len(self.OPEN > 0)):
 			node = self.OPEN.pop()
-			node.hash = node.generateHashString
 			
 			#Check if node was goalnode
 			if(node.hash is goal.hash):
@@ -77,7 +76,6 @@ class AStar(object):
 			
 			for(i in range(len(children)):
 				child = children[i]
-				child.hash = child.generateHash()
 				
 				#Check if childNode exists
 				childNode = self.children.get(child.hash)
