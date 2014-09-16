@@ -1,4 +1,5 @@
 from ASNode import ASNode
+import time
 
 
 MODE_BEST_FIRST = 0
@@ -14,9 +15,10 @@ class AStar(object):
 		self.goal = None
 		self.success = False
 		self.renderer = renderer
+		self.expanded_nodes = 0
 		self.mode = 0
 
-	def initialize(self, start, goal):
+	def init(self, start, goal):
 		self.success = False
 
 		self.start = start
@@ -31,6 +33,8 @@ class AStar(object):
 		
 		self.OPEN.append(start)
 		self.nodes[start.hash] =  start
+		
+		self.render(start)
 		
 	def setMode(self, mode):
 		self.mode = mode
@@ -69,9 +73,7 @@ class AStar(object):
 		
 		for child in node.children:
 			newG = g + node.childCost[child.hash]
-			print(newG - child.g)
 			if (newG < child.g):
-				print("Found Shorter path")
 				child.parent = node
 				child.g = newG
 				
@@ -79,7 +81,7 @@ class AStar(object):
 					self.OPEN.remove(child)
 					self.insertIntoOpen(child)
 					
-				propagate(child)
+				self.propagate(child)
 			
 
 	def render(self, node):
@@ -88,8 +90,8 @@ class AStar(object):
 			return
 			
 	def run(self):
-		expandedNodes = 0
-		print("running")
+		self.expanded_nodes = 0
+		print("Running in mode: {}".format(self.mode))
 		if(self.OPEN is None or self.nodes is None or self.start is None or self.goal is None or self.success is True):
 			print("Algorithm not properly initialized")
 			return
@@ -97,13 +99,15 @@ class AStar(object):
 		node = None
 		
 		while(len(self.OPEN) > 0):
+			#time.sleep(1.0/60.0)
 			node = self.OPEN.pop(0)
-			print("Popped node: {}\tHash: {}\tG: {}\tH: {}\tF: {}".format(expandedNodes, node.hash, node.g, node.h, node.getF()))
+			#print("Popped node: {}\tHash: {}\tG: {}\tH: {}\tF: {}".format(expandedNodes, node.hash, node.g, node.h, node.getF()))
 			#Check if node was goalnode
 			if(node.hash == self.goal.hash):
 				print("Success!")
 				self.success = True
 				self.goal = node
+				self.render(self.goal)
 				return node
 			
 			node.expanded = True
@@ -139,7 +143,6 @@ class AStar(object):
 						self.OPEN.remove(childNode)
 						self.insertIntoOpen(childNode)	
 
-			child.expanded = True
-			expandedNodes += 1		
+			self.expanded_nodes += 1		
 			self.render(node)
 	

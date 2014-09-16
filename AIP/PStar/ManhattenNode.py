@@ -41,7 +41,7 @@ class ManhattenNode(ASNode, object):
 			child.generateHash()
 			child.g = float(self.g + stepSize)
 			children.append(child)
-			
+
 		return children
 		
 	def generateHash(self):
@@ -51,6 +51,4 @@ class ManhattenNode(ASNode, object):
 	def calculateHeuristic(self, goal):
 		self.h = float(abs(goal.x - self.x) + abs(goal.y - self.y)) * stepSize
 		return self.h
-	
-	def getF(self):
-		return self.g + self.h
+		
