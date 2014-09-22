@@ -3,6 +3,7 @@
         <Folder name="src">
             <File name="GAC\gac.py" />
             <File name="GAC\gac_util.py" />
+            <File name="GAC\test.py" />
         </Folder>
     </Project>
     <Project name="AStar">
