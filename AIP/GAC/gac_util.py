@@ -7,6 +7,6 @@ def makefunc(var_names, expression, envir = globals()):
 		args = "{},{}".format(args, n)
 	return eval("(lambda {} : {} )".format(args[1:], expression), envir)
 	
-def get_product(*args):
+def get_product(*l_args):
 	#returns cartesian product of arbitrary number of lists
-	return product(*args)
+	return product(*l_args)

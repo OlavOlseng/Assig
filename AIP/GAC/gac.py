@@ -18,6 +18,7 @@ class GAC(object):
 		#Returns true if domain was altered
 		domain_changed = False
 		print("Checking variable '{}' against '{}'".format(v_name, constraint))
+		print("Domain: {}".format(self.variables[v_name]))
 		#create a list other variables in the constraint
 		o_vars = [i for i in constraint.variables if i != v_name]
 		o_vals = [self.variables[i] for i in o_vars]
@@ -25,15 +26,12 @@ class GAC(object):
 		#check for each value of focal variable
 		to_remove = []
 		for v_val in self.variables[v_name]:
-			print("deb {} = {}".format(v_name, v_val))
 			d = {v_name : v_val}
 			passed = False
 			
-			for tuple in get_product([v_val], *o_vals):
+			for tuple in get_product(*o_vals):
 				for i in range(len(o_vals)):
-					d[o_vars[i]] = tuple[i + 1]
-				print(d)
-				print(constraint.f(**d))
+					d[o_vars[i]] = tuple[i]
 				if(constraint.f(**d)):
 					passed = True
 					break
@@ -45,7 +43,6 @@ class GAC(object):
 		for val in to_remove:
 			print("Removing {}...".format(val))
 			self.variables[v_name].remove(val)
-		print (self.variables[v_name])
 		
 		return domain_changed
 	
@@ -69,13 +66,12 @@ class GAC(object):
 			
 			if(b_altered):
 				#add constrint passes to queue
-				print("Altered something")
 				self.repopulate(todo[0], todo[1])
 
 			else:
 				#do nothing
 				print("Altered nothing")
-			
+			print()
 			if self.renderer != None:
 				self.renderer.render(self)
 				
@@ -88,6 +84,9 @@ class Constraint(object):
 		
 	def includes(self, s_variable):
 		return s_variable in self.variables
+		
+	def __str__(self):
+		return self.expression
 		
 class Variable(object):
 	def __init__(self, s_name):

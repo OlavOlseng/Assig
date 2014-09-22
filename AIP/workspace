@@ -5,6 +5,14 @@
             <File name="GAC\gac_util.py" />
             <File name="GAC\test.py" />
         </Folder>
+        <Folder name="res">
+            <File name="GAC\graph-color-1.txt" />
+            <File name="GAC\graph-color-2.txt" />
+            <File name="GAC\rand-50-4-color1.txt" />
+            <File name="GAC\rand-100-4-color1.txt" />
+            <File name="GAC\rand-100-6-color1.txt" />
+            <File name="GAC\spiral-500-4-color1.txt" />
+        </Folder>
     </Project>
     <Project name="AStar">
         <Folder name="src">
