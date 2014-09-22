@@ -3,7 +3,7 @@
         <Folder name="src">
             <File name="GAC\gac.py" />
             <File name="GAC\gac_util.py" />
-            <File name="GAC\test.py" />
+            <File name="GAC\gac_test.py" />
         </Folder>
         <Folder name="res">
             <File name="GAC\graph-color-1.txt" />

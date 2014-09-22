@@ -8,6 +8,12 @@ class GAC(object):
 		self.variables = {}
 		self.renderer = renderer
 		
+	def add_variable(self, variable):
+		self.variables[variable.name] = variable
+			
+	def add_constraint(self, constraint):
+		self.constraints.append(constraint)
+
 	def init(self):
 		self.queue = []
 		for c in self.constraints:
@@ -18,14 +24,14 @@ class GAC(object):
 		#Returns true if domain was altered
 		domain_changed = False
 		print("Checking variable '{}' against '{}'".format(v_name, constraint))
-		print("Domain: {}".format(self.variables[v_name]))
+		print("Domain: {}".format(self.variables[v_name].domain))
 		#create a list other variables in the constraint
 		o_vars = [i for i in constraint.variables if i != v_name]
 		o_vals = [self.variables[i] for i in o_vars]
 		
 		#check for each value of focal variable
 		to_remove = []
-		for v_val in self.variables[v_name]:
+		for v_val in self.variables[v_name].domain:
 			d = {v_name : v_val}
 			passed = False
 			
@@ -89,12 +95,9 @@ class Constraint(object):
 		return self.expression
 		
 class Variable(object):
-	def __init__(self, s_name):
-		self.domain = []
+	def __init__(self, s_name, domain = []):
+		self.domain = domain
 		self.name = s_name
-		
-	def domain(self):
-		return self.domain
 		
 	def remove(self, domain_value):
 		if(domain_value in self.domain):
@@ -104,4 +107,10 @@ class Variable(object):
 		
 	def copy(self):
 		return copy.copy(self)
+		
+	def __str__(self):
+		return self.name
+	
+	def __iter__(self):
+		return iter(self.domain)
 		
