@@ -24,14 +24,15 @@ class ManhattenRenderer(Renderer, object):
 					rect = pygame.Rect(x * box_size, y * box_size, box_size, box_size)
 					pygame.draw.rect(self.display, black, rect)
 		
+		rect = pygame.Rect(node.goal.x * box_size, node.goal.y * box_size, box_size, box_size)
+		pygame.draw.rect(self.display, green, rect)
+		
 		while(node != None):
 			rect = pygame.Rect(node.x * box_size, node.y * box_size, box_size, box_size)
 			pygame.draw.rect(self.display, red, rect)
 			node = node.parent
 		
-		rect = pygame.Rect(astar.goal.x * box_size, astar.goal.y * box_size, box_size, box_size)
 		
-		pygame.draw.rect(self.display, green, rect)
 		pygame.display.flip()
 		
 		

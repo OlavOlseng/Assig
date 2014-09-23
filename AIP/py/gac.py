@@ -1,6 +1,6 @@
 import copy
-from gac_util import *
-
+from util import *
+	
 class GAC(object):
 	def __init__(self, renderer = None):
 		self.queue = []
@@ -23,8 +23,8 @@ class GAC(object):
 	def revise(self, constraint, v_name):
 		#Returns true if domain was altered
 		domain_changed = False
-		print("Checking variable '{}' against '{}'".format(v_name, constraint))
-		print("Domain: {}".format(self.variables[v_name].domain))
+		#print("Checking variable '{}' against '{}'".format(v_name, constraint))
+		#print("Domain: {}".format(self.variables[v_name].domain))
 		#create a list other variables in the constraint
 		o_vars = [i for i in constraint.variables if i != v_name]
 		o_vals = [self.variables[i] for i in o_vars]
@@ -47,7 +47,7 @@ class GAC(object):
 				domain_changed = True
 				
 		for val in to_remove:
-			print("Removing {}...".format(val))
+			#print("Removing {}...".format(val))
 			self.variables[v_name].remove(val)
 		
 		return domain_changed
@@ -74,14 +74,31 @@ class GAC(object):
 				#add constrint passes to queue
 				self.repopulate(todo[0], todo[1])
 
-			else:
+			'''else:
 				#do nothing
-				print("Altered nothing")
-			print()
+			#	print("Altered nothing")
+			#print("")'''
 			if self.renderer != None:
 				self.renderer.render(self)
 				
-	
+	def rerun(self, variable):
+		for constraint in self.constraints:
+			if constraint.includes(variable):
+				self.repopulate(constraint, variable)
+
+		self.run()
+				
+	def is_success(self):
+		#returns -1 if failstate, 0 if valid state, 1 if success state
+			
+		for i in self.variables.values():
+			count = len(i)
+			if count == 0:
+				return -1
+			elif count > 1:
+				return 0
+		return 1
+			
 class Constraint(object):
 	def __init__(self, sl_variables, s_expression):
 		self.variables = sl_variables
@@ -105,11 +122,11 @@ class Variable(object):
 			return True
 		return False
 		
-	def copy(self):
-		return copy.copy(self)
-		
 	def __str__(self):
 		return self.name
+		
+	def __len__(self):
+		return len(self.domain)
 	
 	def __iter__(self):
 		return iter(self.domain)

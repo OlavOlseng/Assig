@@ -1,27 +1,22 @@
 <NotepadPlus>
-    <Project name="GAC">
+    <Project name="A*-GAC">
         <Folder name="src">
-            <File name="GAC\gac.py" />
-            <File name="GAC\gac_util.py" />
-            <File name="GAC\gac_test.py" />
-        </Folder>
-        <Folder name="res">
-            <File name="GAC\graph-color-1.txt" />
-            <File name="GAC\graph-color-2.txt" />
-            <File name="GAC\rand-50-4-color1.txt" />
-            <File name="GAC\rand-100-4-color1.txt" />
-            <File name="GAC\rand-100-6-color1.txt" />
-            <File name="GAC\spiral-500-4-color1.txt" />
+            <File name="py\a_gac.py" />
+            <Folder name="vc">
+                <File name="py\vc_main.py" />
+            </Folder>
         </Folder>
     </Project>
-    <Project name="AStar">
+    <Project name="A*">
         <Folder name="src">
-            <File name="PStar\Renderer.py" />
-            <File name="PStar\ASNode.py" />
-            <File name="PStar\AStar.py" />
-            <File name="PStar\main.py" />
-            <File name="PStar\ManhattenNode.py" />
-            <File name="PStar\ManhattenRenderer.py" />
+            <File name="py\ASNode.py" />
+            <File name="py\AStar.py" />
+            <File name="py\Renderer.py" />
+            <Folder name="manhatten">
+                <File name="py\ManhattenRenderer.py" />
+                <File name="py\ManhattenNode.py" />
+                <File name="py\as_main.py" />
+            </Folder>
         </Folder>
         <Folder name="res">
             <File name="PStar\map1.txt" />
@@ -31,6 +26,22 @@
             <File name="PStar\map5.txt" />
             <File name="PStar\map6.txt" />
             <File name="PStar\map7.txt" />
+        </Folder>
+    </Project>
+    <Project name="GAC">
+        <Folder name="src">
+            <File name="py\gac.py" />
+            <File name="py\gac_test.py" />
+            <File name="py\util.py" />
+        </Folder>
+        <Folder name="res">
+            <File name="GAC\g1.txt" />
+            <File name="GAC\graph-color-1.txt" />
+            <File name="GAC\graph-color-2.txt" />
+            <File name="GAC\rand-100-4-color1.txt" />
+            <File name="GAC\rand-100-6-color1.txt" />
+            <File name="GAC\rand-50-4-color1.txt" />
+            <File name="GAC\spiral-500-4-color1.txt" />
         </Folder>
     </Project>
 </NotepadPlus>

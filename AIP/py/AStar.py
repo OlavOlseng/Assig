@@ -12,21 +12,17 @@ class AStar(object):
 		self.OPEN = None
 		self.nodes = None
 		self.start = None
-		self.goal = None
 		self.success = False
 		self.renderer = renderer
 		self.expanded_nodes = 0
 		self.mode = 0
 
-	def init(self, start, goal):
+	def init(self, start):
 		self.success = False
 
 		self.start = start
 		self.start.hash = start.generateHash()
-		self.start.calculateHeuristic(goal)
-		
-		self.goal = goal
-		self.goal.hash = goal.generateHash()
+		self.start.calculateHeuristic()
 		
 		self.OPEN = []
 		self.nodes = {}
@@ -63,7 +59,7 @@ class AStar(object):
 		
 	
 	def attachAndEval(self, parent, child):
-		child.h = child.calculateHeuristic(self.goal)
+		child.h = child.calculateHeuristic()
 		child.g = parent.g + parent.childCost.get(child.hash)
 		child.parent = parent
 		
@@ -88,61 +84,61 @@ class AStar(object):
 		if (not self.renderer is None):
 			self.renderer.render(self, node)
 			return
+		
+	def step(self):
+		#time.sleep(1.0/60.0)
+		node = self.OPEN.pop(0)
+		#print("Popped node: {}\tHash: {}\tG: {}\tH: {}\tF: {}".format(expandedNodes, node.hash, node.g, node.h, node.getF()))
+		#Check if node was goalnode
+		if(node.is_goal_node()):
+			print("Success!")
+			self.success = True
+			self.render(node)
+			return node
+		
+		node.expanded = True
+		
+		#Expand
+		children = node.generateChildren()
+		
+		for i in range(len(children)):
+			freshNode = False
+			child = children[i]
 			
+			#Check if childNode exists
+			childNode = self.nodes.get(child.hash)
+			
+			if (childNode is None):
+				#node not found yet, make new one.
+				childNode = child
+				freshNode = True
+			
+			node.addChild(childNode, child.g - node.g)
+			
+			if(freshNode):
+				self.attachAndEval(node, childNode)
+				self.nodes[childNode.hash] = childNode
+				self.insertIntoOpen(childNode)
+
+			elif(childNode.g > node.g + node.childCost.get(childNode.hash)):
+				self.attachAndEval(node, childNode)
+				
+				if(childNode.expanded):
+					self.propagate(childNode)
+				else:
+					self.OPEN.remove(childNode)
+					self.insertIntoOpen(childNode)	
+
+		self.expanded_nodes += 1		
+		self.render(node)
+		
 	def run(self):
 		self.expanded_nodes = 0
 		print("Running in mode: {}".format(self.mode))
-		if(self.OPEN is None or self.nodes is None or self.start is None or self.goal is None or self.success is True):
+		if(self.OPEN is None or self.nodes is None or self.start is None or self.success is True):
 			print("Algorithm not properly initialized")
 			return
 		
-		node = None
-		
-		while(len(self.OPEN) > 0):
-			#time.sleep(1.0/60.0)
-			node = self.OPEN.pop(0)
-			#print("Popped node: {}\tHash: {}\tG: {}\tH: {}\tF: {}".format(expandedNodes, node.hash, node.g, node.h, node.getF()))
-			#Check if node was goalnode
-			if(node.hash == self.goal.hash):
-				print("Success!")
-				self.success = True
-				self.goal = node
-				self.render(self.goal)
-				return node
-			
-			node.expanded = True
-			
-			#Expand
-			children = node.generateChildren()
-			
-			for i in range(len(children)):
-				freshNode = False
-				child = children[i]
-				
-				#Check if childNode exists
-				childNode = self.nodes.get(child.hash)
-				
-				if (childNode is None):
-					#node not found yet, make new one.
-					childNode = child
-					freshNode = True
-				
-				node.addChild(childNode, child.g - node.g)
-				
-				if(freshNode):
-					self.attachAndEval(node, childNode)
-					self.nodes[childNode.hash] = childNode
-					self.insertIntoOpen(childNode)
-
-				elif(childNode.g > node.g + node.childCost.get(childNode.hash)):
-					self.attachAndEval(node, childNode)
-					
-					if(childNode.expanded):
-						self.propagate(childNode)
-					else:
-						self.OPEN.remove(childNode)
-						self.insertIntoOpen(childNode)	
-
-			self.expanded_nodes += 1		
-			self.render(node)
-	
+		while(len(self.OPEN) > 0 and not self.success):
+			node = self.step()
+		return node

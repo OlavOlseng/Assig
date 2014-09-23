@@ -8,8 +8,8 @@ from AStar import AStar
 from ManhattenNode import ManhattenNode
 from ManhattenRenderer import ManhattenRenderer
 
-WIDTH = 800
-HEIGHT = 600
+WIDTH = 1024
+HEIGHT = 720
 
 def parse_file(path):
 	f = open("{}.txt".format(path), "r")
@@ -51,25 +51,25 @@ def insert_box(map, dims):
 		for j in range(width):
 			map[y + i][x + j] = 1
 			
-def run_test(astar, start, goal):
-	astar.init(start, goal)
+def run_test(astar, start):
+	astar.init(start)
 	astar.setMode(0)
-	astar.run()
-	print("Nodes expanded: {}\nFinal path lenghth: {}\n".format(astar.expanded_nodes, astar.goal.g))
-	astar.init(start, goal)
+	end = astar.run()
+	print("Nodes expanded: {}\nFinal path lenghth: {}\n".format(astar.expanded_nodes, end.g))
+	astar.init(start)
 	astar.setMode(1)
-	astar.run()
-	print("Nodes expanded: {}\nFinal path lenghth: {}\n".format(astar.expanded_nodes, astar.goal.g))
-	astar.init(start, goal)
+	end = astar.run()
+	print("Nodes expanded: {}\nFinal path lenghth: {}\n".format(astar.expanded_nodes, end.g))
+	astar.init(start)
 	astar.setMode(2)
-	astar.run()
-	print("Nodes expanded: {}\nFinal path lenghth: {}\n".format(astar.expanded_nodes, astar.goal.g))
+	end = astar.run()
+	print("Nodes expanded: {}\nFinal path lenghth: {}\n".format(astar.expanded_nodes, end.g))
 	
 	
 if (__name__ == "__main__"):
 	running = True
 	pygame.init()
-	display = pygame.display.set_mode((WIDTH, HEIGHT), pygame.DOUBLEBUF)
+	display = pygame.display.set_mode((WIDTH, HEIGHT), pygame.DOUBLEBUF | pygame.HWSURFACE)
 	pygame.display.set_caption("AStar testing")
 	renderer = ManhattenRenderer(display)
 	astar = AStar(renderer)
@@ -78,7 +78,10 @@ if (__name__ == "__main__"):
 	args = sys.argv
 	start, goal, map = parse_file(sys.argv[1])
 	
-	astar.init(start, goal)
+	goal.hash = goal.generateHash()
+	start.goal = goal
+	
+	astar.init(start)
 	astar.render(start)
 	
 	fpsClock = pygame.time.Clock()
@@ -91,7 +94,7 @@ if (__name__ == "__main__"):
 				if(event.key == K_ESCAPE):
 					pygame.event.post(pygame.event.Event(QUIT))
 				elif(event.key == K_r):
-					astar.init(start, goal)
+					astar.init(start)
 					astar.run()
 				elif(event.key == K_1):
 					astar.setMode(0)
@@ -100,5 +103,5 @@ if (__name__ == "__main__"):
 				elif(event.key == K_3):
 					astar.setMode(2)
 				elif(event.key == K_t):
-					run_test(astar, start, goal)
+					run_test(astar, start)
 					

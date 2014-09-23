@@ -24,6 +24,9 @@ class ASNode(object):
 		#This method should generate and set a unique hash
 		pass
 	
+	def is_goal_node(self):
+		pass
+	
 	def getF(self):
 		return self.g + self.h
 		
@@ -31,4 +34,4 @@ class ASNode(object):
 		if(not child in self.children):
 			self.children.append(child)
 			self.childCost[child.hash] = cost
-			
+		
