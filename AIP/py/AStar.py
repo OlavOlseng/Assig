@@ -134,7 +134,7 @@ class AStar(object):
 		
 	def run(self):
 		self.expanded_nodes = 0
-		print("Running in mode: {}".format(self.mode))
+		print("\nRunning in mode: {}".format(self.mode))
 		if(self.OPEN is None or self.nodes is None or self.start is None or self.success is True):
 			print("Algorithm not properly initialized")
 			return
