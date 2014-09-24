@@ -118,13 +118,16 @@ if __name__ == "__main__":
 						for var in c.variables:
 							var = end.gac.variables[var]
 							if len(var.domain) != 1:
-								uncolored_vars += 1
 								continue
 							d[var.name] = var.domain[0]
 						if len(d) != 2:
 							continue
 						if c.f(**d):
 							satisfied += 1
+					
+					for var in end.gac.variables.values():
+						if len(var.domain) != 1:
+								uncolored_vars += 1
 					
 					length = end.g/step_cost
 					expanded = agac.astar.expanded_nodes

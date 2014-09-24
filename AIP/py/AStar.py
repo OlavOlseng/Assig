@@ -131,6 +131,7 @@ class AStar(object):
 
 		self.expanded_nodes += 1		
 		self.render(node)
+		return node
 		
 	def run(self):
 		self.expanded_nodes = 0
@@ -138,7 +139,9 @@ class AStar(object):
 		if(self.OPEN is None or self.nodes is None or self.start is None or self.success is True):
 			print("Algorithm not properly initialized")
 			return
-		
+		node = None
 		while(len(self.OPEN) > 0 and not self.success):
 			node = self.step()
+			if node is None:
+				print("Step returned null")
 		return node
