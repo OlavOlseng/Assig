@@ -1,5 +1,5 @@
 from gac import GAC
-from VCSPNode import *
+from VCNode import *
 from a_gac import *
 from VCRenderer import VCRenderer
 import sys
@@ -86,7 +86,7 @@ if __name__ == "__main__":
 	args = sys.argv[1:]
 	csp = make_csp(args[0], int(args[1]))
 	
-	agac = a_gac(VCSPNode, renderer)
+	agac = a_gac(VCNode, renderer)
 
 	if (len(args) > 2):
 		agac.astar.setMode(int(args[2]))

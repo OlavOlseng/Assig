@@ -1,14 +1,14 @@
 from gac import *
 from AStar import *
-from VCSPNode import VCSPNode
+from AGACNode import AGACNode
 from copy import *
 
 class a_gac(object):
-	def __init__(self, gac_node_class_pointer, astar_renderer = None):
+	def __init__(self, agac_node_class_pointer, astar_renderer = None):
 		self.constraints = None
 		self.variables = None
 		self.initial_gac = None
-		self.gac_node_class_pointer = gac_node_class_pointer
+		self.agac_node_class_pointer = agac_node_class_pointer
 		self.astar = AStar(astar_renderer)
 	
 	def init(self, gac):
@@ -28,14 +28,11 @@ class a_gac(object):
 		
 		self.astar.init(node)
 		
-		k = 0
-		
-		#check success/failure condition
 		end = self.astar.run()
 		
 		return end
 		
 	def generate_anode(self, gac):
-		print("generating S0 from {}".format(self.gac_node_class_pointer))
-		return self.gac_node_class_pointer(gac)
+		print("generating S0 from {}".format(self.agac_node_class_pointer))
+		return self.agac_node_class_pointer(gac)
 		

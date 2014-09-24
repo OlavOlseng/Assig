@@ -3,12 +3,11 @@ from gac import *
 from random import randint
 from copy import deepcopy, copy
 
-step_cost = 10.0
-
-class VCSPNode(ASNode, object):
-	def __init__(self, gac):
-		super(VCSPNode, self).__init__()
+class AGACNode(ASNode, object):
+	def __init__(self, gac, step_cost):
+		super(AGACNode, self).__init__()
 		self.gac = gac
+		self.step_cost = step_cost
 	
 	def generateChildren(self):
 		if self.gac.is_success() == -1:
@@ -22,9 +21,9 @@ class VCSPNode(ASNode, object):
 			new_gac.constraints = self.gac.constraints
 			new_gac.variables[key].domain = [val]
 			new_gac.rerun(key)
-			child = VCSPNode(new_gac)
+			child = self.__class__(new_gac)
 			child.hash = child.generateHash()
-			child.g = self.g + 1 * step_cost
+			child.g = self.g + self.step_cost
 			children.append(child)
 			
 		return children
@@ -42,22 +41,7 @@ class VCSPNode(ASNode, object):
 		return self.gac.is_success() == 1
 		
 	def calculateHeuristic(self):
-		h = 0.0
-		vars = len(self.gac.variables)
-
-		for var in self.gac.variables:
-			domain = self.gac.variables[var].domain
-			count = len(domain)
-			if (count == 0):
-				h += 1000 * step_cost
-			else:
-				#h += step_cost
-				h += count * step_cost
-			
-		h -= vars * step_cost
-		self.h = float(h*step_cost)
-		#self.h = float(h)
-		return self.h
+		pass
 		
 	def mostPressured(self):
 		keys = self.gac.variables.keys()
