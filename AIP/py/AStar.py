@@ -57,12 +57,13 @@ class AStar(object):
 		else:
 			return self.binarySearch(list, middle + 1, end, node)
 		
-	
+	#Attaches a node to a parent, and sets the g value as well as calculating the heuristic
 	def attachAndEval(self, parent, child):
 		child.h = child.calculateHeuristic()
 		child.g = parent.g + parent.childCost.get(child.hash)
 		child.parent = parent
-		
+
+	#Propagates changes through the search network if needed, runs recursively
 	def propagate(self, node):
 		g = 0.0
 		g = node.g
@@ -84,7 +85,8 @@ class AStar(object):
 		if (not self.renderer is None):
 			self.renderer.render(self, node)
 			return
-		
+	
+	#Runs one iteration of the agenda
 	def step(self):
 		#time.sleep(1.0/60.0)
 		node = self.OPEN.pop(0)
@@ -139,6 +141,7 @@ class AStar(object):
 		if(self.OPEN is None or self.nodes is None or self.start is None or self.success is True):
 			print("Algorithm not properly initialized")
 			return
+		
 		node = None
 		while(len(self.OPEN) > 0 and not self.success):
 			node = self.step()

@@ -5,6 +5,8 @@ from VCRenderer import VCRenderer
 import sys
 import pygame
 from pygame.locals import *
+from threading import *
+
 
 WIDTH = 1024
 HEIGHT = 720
@@ -76,20 +78,58 @@ def toggle_fullscreen():
     pygame.key.set_mods(0) #HACK: work-a-round for a SDL bug??
  
     return screen
-
-
+def run(agac):
+	agac.init(csp)
+	end = agac.run()
+	
+	#do the stats
+	satisfied = 0
+	tot_cons = 0
+	uncolored_vars = 0
+	
+	for c in end.gac.constraints:
+		tot_cons += 1
+		d = {}
+		for var in c.variables:
+			var = end.gac.variables[var]
+			if len(var.domain) != 1:
+				continue
+			d[var.name] = var.domain[0]
+		if len(d) != 2:
+			continue
+		if c.f(**d):
+			satisfied += 1
+	
+	for var in end.gac.variables.values():
+		if len(var.domain) != 1:
+				uncolored_vars += 1
+	
+	length = end.g/end.step_cost
+	expanded = agac.astar.expanded_nodes
+	size = len(agac.astar.nodes)
+	
+	
+	print("\nStats:")
+	print("Unsatisfied constraints:{}/{}".format(tot_cons - satisfied, tot_cons))
+	print("Uncolored nodes {}/{}".format(uncolored_vars, len(end.gac.variables)))
+	print("Solution length: {}".format(length))
+	print("Nodes expanded: {}".format(expanded))
+	print("Nodes in tree: {}\n".format(size))
+					
 if __name__ == "__main__":
+	args = sys.argv[1:]
+	renderer = None
+	if ("-m" in args):	
+		agac.astar.setMode(int(args[args.index("-m")]))
+	csp = make_csp(args[0], int(args[1]))
 	pygame.init()
+	
 	display = pygame.display.set_mode((WIDTH, HEIGHT), HWSURFACE|DOUBLEBUF)
 	pygame.display.set_caption("VC A*-GAC testing")	
-	renderer = VCRenderer(display)
-	args = sys.argv[1:]
-	csp = make_csp(args[0], int(args[1]))
+	if("-nr" not in args):
+		renderer = VCRenderer(display)
 	
 	agac = a_gac(VCNode, renderer)
-
-	if (len(args) > 2):
-		agac.astar.setMode(int(args[2]))
 	
 	while 1:
 		for event in pygame.event.get():
@@ -104,41 +144,6 @@ if __name__ == "__main__":
 					pygame.display.flip()
 				
 				elif(event.key == K_r):
-					agac.init(csp)
-					end = agac.run()
-					
-					#do the stats
-					satisfied = 0
-					tot_cons = 0
-					uncolored_vars = 0
-					
-					for c in end.gac.constraints:
-						tot_cons += 1
-						d = {}
-						for var in c.variables:
-							var = end.gac.variables[var]
-							if len(var.domain) != 1:
-								continue
-							d[var.name] = var.domain[0]
-						if len(d) != 2:
-							continue
-						if c.f(**d):
-							satisfied += 1
-					
-					for var in end.gac.variables.values():
-						if len(var.domain) != 1:
-								uncolored_vars += 1
-					
-					length = end.g/step_cost
-					expanded = agac.astar.expanded_nodes
-					size = len(agac.astar.nodes)
-					
-					
-					print("\nStats:")
-					print("Unsatisfied constraints:{}/{}".format(tot_cons - satisfied, tot_cons))
-					print("Uncolored nodes {}/{}".format(uncolored_vars, len(end.gac.variables)))
-					print("Solution length: {}".format(length))
-					print("Nodes expanded: {}".format(expanded))
-					print("Nodes in tree: {}\n".format(size))
+					run(agac)
 					
 					

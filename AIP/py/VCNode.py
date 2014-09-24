@@ -1,10 +1,8 @@
 from AGACNode import AGACNode
 
-step_cost = 10
-
 class VCNode(AGACNode, object):
 	def __init__(self, gac):
-		super(VCNode, self).__init__(gac, 10)
+		super(VCNode, self).__init__(gac, 5)
 		
 	def calculateHeuristic(self):
 		h = 0.0
@@ -19,7 +17,7 @@ class VCNode(AGACNode, object):
 				#h += step_cost
 				h += count * self.step_cost
 			
-		h -= vars * step_cost
-		self.h = float(h*step_cost)
+		h -= vars * self.step_cost
+		self.h = float(h*self.step_cost)
 		#self.h = float(h)
 		return self.h
