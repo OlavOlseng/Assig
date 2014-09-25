@@ -2,6 +2,7 @@
     <Project name="A*-GAC">
         <Folder name="src">
             <File name="py\a_gac.py" />
+            <File name="py\AGACNode.py" />
             <Folder name="vc">
                 <File name="py\vc_main.py" />
             </Folder>
