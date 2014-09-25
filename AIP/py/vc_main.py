@@ -119,8 +119,7 @@ def run(agac):
 if __name__ == "__main__":
 	args = sys.argv[1:]
 	renderer = None
-	if ("-m" in args):	
-		agac.astar.setMode(int(args[args.index("-m")]))
+	
 	csp = make_csp(args[0], int(args[1]))
 	pygame.init()
 	
@@ -131,6 +130,9 @@ if __name__ == "__main__":
 	
 	agac = a_gac(VCNode, renderer)
 	
+	if ("-m" in args):	
+		agac.astar.setMode(int(args[args.index("-m") + 1]))
+
 	while 1:
 		for event in pygame.event.get():
 			if event.type == QUIT:
