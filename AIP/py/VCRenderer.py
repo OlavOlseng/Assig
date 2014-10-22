@@ -68,8 +68,6 @@ class VCRenderer(Renderer, object):
 			point = self.get_point(variable, x_scale, y_scale, radius)
 			pygame.draw.circle(self.display, color,  point, radius)
 		
-			
-		
 		color = black
 		pygame.transform.scale
 		pygame.display.flip()

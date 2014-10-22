@@ -78,6 +78,7 @@ def toggle_fullscreen():
     pygame.key.set_mods(0) #HACK: work-a-round for a SDL bug??
  
     return screen
+	
 def run(agac):
 	agac.init(csp)
 	end = agac.run()
@@ -133,9 +134,10 @@ if __name__ == "__main__":
 	if ("-m" in args):	
 		agac.astar.setMode(int(args[args.index("-m") + 1]))
 
-	while 1:
+	while running:
 		for event in pygame.event.get():
 			if event.type == QUIT:
+				running = False
 				pygame.quit()
 			elif(event.type == KEYDOWN):
 				if(event.key == K_ESCAPE):

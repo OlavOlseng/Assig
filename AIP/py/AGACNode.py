@@ -23,7 +23,8 @@ class AGACNode(ASNode, object):
 			new_gac.rerun(key)
 			child = self.__class__(new_gac)
 			child.hash = child.generateHash()
-			child.g = self.g + self.step_cost
+			#child.g = self.g + self.step_cost
+			child.g = 0
 			children.append(child)
 			
 		return children
@@ -50,6 +51,8 @@ class AGACNode(ASNode, object):
 		
 		for key in keys:
 			domain = self.gac.variables[key].domain
+			if(self.gac.variables[key].name[0] == "c"):
+				continue
 			count = len(domain)
 			if count < min and count > 1:
 				mins = [key]
@@ -58,5 +61,6 @@ class AGACNode(ASNode, object):
 			elif count == min:
 				mins.append(key)
 				
-		return mins[randint(0,len(mins)-1)]
+		#return mins[randint(0,len(mins)-1)]
+		return mins[0]
 		

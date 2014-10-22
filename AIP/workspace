@@ -5,7 +5,10 @@
             <File name="py\AGACNode.py" />
             <Folder name="vc">
                 <File name="py\vc_main.py" />
+                <File name="py\VCNode.py" />
+                <File name="py\VCRenderer.py" />
             </Folder>
+            <Folder name="ff" />
         </Folder>
     </Project>
     <Project name="A*">
