@@ -46,21 +46,25 @@ class AGACNode(ASNode, object):
 		
 	def mostPressured(self):
 		keys = self.gac.variables.keys()
-		mins = []
 		min = 1000000
+		
+		most_pressured = 0
+		max_participation = 0
 		
 		for key in keys:
 			domain = self.gac.variables[key].domain
-			if(self.gac.variables[key].name[0] == "c"):
-				continue
 			count = len(domain)
 			if count < min and count > 1:
-				mins = [key]
+				most_pressured = key
 				min = count
+				max_participation = self.gac.variables[key].participation
 				
 			elif count == min:
-				mins.append(key)
-				
+				participation = self.gac.variables[key].participation
+				if  participation > max_participation:
+					most_pressured = key
+					max_participation = participation
+			
 		#return mins[randint(0,len(mins)-1)]
-		return mins[0]
+		return most_pressured
 		

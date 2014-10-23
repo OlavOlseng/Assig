@@ -133,7 +133,7 @@ if __name__ == "__main__":
 	
 	if ("-m" in args):	
 		agac.astar.setMode(int(args[args.index("-m") + 1]))
-
+	running = True
 	while running:
 		for event in pygame.event.get():
 			if event.type == QUIT:

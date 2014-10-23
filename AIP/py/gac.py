@@ -18,6 +18,7 @@ class GAC(object):
 		self.queue = []
 		for c in self.constraints:
 			for v in c.variables:
+				self.variables[v].participation += 1
 				self.queue.append((c, v))
 		
 	def revise(self, constraint, v_name):
@@ -115,6 +116,7 @@ class Variable(object):
 	def __init__(self, s_name, domain = []):
 		self.domain = domain
 		self.name = s_name
+		self.participation = 0
 		
 	def remove(self, domain_value):
 		if(domain_value in self.domain):
