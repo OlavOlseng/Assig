@@ -32,7 +32,6 @@ def make(path):
 	#generate map
 	for line in f:
 		l = parse_line(line)
-		print(line)
 		if count == 0:
 			size = int(l[0])
 			colors = int(l[1])
