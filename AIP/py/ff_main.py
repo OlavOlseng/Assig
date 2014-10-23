@@ -46,6 +46,7 @@ def make(path):
 		
 	for row in map:
 		print(row)
+	print()
 	
 	gac = GAC()
 	gen_variables(gac, map, colors)
@@ -92,8 +93,6 @@ def gen_variables(gac, map, i_colors):
 				p_name = get_pipe_name(x,y,x,y+1)
 				domain = [0,1]
 				gac.add_variable(Ff_var( p_name, domain, 0, 0, VARIABLE_TYPE_PIPE))
-			
-	print(gac.variables.keys())
 
 #The meat of the code	
 def gen_constraints(gac, map):
