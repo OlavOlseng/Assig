@@ -12,7 +12,7 @@ WIDTH = 1024
 HEIGHT = 720
 
 def parse_file(path):
-	f = open("{}.txt".format(path), "r")
+	f = open(path, "r")
 	dims = parse_line(f.readline())
 	map = create_map(dims[0],dims[1])
 	

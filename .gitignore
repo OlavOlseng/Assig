@@ -63,5 +63,6 @@ log.txt
 *.tif.xml
 *.tif
 *.pgm
+GeoLucene
 
 
