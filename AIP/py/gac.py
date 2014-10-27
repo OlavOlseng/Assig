@@ -117,6 +117,7 @@ class Variable(object):
 		self.domain = domain
 		self.name = s_name
 		self.participation = 0
+		self.init_domain_size = float(len(domain))
 		
 	def remove(self, domain_value):
 		if(domain_value in self.domain):

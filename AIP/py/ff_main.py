@@ -16,6 +16,8 @@ VARIABLE_TYPE_PIPE = 1
 CELL_TYPE_MIDDLE = 0
 CELL_TYPE_EDGE = 1
 CELL_TYPE_CORNER = 2
+FAST_MODE = False
+
 
 class Ff_var(Variable, object):
 	def __init__(self, s_name, l_domain, x, y, v_type):
@@ -125,8 +127,11 @@ def gen_nieghbour_cell_constraint(x1, y1, x2, y2):
 	c1 = get_cell_name(x1,y1)
 	c2 = get_cell_name(x2,y2)
 	p = get_pipe_name(x1,y1,x2,y2)
-	return Constraint([c1, c2, p], "{} == {} and {} == 1 or {} == 0".format(c1, c2, p, p))
-
+	if (not FAST_MODE):
+		return Constraint([c1, c2, p], "{} == {} and {} == 1 or {} == 0".format(c1, c2, p, p))
+	else:
+		return Constraint([c1, c2, p], "{} != {} or {} == 1".format(c1, c2, p))
+		
 def gen_cell_integrity_constraint(x, y, up, down, left, right, isEndpoint):
 	
 	c1 = get_cell_name(x,y)
@@ -180,8 +185,6 @@ def gen_cell_integrity_constraint(x, y, up, down, left, right, isEndpoint):
 		num = 1
 	constraint += " == {}".format(num)
 	constraint2 += " >= {}".format(num)
-	
-	print(constraint2)
 	
 	return [Constraint(vars, constraint[1:]), Constraint(vars2, constraint2[1:])]
 
@@ -239,6 +242,7 @@ if __name__ == "__main__":
 	#read args from commandline
 	args = sys.argv[1:]
 	print(args)
+	FAST_MODE = "-strict" in args
 	gac, size = make(args[0])
 		
 	print("Initializng pygame")
@@ -253,6 +257,7 @@ if __name__ == "__main__":
 	
 	if ("-m" in args):	
 		agac.astar.setMode(int(args[args.index("-m") + 1]))
+	
 	
 	print("Starting loop")
 	running = True

@@ -23,7 +23,7 @@ class AGACNode(ASNode, object):
 			new_gac.rerun(key)
 			child = self.__class__(new_gac)
 			child.hash = child.generateHash()
-			#child.g = self.g + self.step_cost
+			child.g = self.g + self.step_cost
 			child.g = 0
 			children.append(child)
 			
@@ -51,20 +51,26 @@ class AGACNode(ASNode, object):
 		most_pressured = 0
 		max_participation = 0
 		
+		
 		for key in keys:
 			if key[0] == "p":
 				continue
 			domain = self.gac.variables[key].domain
-			count = len(domain)
-			if count < min and count > 1:
-				most_pressured = key
-				min = count
-				max_participation = self.gac.variables[key].participation
-			elif count == min:
-				participation = self.gac.variables[key].participation
-				if  participation > max_participation:
+			count = float(len(domain))
+			pressure = count / self.gac.variables[key].init_domain_size
+			
+			if(count > 1):
+				if pressure < min:
 					most_pressured = key
-					max_participation = participation
+					min = pressure
+					max_participation = self.gac.variables[key].participation
+					
+				elif pressure == min:
+					participation = self.gac.variables[key].participation
+					if  participation > max_participation:
+						most_pressured = key
+						max_participation = participation
+						
 		#return mins[randint(0,len(mins)-1)]
 		return most_pressured
 		

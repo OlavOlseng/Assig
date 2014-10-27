@@ -14,10 +14,10 @@ class FFNode(AGACNode, object):
 			domain = self.gac.variables[var].domain
 			count = len(domain)
 			if (count == 0):
-				h += 10000 * self.step_cost
+				h += 2000000000
 			else:
-				h += self.step_cost
-				#h += count
+				#h += self.step_cost
+				h += count
 			
 		#h -= vars * self.step_cost
 		#self.h = float(h*self.step_cost)
