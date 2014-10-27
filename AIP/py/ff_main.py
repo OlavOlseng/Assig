@@ -5,6 +5,8 @@ import pygame
 from FfRenderer import FfRenderer
 from pygame.locals import *
 from FFNode import FFNode
+import time
+
 WIDTH = 800
 HEIGHT = 600
 
@@ -115,7 +117,7 @@ def gen_constraints(gac, map):
 			if right:
 				constraints.append(gen_nieghbour_cell_constraint(x, y, x + 1, y))
 				
-			constraints.append(gen_cell_integrity_constraint(x, y, up, down, left, right, isEndpoint))
+			constraints += gen_cell_integrity_constraint(x, y, up, down, left, right, isEndpoint)
 	gac.constraints = constraints
 			
 def gen_nieghbour_cell_constraint(x1, y1, x2, y2):
@@ -126,34 +128,62 @@ def gen_nieghbour_cell_constraint(x1, y1, x2, y2):
 	return Constraint([c1, c2, p], "{} == {} and {} == 1 or {} == 0".format(c1, c2, p, p))
 
 def gen_cell_integrity_constraint(x, y, up, down, left, right, isEndpoint):
+	
+	c1 = get_cell_name(x,y)
+	
 	base = "+ {} "
 	constraint = ""
+	base2 = "+ ({} == {})"
+	constraint2 = ""
+	
+	
 	vars = []
+	vars2 = [c1]
 	if up:
 		p = get_pipe_name(x,y-1,x,y)
 		vars.append(p)
 		constraint += base.format(p)
+		
+		c2 = get_cell_name(x,y-1)
+		vars2.append(c2)
+		constraint2 += base2.format(c1, c2)
+		
 	if down:
 		p = get_pipe_name(x,y,x,y+1)
 		vars.append(p)
 		constraint += base.format(p)
+		
+		c2 = get_cell_name(x,y+1)
+		vars2.append(c2)
+		constraint2 += base2.format(c1, c2)
 		
 	if left:
 		p = get_pipe_name(x-1,y,x,y)
 		constraint += base.format(p)
 		vars.append(p)
 		
+		c2 = get_cell_name(x-1, y)
+		vars2.append(c2)
+		constraint2 += base2.format(c1, c2)
+		
 	if right:
 		p = get_pipe_name(x,y,x+1,y)
 		vars.append(p)
 		constraint += base.format(p)
 	
+		c2 = get_cell_name(x+1,y)
+		vars2.append(c2)
+		constraint2 += base2.format(c1, c2)
+	
 	num = 2
 	if (isEndpoint):
 		num = 1
 	constraint += " == {}".format(num)
+	constraint2 += " >= {}".format(num)
 	
-	return Constraint(vars, constraint[1:])
+	print(constraint2)
+	
+	return [Constraint(vars, constraint[1:]), Constraint(vars2, constraint2[1:])]
 
 def get_cell_name(x, y):
 	return "c{}_{}".format(x,y)
@@ -241,5 +271,7 @@ if __name__ == "__main__":
 					pygame.display.flip()
 				
 				elif(event.key == K_r):
+					start = time.clock()
 					run(agac, gac)
-					
+					end = time.clock()
+					print("Runtime = {} ms".format(1000 * (end-start)))

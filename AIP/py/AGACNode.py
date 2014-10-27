@@ -52,19 +52,19 @@ class AGACNode(ASNode, object):
 		max_participation = 0
 		
 		for key in keys:
+			if key[0] == "p":
+				continue
 			domain = self.gac.variables[key].domain
 			count = len(domain)
 			if count < min and count > 1:
 				most_pressured = key
 				min = count
 				max_participation = self.gac.variables[key].participation
-				
 			elif count == min:
 				participation = self.gac.variables[key].participation
 				if  participation > max_participation:
 					most_pressured = key
 					max_participation = participation
-			
 		#return mins[randint(0,len(mins)-1)]
 		return most_pressured
 		

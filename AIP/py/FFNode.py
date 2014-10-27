@@ -9,12 +9,12 @@ class FFNode(AGACNode, object):
 		vars = len(self.gac.variables)
 		
 		for var in self.gac.variables:
-			if self.gac.variables[var].name[0] == "c":
+			if self.gac.variables[var].name[0] == "p":
 				continue
 			domain = self.gac.variables[var].domain
 			count = len(domain)
 			if (count == 0):
-				h += 1000 * self.step_cost
+				h += 10000 * self.step_cost
 			else:
 				h += self.step_cost
 				#h += count
