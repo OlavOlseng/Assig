@@ -9,8 +9,8 @@ class FFNode(AGACNode, object):
 		vars = len(self.gac.variables)
 		
 		for var in self.gac.variables:
-			if self.gac.variables[var].name[0] == "p":
-				continue
+			#if self.gac.variables[var].name[0] == "p":
+			#	continue
 			domain = self.gac.variables[var].domain
 			count = len(domain)
 			if (count == 0):

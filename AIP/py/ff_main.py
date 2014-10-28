@@ -128,7 +128,7 @@ def gen_nieghbour_cell_constraint(x1, y1, x2, y2):
 	c2 = get_cell_name(x2,y2)
 	p = get_pipe_name(x1,y1,x2,y2)
 	if (not FAST_MODE):
-		return Constraint([c1, c2, p], "{} == {} and {} == 1 or {} == 0".format(c1, c2, p, p))
+		return Constraint([c1, c2, p], "{0} == {1} and {2} == 1 or {2} == 0".format(c1, c2, p))
 	else:
 		return Constraint([c1, c2, p], "{} != {} or {} == 1".format(c1, c2, p))
 		
@@ -248,7 +248,7 @@ if __name__ == "__main__":
 	print("Initializng pygame")
 	pygame.init()
 	display = pygame.display.set_mode((WIDTH, HEIGHT), pygame.DOUBLEBUF | pygame.HWSURFACE)
-	pygame.display.set_caption("FlowFree Solution")
+	pygame.display.set_caption("FlowFree Solution: " + args[0])
 	
 	renderer = FfRenderer(display, size)
 	renderer.gac_render(gac)
