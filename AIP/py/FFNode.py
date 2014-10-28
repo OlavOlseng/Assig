@@ -10,18 +10,33 @@ class FFNode(AGACNode, object):
 		h = 0.0
 		vars = len(self.gac.variables)
 		map = []
-		
-		for var in self.gac.variables:
+		for i in range(size):
+			map.append([0]*size)
+		fail_state = False
+		for var in self.gac.variables.values():
 			#if self.gac.variables[var].name[0] == "p":
 			#	continue
-			domain = self.gac.variables[var].domain
+			domain = var.domain
 			count = len(domain)
 			if (count == 0):
 				h += 2000000000
-			else:
+				fail_state = True
+				break
+			elif(count > 1):
 				#h += self.step_cost
 				h += count
 			
+			if (var.name[0] == "c" and count == 1):
+				map[var.y][var.x] = var.domain[0]
+		if(not fail_state):
+			#Check for and punish squares of same color
+			for y in range(size-1):
+				for x in range(size-1):
+					color = map[y][x]
+					if(color == 0):
+						continue
+					if(map[y+1][x] == color and map[y+1][x+1] == color and map[y][x+1] == color):
+						h += 30
 			
 		#h -= vars * self.step_cost
 		self.h = float(h*self.step_cost)
@@ -29,6 +44,8 @@ class FFNode(AGACNode, object):
 		return self.h
 		
 def mostPressured(self):
+		#Since only cell variables are chosen, this is esentially min-domain,
+		#and then using most constrained among the min-domain variables
 		keys = self.gac.variables.keys()
 		min = 1000000
 		
@@ -37,6 +54,7 @@ def mostPressured(self):
 		
 		
 		for key in keys:
+			#skip pipe variables
 			if key[0] == "p":
 				continue
 			domain = self.gac.variables[key].domain
