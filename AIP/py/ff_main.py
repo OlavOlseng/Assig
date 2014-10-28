@@ -4,7 +4,7 @@ import sys
 import pygame
 from FfRenderer import FfRenderer
 from pygame.locals import *
-from FFNode import FFNode
+import FFNode
 import time
 
 WIDTH = 800
@@ -50,7 +50,7 @@ def make(path):
 	for row in map:
 		print(row)
 	print()
-	
+	FFNode.size = size
 	gac = GAC()
 	gen_variables(gac, map, colors)
 	gen_constraints(gac, map)
@@ -202,35 +202,11 @@ def run(agac, csp):
 	agac.init(csp)
 	end = agac.run()
 	
-	#do the stats
-	satisfied = 0
-	tot_cons = 0
-	uncolored_vars = 0
-	
-	for c in end.gac.constraints:
-		tot_cons += 1
-		d = {}
-		vars = []
-		for var in c.variables:
-			var = end.gac.variables[var]
-			if len(var.domain) != 1:
-				continue
-			d[var.name] = var.domain[0]
-		if c.f(**d):
-			satisfied += 1
-	
-	for var in end.gac.variables.values():
-		if len(var.domain) != 1:
-				uncolored_vars += 1
-	
 	length = end.g/end.step_cost
 	expanded = agac.astar.expanded_nodes
 	size = len(agac.astar.nodes)
 	
-	
 	print("\nStats:")
-	print("Unsatisfied constraints:{}/{}".format(tot_cons - satisfied, tot_cons))
-	print("Uncolored nodes {}/{}".format(uncolored_vars, len(end.gac.variables)))
 	print("Solution length: {}".format(length))
 	print("Nodes expanded: {}".format(expanded))
 	print("Nodes in tree: {}\n".format(size))
@@ -253,7 +229,7 @@ if __name__ == "__main__":
 	renderer = FfRenderer(display, size)
 	renderer.gac_render(gac)
 	
-	agac = a_gac(FFNode, renderer)
+	agac = a_gac(FFNode.FFNode, renderer)
 	
 	if ("-m" in args):	
 		agac.astar.setMode(int(args[args.index("-m") + 1]))

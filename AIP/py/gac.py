@@ -35,7 +35,6 @@ class GAC(object):
 		for v_val in self.variables[v_name].domain:
 			d = {v_name : v_val}
 			passed = False
-			
 			#this loop checks the constraint per domain value
 			for tuple in util.get_product(*o_vals):
 				for i in range(len(o_vals)):
@@ -43,15 +42,13 @@ class GAC(object):
 				if(constraint.f(**d)):
 					passed = True
 					break
-			
 			if not passed:
 				to_remove.append(v_val)
 				domain_changed = True
-				
+			
 		for val in to_remove:
 			#print("Removing {}...".format(val))
 			self.variables[v_name].remove(val)
-		
 		return domain_changed
 	
 	#this function repopulates the queue with after a focal variable domain was altered

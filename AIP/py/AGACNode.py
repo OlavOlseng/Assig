@@ -24,7 +24,6 @@ class AGACNode(ASNode, object):
 			child = self.__class__(new_gac)
 			child.hash = child.generateHash()
 			child.g = self.g + self.step_cost
-			child.g = 0
 			children.append(child)
 			
 		return children
@@ -53,8 +52,6 @@ class AGACNode(ASNode, object):
 		
 		
 		for key in keys:
-			if key[0] == "p":
-				continue
 			domain = self.gac.variables[key].domain
 			count = float(len(domain))
 			pressure = count / self.gac.variables[key].init_domain_size

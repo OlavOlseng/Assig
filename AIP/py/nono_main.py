@@ -5,11 +5,15 @@ from a_gac import *
 import sys
 import pygame
 from pygame.locals import *
-from FFNode import FFNode
 import time
 from copy import deepcopy
+from VCNode import VCNode
+from NNRenderer import NNRenderer
 
-def make(path, gac):
+WIDTH = 800
+HEIGHT = 600
+
+def make(path):
 	f = open(path, "r")
 	width = 0
 	height = 0
@@ -23,11 +27,11 @@ def make(path, gac):
 	for line in f:
 		l = util.parse_line(line)
 		if count == 0:
-			width = int(l[0])
-			height = int(l[1])
+			width = int(l[0]) #columns
+			height = int(l[1])	#rows
 			print(l)
 		
-		elif(count <= width):
+		elif(count <= height):
 			row = []
 			for segment in l:
 				row.append(int(segment))
@@ -42,51 +46,54 @@ def make(path, gac):
 			print(col)
 		count += 1
 		
-	bitmap = util.get_bitmap_vector(max(width, height) + 1)
+	bitmap = util.get_bitmap_vector(max(width, height))
 	print()
 	
 	gac = GAC()
+	#gen variables
 	vars = gen_variables(rows, columns, width, height, bitmap)
-	
-	#add vars to gac
 	for var in vars:
 		gac.add_variable(var)
+
 	#gen constraints
-	#Cnm = (rn & 2**n) & (cm & 2**m)
-	#add constraints
-	#return gac
+	constraints = gen_constraints(width, height)
+	gac.constraints = constraints
+	
+	return gac, width, height
 	
 def gen_variables(rows, columns, width, height, bitmap):
 	vars = []
-	max_row_value = bitmap[width]
-	max_col_value = bitmap[height]
+	print(len(bitmap))
 	
 	for i in range(len(rows)):
-		name = "r{}".format(i)
+		name = "r{}".format(height - i - 1)
 		domain = gen_domain(rows[i], width, bitmap)
+		print("{}: {}".format(name, domain))
 		vars.append(Variable(name, domain))
 	
 	for i in range(len(columns)):
 		name = "c{}".format(i)
+		columns[i].reverse()
 		domain = gen_domain(columns[i], height, bitmap)
+		print("{}: {}".format(name, domain))
 		vars.append(Variable(name, domain))
-	return variables
+	return vars
 	
 def gen_domain(segments, max_length, bitmap):
 	bits = [0] * max_length
 	bit_domain = []
 	domain = []
 	build_recursive(segments, 0, bits, 0, bit_domain)
-	
+	for l in bit_domain:
+		print(l)
 	for number in bit_domain:
 		value = 0
 		for bit in range(len(number)):
 			if(number[bit]):
-				value += bitmap[bit]
+				value += bitmap[max_length - bit - 1]
 		domain.append(value)
 	return domain
 		
-
 def build_recursive(segments, segment_index, initial_bits, bit_caret, results):
 	segment_length = segments[segment_index]
 	i = bit_caret
@@ -108,36 +115,65 @@ def build_recursive(segments, segment_index, initial_bits, bit_caret, results):
 			
 		i += 1
 
+def gen_constraints(width, height):
+	constraints = []
+	print("WIDTH: {}\tHEIGHT: {}".format(width, height))
+	for x in range(width):
+		col = "c{}".format(x)
+		row_bit = (width - x - 1)
+		for y in range(height):
+			col_bit = (y)
+			row = "r{}".format(y)
+			constraint = "({0} & 2**{2} > 0) == ({1} & 2**{3} > 0)".format(row, col, row_bit, col_bit)
+			constraints.append(Constraint([row, col], constraint))
+			print(constraint)
+	return constraints
+
+def run(agac, csp):
+	agac.init(csp)
+	end = agac.run()
+	renderer.gac_render(end.gac)
+
+	length = end.g/end.step_cost
+	expanded = agac.astar.expanded_nodes
+	size = len(agac.astar.nodes)
 	
+	
+	print("\nStats:")
+	print("Solution length: {}".format(length))
+	print("Nodes expanded: {}".format(expanded))
+	print("Nodes in tree: {}\n".format(size))	
+
 if __name__ == "__main__":
 	
 	print("Starting nono_solver...")
-
+	
+	
+	#sys.exit()
 	#read args from commandline
 	args = sys.argv[1:]
 	print(args)
 
 	#make gac
-	gac = make(args[0])
-	sys.exit()
+	gac, width, height = make(args[0])
+	
 	print("Initializng pygame")
 	pygame.init()
 	display = pygame.display.set_mode((WIDTH, HEIGHT), pygame.DOUBLEBUF | pygame.HWSURFACE)
 	pygame.display.set_caption("Nonogram solver: " + args[0])
 		
 	#setup renderer
-	#renderer = FfRenderer(display, size)
-	
+	renderer = NNRenderer(display, width, height)
+	renderer.gac_render(gac)
 	#setup agac
-	#agac = a_gac(FFNode, renderer)
+	agac = a_gac(VCNode, None)
 	
 	if ("-m" in args):	
 		agac.astar.setMode(int(args[args.index("-m") + 1]))
 	
-	
 	print("Starting loop")
 	running = True
-
+	
 	while running:
 		for event in pygame.event.get():
 			if event.type == QUIT:
@@ -154,6 +190,7 @@ if __name__ == "__main__":
 				elif(event.key == K_r):
 					start = time.clock()
 					#Run it!
-					#run(agac, gac)
+					run(agac, gac)
 					end = time.clock()
+					
 					print("Runtime = {} ms".format(1000 * (end-start)))
