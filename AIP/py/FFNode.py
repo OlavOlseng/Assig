@@ -36,14 +36,14 @@ class FFNode(AGACNode, object):
 					if(color == 0):
 						continue
 					if(map[y+1][x] == color and map[y+1][x+1] == color and map[y][x+1] == color):
-						h += 30
+						h += 500
 			
 		#h -= vars * self.step_cost
 		self.h = float(h*self.step_cost)
 		#self.h = float(h)
 		return self.h
 		
-def mostPressured(self):
+	def mostPressured(self):
 		#Since only cell variables are chosen, this is esentially min-domain,
 		#and then using most constrained among the min-domain variables
 		keys = self.gac.variables.keys()
