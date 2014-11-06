@@ -4,11 +4,14 @@ from pygame.locals import *
 from renderer import Renderer
 import sys
 import random
+import copy
 
 WIDTH = 800
 HEIGHT = 800
 AI_MODE = False
+CHEAT_MODE = True
 renderer = None
+move_stack = []
 
 def initialize():
 	board = game_logic.new_board()
@@ -30,6 +33,7 @@ def initialize():
 	
 	#render(board)
 	AI_MODE = False
+	move_stack = []
 	return board
 
 def get_move(a_board):
@@ -53,6 +57,7 @@ if (__name__ == "__main__"):
 	board = initialize()
 	
 	while running:
+		
 		direction = None
 		for event in pygame.event.get():
 			if event.type == QUIT:
@@ -71,15 +76,26 @@ if (__name__ == "__main__"):
 					direction = game_logic.DIRECTION_LEFT
 				elif(event.key == K_RETURN):
 					board = initialize()
+					move_stack = []
 					AI_MODE = False
 				elif(event.key == K_a):
 					AI_MODE = not AI_MODE
 					print("AI_MODE set to: {}".format(AI_MODE))
+				elif(event.key == K_z):
+					print("CHEATING!")
+					if(CHEAT_MODE):
+						if len(move_stack) > 0:
+							board = move_stack.pop()
 		
 		if AI_MODE:
 			direction = get_move(board)
 		if direction != None:
-			board, status = game_logic.step(direction, board)
+			new_board, status = game_logic.step(direction, board)
 			if status == game_logic.BOARD_STATE_OK:
+				if CHEAT_MODE:
+					move_stack.append(copy.deepcopy(board))
+				board = new_board
 				game_logic.new_tile(board)
+			if status == game_logic.BOARD_STATE_FAILURE:
+				AI_MODE = False
 		render(board)
