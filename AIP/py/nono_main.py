@@ -63,7 +63,6 @@ def make(path):
 	
 def gen_variables(rows, columns, width, height, bitmap):
 	vars = []
-	print(len(bitmap))
 	
 	for i in range(len(rows)):
 		name = "r{}".format(height - i - 1)
@@ -84,8 +83,6 @@ def gen_domain(segments, max_length, bitmap):
 	bit_domain = []
 	domain = []
 	build_recursive(segments, 0, bits, 0, bit_domain)
-	for l in bit_domain:
-		print(l)
 	for number in bit_domain:
 		value = 0
 		for bit in range(len(number)):
@@ -117,7 +114,6 @@ def build_recursive(segments, segment_index, initial_bits, bit_caret, results):
 
 def gen_constraints(width, height):
 	constraints = []
-	print("WIDTH: {}\tHEIGHT: {}".format(width, height))
 	for x in range(width):
 		col = "c{}".format(x)
 		row_bit = (width - x - 1)
@@ -126,7 +122,6 @@ def gen_constraints(width, height):
 			row = "r{}".format(y)
 			constraint = "({0} & 2**{2} > 0) == ({1} & 2**{3} > 0)".format(row, col, row_bit, col_bit)
 			constraints.append(Constraint([row, col], constraint))
-			print(constraint)
 	return constraints
 
 def run(agac, csp):

@@ -36,14 +36,12 @@ class NNRenderer(Renderer, object):
 				x = int(var.name[1:])
 				for y in range(self.height):
 					if (var.domain[0] & 2**y) > 0:
-						print("X: {}\tY: {}".format(x, y))
 						map[y][x] += 1
 			
 			elif var.name[0] == "r" and len(var.domain) == 1:
 				y = int(var.name[1:])
 				for x in range(self.width):
 					if (var.domain[0] & 2**(self.width - x - 1)) > 0:
-						print("X: {}\tY: {}".format(x, y))
 						map[y][x] += 2
 						
 		for y in range(len(map)):
