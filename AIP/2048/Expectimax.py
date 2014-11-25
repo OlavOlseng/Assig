@@ -1,65 +1,45 @@
 #Expectimax tree
+from memory_profiler import profile
 
 NODE_TYPE_PLAYER = 0
 NODE_TYPE_ADVERSARY = 1
 NODE_TYPE_RANDOM = 2
 
-class TreeNode(object):
-	def __init__(self, type, probability):
-		super(object, self).__init__()
-		self.children = []
-		self.type = type
-		self.prob = probability
-		
-	def evaluate(self):
-		pass
-		
-	def generate_children(self):
-		pass
+
+def run(root, depth, generate_children, evaluate):
+	children, probs, moves, child_type = generate_children(root, 0.25, NODE_TYPE_PLAYER)
+	move = -1
+	score = -4000000000.0
+	for i in range(len(children)):
+		temp_score = __build(children[i], depth-1, probs[i], generate_children, evaluate, child_type)
+		if temp_score > score:
+			score = temp_score
+			move = moves[i]
+	return move
 	
-	def isTerminal(self):
-		pass
+def __build(node, depth, prob, generate_children, evaluate, type):
+	alpha = 0
+	children, probs, moves, child_type = generate_children(node, prob, type)
+
+	if len(children) == 0 or depth == 0:
+		return evaluate(node)
 	
+	if type == NODE_TYPE_ADVERSARY:
+		#Return value of minimum-valued child node
+		alpha = 2000000.0
+		for i in range(len(children)):
+			alpha = min(alpha, __build(children[i], depth-1, probs[i], generate_children, evaluate, child_type))
 	
-class Tree(object):
-	def __init__(self, root, max_depth):
-		self.root = root
-		self.max_depth = max_depth
-		
-	def run(self):
-		self.root.generate_children()
-		best_child = None
-		score = -4000000000.0
-		for child in self.root.children:
-			temp_score = self.__build(child, self.max_depth-1)
-			if temp_score > score:
-				score = temp_score
-				best_child = child
-		return best_child
-		
-	def __build(self, node, depth):
+	elif type == NODE_TYPE_PLAYER:
+		#Return value of maximum-valued child node
+		alpha = -2000000.0
+		for i in range(len(children)):
+			alpha = max(alpha, __build(children[i], depth-1, probs[i], generate_children, evaluate, child_type))
+	
+	elif type == NODE_TYPE_RANDOM:
+		#Return weighted average of all child nodes' values
 		alpha = 0
-		node.generate_children()
-
-		if node.isTerminal() or depth == 0:
-			return node.evaluate()
-		
-		if node.type == NODE_TYPE_ADVERSARY:
-			#Return value of minimum-valued child node
-			alpha = 2000000.0
-			for child in node.children:
-				alpha = min(alpha, self.__build(child, depth-1))
-		
-		elif node.type == NODE_TYPE_PLAYER:
-			#Return value of maximum-valued child node
-			alpha = -2000000.0
-			for child in node.children:
-				alpha = max(alpha, self.__build(child, depth-1))
-		
-		elif node.type == NODE_TYPE_RANDOM:
-			#Return weighted average of all child nodes' values
-			alpha = 0
-			for child in node.children:
-				alpha -= child.prob * self.__build(child, depth-1)
-
-		return alpha
+		for i in range(len(children)):
+			alpha += probs[i] * __build(children[i], depth-1, probs[i], generate_children, evaluate, child_type)
+	children = []	
+	return alpha

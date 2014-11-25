@@ -1,5 +1,4 @@
 from random import Random
-import copy
 
 DIRECTION_UP = 0
 DIRECTION_RIGHT = 1
@@ -31,7 +30,7 @@ def new_tile(a_board):
 	
 
 def step(direction, a_board):
-	board = copy.deepcopy(a_board)
+	board = [i[:] for i in a_board]
 	if direction == DIRECTION_UP:
 		move_up(board)
 	elif direction == DIRECTION_RIGHT:
@@ -142,10 +141,10 @@ def check_board(pre_move_board, a_board):
 	return BOARD_STATE_OK
 
 def check_fail_state(a_board):
-	t1 = copy.deepcopy(a_board)
-	t2 = copy.deepcopy(a_board)
-	t3 = copy.deepcopy(a_board)
-	t4 = copy.deepcopy(a_board)
+	t1 = [i[:] for i in a_board]
+	t2 = [i[:] for i in a_board]
+	t3 = [i[:] for i in a_board]
+	t4 = [i[:] for i in a_board]
 
 	move_up(t1)
 	move_right(t2)

@@ -4,9 +4,9 @@ from pygame.locals import *
 from renderer import Renderer
 import sys
 import random
-import copy
-from Node2048 import Node2048
+from Node2048 import *
 import Expectimax
+import time
 
 WIDTH = 800
 HEIGHT = 800
@@ -15,9 +15,13 @@ CHEAT_MODE = False
 renderer = None
 move_stack = []
 
+search_depth = 4
+
 def initialize():
 	board = game_logic.new_board()
 	game_logic.new_tile(board)
+	global search_depth
+	search_depth = 3
 	
 	'''
 	board[0][0] = 2
@@ -39,13 +43,29 @@ def initialize():
 	return board
 
 def get_move(a_board):
-	root = Node2048(0, 1.0, a_board, -1)
-	tree = Expectimax.Tree(root,3)
-	node = tree.run()
-	
-	if node != None:
-		return node.dir
+	threshhold = 0.300
+	elapsed = 0
+	move = None
+	global search_depth
+	start = time.time()
+	while(1):
+		move = Expectimax.run(a_board, search_depth, generate_children, evaluate)
+		elapsed = (time.time() - start)
+		#if move < 0:
+		#	break
+		#print(elapsed)
+		#if(elapsed < threshhold/20.0):
+		#	search_depth += 1
+		#elif(elapsed > threshhold):
+		#	search_depth -= 1
+		#	break
+		#else:
+		break
+	#print(search_depth)
+	if move != None:
+		return move
 	else:
+		print("Failed to find move!")
 		return random.randint(0,3)
 	return random.randint(0,3)
 	
@@ -55,18 +75,14 @@ def render(board):
 		return
 	renderer.render(board)
 	
-if (__name__ == "__main__"):
-	running = True
-	pygame.init()
-	display = pygame.display.set_mode((WIDTH, HEIGHT), pygame.DOUBLEBUF | pygame.HWSURFACE)
-	pygame.display.set_caption("AStar testing")
-	#read args from commandline
-	args = sys.argv
-	renderer = Renderer(display)
-	
+def loop():
 	board = initialize()
-	
+	search_depth = 3
+	AI_MODE = False
+	running = True
 	direction = None
+	attempts = 0
+	wins = 0
 	while running:
 	
 		
@@ -104,12 +120,31 @@ if (__name__ == "__main__"):
 			new_board, status = game_logic.step(direction, board)
 			if status == game_logic.BOARD_STATE_OK:
 				if CHEAT_MODE:
-					move_stack.append(copy.deepcopy(board))
+					move_stack.append([i[:] for i in board])
 				board = new_board
 				game_logic.new_tile(board)
 			if status == game_logic.BOARD_STATE_FAILURE:
 				print("Game Over")
-				AI_MODE = False
+				attempts += 1
+				board = initialize()
+				#AI_MODE = False
 		direction = None
+		for i in board:
+			if i.count(11) > 0:
+				attempts += 1
+				wins += 1
+				board = initialize()
 		
 		render(board)
+	print("Winrate: {} / {}".format(wins, attempts))
+		
+if (__name__ == "__main__"):
+	pygame.init()
+	display = pygame.display.set_mode((WIDTH, HEIGHT), pygame.DOUBLEBUF | pygame.HWSURFACE)
+	pygame.display.set_caption("AStar testing")
+	#read args from commandline
+	args = sys.argv
+	renderer = Renderer(display)
+	
+	loop()
+	
