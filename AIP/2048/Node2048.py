@@ -11,8 +11,8 @@ class Node2048(TreeNode):
 		self.dir = dir
 		
 	def generate_children(self):
-		if self.prob <= 0.1:
-			return
+		#if self.prob <= 0.1:
+		#	return
 		if self.type == NODE_TYPE_PLAYER:
 			child_type = NODE_TYPE_ADVERSARY
 			
@@ -63,7 +63,7 @@ class Node2048(TreeNode):
 		flat_scale = 1
 		
 		
-		r = 0.66
+		r = 0.5
 		x = 0
 		y = 0
 		y_dir = 1
@@ -97,10 +97,11 @@ class Node2048(TreeNode):
 					num = number
 					cx = x
 					cy = y
+		
 		monotonity = 0
 		for y in range(len(self.board)):
 			for x in range(len(self.board[0])):
-				monotonity += (sqrt((cx - x)**2 + (cy - y)**2)) / 4.0 * self.board[y][x]
+				monotonity += (sqrt((cx - x)**2 + (cy - y)**2)) / 5.0 * self.board[y][x]
 		
 		smooth = 0
 		for y in range(1,len(self.board)):
@@ -111,14 +112,14 @@ class Node2048(TreeNode):
 		for y in range(len(self.board)):
 			for x in range(1,len(self.board[0])):
 				if self.board[y][x] != 0:
-					smooth += (self.board[y][x] == self.board[y][x-1]) * 2**self.board[y][x]
+					smooth += (self.board[y][x] == self.board[y][x-1]) * self.board[y][x]
 			
 		#print("Mono: {}, Free: {}, Smooth: {}".format(max(mono), free, smooth))
 		#return 5*max(mono) + free + smooth
 		
-		print("Mono: {}, Free: {}, Smooth: {}".format(monotonity, free, smooth))
-		return monotonity + free + smooth + 2*max(mono)
+		#print("Mono: {}, Free: {}, Smooth: {}".format(monotonity, free, smooth))
+		return 0.3*monotonity + 10*free + 5*smooth + 100*max(mono)
 		#return 0.5*monotonity + 10*free + 5*smooth
 		
 def function(val, lf, scale):
-	return 2**val * lf * scale
+	return val * lf * scale
