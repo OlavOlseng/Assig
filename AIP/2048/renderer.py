@@ -41,16 +41,13 @@ class Renderer(object):
 				number = int(board[y][x])
 				if (number == 0):
 					continue
-				i = 0
-				if number != 0:
-					while (2**i < number):
-						i += 1
+				
+				i = min(number,11)
 				color = colors[i]
 				rect = pygame.Rect(x * box_size + PADDING / 2, y * box_size + PADDING / 2, tile_size, tile_size)
 				pygame.draw.rect(self.display, color, rect)
 				
-				if number == 0: continue
-				s_number = str(number)
+				s_number = str(2**number)
 				box_offset = box_size / 2
 				label_offset = self.font.size(s_number)
 					

@@ -13,7 +13,8 @@ BOARD_STATE_OK = 1
 rand = Random()
 
 def new_board():
-	return [[0 for i in range(4)] for j in range(4)]
+	board = [[0 for i in range(4)] for j in range(4)]
+	return board
 
 def new_tile(a_board):
 	tuples = []
@@ -21,12 +22,13 @@ def new_tile(a_board):
 		for x in range(len(a_board[0])):
 			if a_board[y][x] == 0:
 				tuples.append((x,y))
-	number = 2
+	number = 1
 	if rand.random() < 0.1:
-		number += 2
+		number += 1
 	
 	tile = tuples[int(rand.random() * len(tuples))]
 	a_board[tile[1]][tile[0]] = number
+	
 
 def step(direction, a_board):
 	board = copy.deepcopy(a_board)
@@ -92,7 +94,7 @@ def move_tile_y(a_board, merge_map, x, y, dir):
 			break
 		
 		elif merge_map[current_y + dir][x] == 0:
-			a_board[current_y + dir][x] = current_num * 2
+			a_board[current_y + dir][x] = current_num + 1
 			merge_map[current_y + dir][x] = 1
 			a_board[current_y][x] = 0
 			break
@@ -116,31 +118,55 @@ def move_tile_x(a_board, merge_map, x, y, dir):
 			break
 		
 		elif merge_map[y][current_x + dir] == 0:
-			a_board[y][current_x + dir] = current_num * 2
+			a_board[y][current_x + dir] = current_num + 1
 			merge_map[y][current_x + dir] = 1
 			a_board[y][current_x] = 0
 			break
 		return
 
 def check_board(pre_move_board, a_board):
-	valid = False
+	full = True
 	for row in a_board:
 		if 0 in row:
-			valid = True
+			full = False
 			break
-	if not valid:
-		return BOARD_STATE_FAILURE
+	if full:
+		stuck = check_fail_state(a_board)
+		if stuck:
+			return BOARD_STATE_FAILURE
 	
+	equal = compare(pre_move_board, a_board)
+	if equal:
+		return BOARD_STATE_INVALID_MOVE
+	
+	return BOARD_STATE_OK
+
+def check_fail_state(a_board):
+	t1 = copy.deepcopy(a_board)
+	t2 = copy.deepcopy(a_board)
+	t3 = copy.deepcopy(a_board)
+	t4 = copy.deepcopy(a_board)
+
+	move_up(t1)
+	move_right(t2)
+	move_down(t3)
+	move_left(t4)
+	
+	up = compare(a_board, t1)
+	right = compare(a_board, t2)
+	left = compare(a_board, t3)
+	down = compare(a_board, t4)
+	
+	return up and left and down and right
+	
+def compare(pre_move_board, a_board):
 	equal = True
 	for y in range(len(a_board)):
 		for x in range(len(a_board[0])):
 			if pre_move_board[y][x] != a_board[y][x]:
 				equal = False
 				break
-	if equal:
-		return BOARD_STATE_INVALID_MOVE
-	
-	return BOARD_STATE_OK
+	return equal
 	
 def print_board(a_board):
 	print()
@@ -150,6 +176,8 @@ def print_board(a_board):
 			s_row += "{}\t".format(tile)
 		print(s_row)
 
+		
+####################### GAME LOOP######################
 if __name__ == "__main__":		
 	board = new_board()
 	text = ""

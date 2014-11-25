@@ -5,11 +5,13 @@ from renderer import Renderer
 import sys
 import random
 import copy
+from Node2048 import Node2048
+import Expectimax
 
 WIDTH = 800
 HEIGHT = 800
 AI_MODE = False
-CHEAT_MODE = True
+CHEAT_MODE = False
 renderer = None
 move_stack = []
 
@@ -37,6 +39,14 @@ def initialize():
 	return board
 
 def get_move(a_board):
+	root = Node2048(0, 1.0, a_board, -1)
+	tree = Expectimax.Tree(root,3)
+	node = tree.run()
+	
+	if node != None:
+		return node.dir
+	else:
+		return random.randint(0,3)
 	return random.randint(0,3)
 	
 def render(board):
@@ -56,9 +66,10 @@ if (__name__ == "__main__"):
 	
 	board = initialize()
 	
+	direction = None
 	while running:
+	
 		
-		direction = None
 		for event in pygame.event.get():
 			if event.type == QUIT:
 				pygame.quit()
@@ -97,5 +108,8 @@ if (__name__ == "__main__"):
 				board = new_board
 				game_logic.new_tile(board)
 			if status == game_logic.BOARD_STATE_FAILURE:
+				print("Game Over")
 				AI_MODE = False
+		direction = None
+		
 		render(board)
