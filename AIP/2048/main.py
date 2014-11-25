@@ -15,53 +15,28 @@ CHEAT_MODE = False
 renderer = None
 move_stack = []
 
-search_depth = 4
+search_depth = 3
 
 def initialize():
 	board = game_logic.new_board()
 	game_logic.new_tile(board)
 	global search_depth
 	search_depth = 3
-	
-	'''
-	board[0][0] = 2
-	board[0][1] = 4
-	board[0][2] = 8
-	board[0][3] = 16
-	board[1][0] = 32
-	board[1][1] = 64
-	board[1][2] = 128
-	board[1][3] = 256
-	board[2][0] = 512
-	board[2][1] = 1024
-	board[2][2] = 2048
-	'''
-	
-	#render(board)
+		
 	AI_MODE = False
 	move_stack = []
 	return board
 
 def get_move(a_board):
-	threshhold = 0.300
-	elapsed = 0
 	move = None
+	elapsed = 0
 	global search_depth
 	start = time.time()
-	while(1):
+	while(elapsed <= 0):
 		move = Expectimax.run(a_board, search_depth, generate_children, evaluate)
 		elapsed = (time.time() - start)
-		#if move < 0:
-		#	break
-		#print(elapsed)
-		#if(elapsed < threshhold/20.0):
-		#	search_depth += 1
-		#elif(elapsed > threshhold):
-		#	search_depth -= 1
-		#	break
-		#else:
-		break
-	#print(search_depth)
+	
+		
 	if move != None:
 		return move
 	else:
@@ -133,6 +108,7 @@ def loop():
 			if i.count(11) > 0:
 				attempts += 1
 				wins += 1
+				print("Winning!")
 				board = initialize()
 		
 		render(board)
