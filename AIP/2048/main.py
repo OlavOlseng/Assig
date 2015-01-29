@@ -52,7 +52,7 @@ def render(board):
 	
 def loop():
 	board = initialize()
-	search_depth = 3
+	search_depth = 4
 	AI_MODE = False
 	running = True
 	direction = None
@@ -101,15 +101,15 @@ def loop():
 			if status == game_logic.BOARD_STATE_FAILURE:
 				print("Game Over")
 				attempts += 1
-				board = initialize()
-				#AI_MODE = False
+				#board = initialize()
+				AI_MODE = False
 		direction = None
-		for i in board:
-			if i.count(11) > 0:
-				attempts += 1
-				wins += 1
-				print("Winning!")
-				board = initialize()
+		#for i in board:
+		#	if i.count(11) > 0:
+		#		attempts += 1
+		#		wins += 1
+		#		print("Winning!")
+				#board = initialize()
 		
 		render(board)
 	print("Winrate: {} / {}".format(wins, attempts))

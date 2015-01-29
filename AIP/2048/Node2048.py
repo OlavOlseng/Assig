@@ -73,6 +73,7 @@ def evaluate(board):
 	free = 0
 	smooth = 0
 	monotonity = [0]*4
+	win = 0
 	r = 0.25
 	for y in range(len(board)):
 		for x in range(len(board[0])):
@@ -86,14 +87,14 @@ def evaluate(board):
 	for y in range(1,len(board)):
 		for x in range(len(board[0])):
 			if board[y][x] != 0:
-				smooth += (board[y][x] == board[y-1][x]) * board[y][x]
+				smooth += (board[y][x] == board[y-1][x]) * 2**board[y][x]
 	
 	for y in range(len(board)):
 		for x in range(1,len(board[0])):
 			if board[y][x] != 0:
-				smooth += (board[y][x] == board[y][x-1]) * board[y][x]
+				smooth += (board[y][x] == board[y][x-1]) * 2**board[y][x]
 		
-	return 4*max(monotonity) + 2*free + 0.5*smooth
+	return 4*max(monotonity) + 2*free + 0.25*smooth
 	
 def function(val, lf, scale):
 	return 2**val * lf * scale

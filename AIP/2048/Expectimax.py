@@ -1,5 +1,4 @@
 #Expectimax tree
-from memory_profiler import profile
 
 NODE_TYPE_PLAYER = 0
 NODE_TYPE_ADVERSARY = 1
