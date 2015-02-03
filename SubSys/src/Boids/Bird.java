@@ -1,18 +1,25 @@
-package Boids;
+package boids;
+
+import utils.Utils;
 
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by Olav on 29/01/2015.
  */
 public class Bird extends Boid {
 
-    public static float SCALE_COHESION = 1.0f;
-    public static float SCALE_ALIGNMENT = 1.0f;
-    public static float SCALE_SEPARATION = 1.0f;
+    public static float SCALE_COHESION = 5.0f;
+    public static float SCALE_ALIGNMENT = 1.00f;
+    public static float SCALE_SEPARATION = 12.f;
+
+    private Random rand = new Random();
 
     public Bird(float x, float y) {
         super(x, y, Type.BIRD);
+        maxSpeed = 40.0f;
+        maxAcceleration = 200.0f;
     }
 
     @Override
@@ -29,12 +36,18 @@ public class Bird extends Boid {
         float cY = 0;
 
         for (Boid b : neighbours) {
-            cX += b.x - this.x;
-            cY += b.y - this.y;
+            float x = b.x - this.x;
+            float y = b.y - this.y;
+            float len = Utils.vecLength(x, y);
+            cX += x;
+            cY += y;
+        }
+        float len = Utils.vecLength(cX, cY);
+        if (len != 0) {
+            this.ddx += cX * SCALE_COHESION;
+            this.ddy += cY * SCALE_COHESION;
         }
 
-        this.ddx += cX * SCALE_COHESION;
-        this.ddy += cY * SCALE_COHESION;
     }
 
     private void calculateAlignment(List<Boid> neighbours) {
@@ -42,25 +55,37 @@ public class Bird extends Boid {
         float cY = 0;
 
         for (Boid b : neighbours) {
+            float len = Utils.vecLength(b.x - this.x, b.y - this.y) + 0.5f;
             cX += b.dx;
             cY += b.dy;
         }
-
-        this.ddx += cX * SCALE_ALIGNMENT;
-        this.ddy += cY * SCALE_ALIGNMENT;
+        float len = Utils.vecLength(cX, cY);
+        if (len != 0) {
+            this.ddx += cX * SCALE_ALIGNMENT;
+            this.ddy += cY * SCALE_ALIGNMENT;
+        }
     }
 
     private void calculateSeparation(List<Boid> neighbours) {
-        float cX = 0;
-        float cY = 0;
+        float sX = 0;
+        float sY = 0;
 
         for (Boid b : neighbours) {
-            cX += this.x - b.x;
-            cY += this.y - b.y;
+            float cX = this.x - b.x;
+            float cY = this.y - b.y;
+
+            float len = Utils.vecLength(cX, cY);
+            if (len < (this.radius + b.radius) * 1.2f) {
+                len = 0.001f;
+            }
+            sX += cX / len;
+            sY += cY / len;
         }
-        /*
-        this.ddx += cX;
-        this.ddy += cY;
-        */
+        if (sX != 0.0) {
+            this.ddx += sX * SCALE_SEPARATION;
+        }
+        if(sY != 0.0) {
+            this.ddy += sY * SCALE_SEPARATION;
+        }
     }
 }

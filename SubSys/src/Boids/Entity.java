@@ -1,13 +1,19 @@
-package Boids;
+package boids;
+
+import utils.Utils;
+
+import javax.naming.NameNotFoundException;
 
 /**
  * Created by Olav on 29/01/2015.
  */
 public class Entity {
 
-    float x, y;
-    float dx, dy;
-    float ddx, ddy;
+    public float x, y;
+    public float dx, dy;
+    public float ddx, ddy;
+    protected float maxSpeed = 1000000000;
+    protected float maxAcceleration = 1000000000;
 
     public Entity(float x, float y, float dx, float dy, float ddx, float ddy) {
         this.x = x;
@@ -26,11 +32,24 @@ public class Entity {
      * Updates velocities and position. If overridden by subclasses, it must be called by the overriding funtion.
      * @param dt - The change in time in seconds since the last tick was called.
      */
-    public void tick(float dt) {
-        dx += ddx * dt;
-        dy += ddy * dt;
-        x += dx;
-        y += dy;
+    public void tick(double dt) {
+        float len = Utils.vecLength(ddx, ddy);
+        if (len > this.maxAcceleration && len != 0) {
+            ddx = (ddx / len) * maxAcceleration;
+            ddy = (ddy / len) * maxAcceleration;
+        }
+
+        dx += ddx * (float)dt;
+        dy += ddy * (float)dt;
+        len = Utils.vecLength(dx, dy);
+
+        if (len > this.maxSpeed & len != 0) {
+            //System.out.println("BIGSPEED");
+            dx = (dx / len) * maxSpeed;
+            dy = (dy / len) * maxSpeed;
+        }
+        x += dx*(float)dt;
+        y += dy*(float)dt;
     }
 
     /***

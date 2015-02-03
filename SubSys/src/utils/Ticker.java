@@ -1,19 +1,21 @@
 package utils;
 
-import javafx.scene.canvas.Canvas;
+import java.util.ArrayList;
 
 /**
  * Created by Olav on 29/01/2015.
  */
-public abstract class Ticker extends Canvas implements Runnable{
+public class Ticker implements Runnable{
 
     Thread loop;
     private int fps;
     private int currentFPS = 0;
     private int frameCount = 0;
     double lastCounterUpdate;
+    private ArrayList<Tickable> tickables;
 
     public Ticker(int fps){
+        this.tickables = new ArrayList<Tickable>();
         this.fps = fps;
     }
 
@@ -25,6 +27,7 @@ public abstract class Ticker extends Canvas implements Runnable{
 
     @Override
     public void run() {
+        System.out.println("Starting Loop...");
         double dt;
         double nowTime;
         double fraction = 1000.0/(double)fps;
@@ -44,8 +47,12 @@ public abstract class Ticker extends Canvas implements Runnable{
             }
             lastUpdate = System.currentTimeMillis();
             updateFPS(dt);
-            onTick((float)dt);
+            onTick(dt);
         }
+    }
+
+    public void setFpsCap(int fps) {
+        this.fps = fps;
     }
 
     protected void updateFPS(double dt) {
@@ -63,5 +70,17 @@ public abstract class Ticker extends Canvas implements Runnable{
         return currentFPS;
     }
 
-    public abstract void onTick(float dt);
+    public void addTickable(Tickable t) {
+        this.tickables.add(t);
+    }
+
+    public void removeTickable(Tickable t) {
+        tickables.remove(t);
+    }
+
+    public void onTick(double dt) {
+        for (Tickable t : tickables) {
+            t.onTick(dt);
+        }
+    }
 }
