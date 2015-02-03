@@ -26,10 +26,12 @@ public class BoidRenderer extends Canvas implements Tickable{
         double xScale = this.getWidth() / BoidWorld.BOUNDS_WORLD_WIDTH;
         double yScale =  this.getHeight() / BoidWorld.BOUNDS_WORLD_HEIGHT;
 
-        g.clearRect(0, 0, this.getWidth(), this.getHeight());
+        g.setFill(Color.WHITE);
+        g.fillRect(0, 0, this.getWidth(), this.getHeight());
+        g.setFill(Color.DEEPPINK);
         for (Boid b : world.getAllBoids()) {
-            g.setFill(Color.GREEN);
             g.fillOval((b.x - b.radius) * xScale, (b.y - b.radius) * yScale, 2 * b.radius * xScale, 2 * b.radius * yScale);
+            g.setFill(Color.GREEN);
 
             float len = Utils.vecLength(b.dx, b.dy);
             g.setLineWidth(2.0);

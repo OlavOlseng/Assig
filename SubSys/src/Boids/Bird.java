@@ -13,13 +13,14 @@ public class Bird extends Boid {
     public static float SCALE_COHESION = 100.f;
     public static float SCALE_ALIGNMENT = 0.5000f;
     public static float SCALE_SEPARATION = 10.f;
-
-    private Random rand = new Random();
+    public static final float SCALE_COHESION_MAX = 400.0f;
+    public static final float SCALE_ALIGNMENT_MAX = 2.0f;
+    public static final float SCALE_SEPARATION_MAX = 50.0f;
 
     public Bird(float x, float y) {
         super(x, y, Type.BIRD);
         maxSpeed = 40.0f;
-        maxAcceleration = 200.0f;
+        maxAcceleration = 400.0f;
     }
 
     @Override
@@ -36,9 +37,11 @@ public class Bird extends Boid {
         float cY = 0;
 
         for (Boid b : neighbours) {
+            if(b.getType() != Type.BIRD) {
+                continue;
+            }
             float x = b.x - this.x;
             float y = b.y - this.y;
-            float len = Utils.vecLength(x, y);
             cX += x;
             cY += y;
         }
@@ -76,7 +79,7 @@ public class Bird extends Boid {
 
             float len = Utils.vecLength(cX, cY);
             if (len < (this.radius + b.radius) * 1.2f) {
-                len = 0.0001f;
+                len = 0.00001f;
             }
             sX += cX / len;
             sY += cY / len;

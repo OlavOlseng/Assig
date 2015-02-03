@@ -6,7 +6,10 @@ import javafx.animation.*;
 import javafx.application.Application;
 import javafx.scene.Group;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 
@@ -17,7 +20,7 @@ import javafx.stage.Stage;
 public class App extends Application {
 
     Group root;
-    Group buttonGroup;
+    ControlPanel controlPanel;
     BoidRenderer canvas;
     long lastTick = 0;
 
@@ -25,10 +28,10 @@ public class App extends Application {
 
     private static AnimationTimer loop;
 
-    public static double SIZE_CANVAS_WIDTH = 600;
-    public static double SIZE_CANVAS_HEIGHT = 600;
-    public static double SIZE_SCENE_WIDTH = 800;
-    public static double SIZE_SCENE_HEIGHT = 600;
+    public static int SIZE_CANVAS_WIDTH = 600;
+    public static int SIZE_CANVAS_HEIGHT = 600;
+    public static int SIZE_SCENE_WIDTH = 800;
+    public static int SIZE_SCENE_HEIGHT = 600;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -41,6 +44,9 @@ public class App extends Application {
 
         Scene pane = new Scene(root, SIZE_SCENE_WIDTH, SIZE_SCENE_HEIGHT);
 
+        pane.setFill(Color.LIGHTGREY);
+
+
         primaryStage.setScene(pane);
         primaryStage.setTitle("Boid Sim v420");
         primaryStage.show();
@@ -52,17 +58,14 @@ public class App extends Application {
 
     public void initButtonGroup() {
 
-        this.buttonGroup = new Group();
-        buttonGroup.setTranslateX(SIZE_CANVAS_WIDTH);
-
-        buttonGroup.getChildren().add();
-
+        this.controlPanel = new ControlPanel(SIZE_SCENE_WIDTH - SIZE_CANVAS_WIDTH, SIZE_SCENE_HEIGHT);
+        controlPanel.setTranslateX(SIZE_CANVAS_WIDTH);
 
     }
 
     public void initRootPane() {
         root = new Group();
-        root.getChildren().addAll(canvas, buttonGroup);
+        root.getChildren().addAll(canvas, controlPanel);
     }
 
     public void initSimulation(BoidWorld world) {
@@ -85,9 +88,11 @@ public class App extends Application {
 
     public void initBoidWorld() {
         this.world = new BoidWorld();
-        for (int i = 0; i < 200; i++) {
+        for (int i = 0; i < world.NUMBER_BIRDS; i++) {
             this.world.addBoid(Boid.Type.BIRD);
         }
+        this.world.addBoid(Boid.Type.OBSTACLE);
+        this.world.addBoid(Boid.Type.OBSTACLE);
     }
 
     public static void main(String[] args) {
