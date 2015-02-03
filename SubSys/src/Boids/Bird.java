@@ -10,9 +10,9 @@ import java.util.Random;
  */
 public class Bird extends Boid {
 
-    public static float SCALE_COHESION = 5.0f;
-    public static float SCALE_ALIGNMENT = 1.00f;
-    public static float SCALE_SEPARATION = 12.f;
+    public static float SCALE_COHESION = 100.f;
+    public static float SCALE_ALIGNMENT = 0.5000f;
+    public static float SCALE_SEPARATION = 10.f;
 
     private Random rand = new Random();
 
@@ -44,8 +44,8 @@ public class Bird extends Boid {
         }
         float len = Utils.vecLength(cX, cY);
         if (len != 0) {
-            this.ddx += cX * SCALE_COHESION;
-            this.ddy += cY * SCALE_COHESION;
+            this.ddx += cX / len * SCALE_COHESION;
+            this.ddy += cY / len * SCALE_COHESION;
         }
 
     }
@@ -76,7 +76,7 @@ public class Bird extends Boid {
 
             float len = Utils.vecLength(cX, cY);
             if (len < (this.radius + b.radius) * 1.2f) {
-                len = 0.001f;
+                len = 0.0001f;
             }
             sX += cX / len;
             sY += cY / len;

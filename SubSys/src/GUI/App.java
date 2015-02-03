@@ -54,7 +54,10 @@ public class App extends Application {
 
         this.buttonGroup = new Group();
         buttonGroup.setTranslateX(SIZE_CANVAS_WIDTH);
-        buttonGroup.getChildren().add(new Button("lol"));
+
+        buttonGroup.getChildren().add();
+
+
     }
 
     public void initRootPane() {
@@ -68,7 +71,7 @@ public class App extends Application {
             public void handle(long now) {
                 double dt = now - lastTick;
                 lastTick = now;
-                onTick(dt / Math.pow(10, 9));
+                onTick(1 / 60f /*dt / Math.pow(10, 9)*/);
             }
         };
         lastTick = System.nanoTime();
@@ -82,7 +85,7 @@ public class App extends Application {
 
     public void initBoidWorld() {
         this.world = new BoidWorld();
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 200; i++) {
             this.world.addBoid(Boid.Type.BIRD);
         }
     }
