@@ -24,12 +24,12 @@ public abstract class Boid extends Entity {
 
     public static final float RADIUS_BIRD = 1.f;
     public static final float RADIUS_OBSTACLE = 2.50f;
-    public static final float RADIUS_PREDATOR = 15.0f;
+    public static final float RADIUS_PREDATOR = 2.0f;
     public static final float RADIUS_DEFAULT = 15.0f;
 
-    public static final float VISION_RADIUS_BIRD = 15.0f;
+    public static final float VISION_RADIUS_BIRD = 17.0f;
     public static final float VISION_RADIUS_OBSTACLE = 0.0f;
-    public static final float VISION_RADIUS_PREDATOR = 15.0f;
+    public static final float VISION_RADIUS_PREDATOR = 30.0f;
     public static final float VISION_RADIUS_DEFAULT = 15.0f;
 
     protected List<Boid> neighbours = null;

@@ -35,10 +35,17 @@ public class BoidRenderer extends Canvas implements Tickable{
                 if (((Bird)b).obstacles.size() > 0) {
                     g.setFill(Color.BLUE);
                 }
+                if (((Bird)b).predators.size() > 0) {
+                    g.setFill(Color.DARKVIOLET);
+                }
             }
-            if (b.getType() == Boid.Type.OBSTACLE) {
+            else if (b.getType() == Boid.Type.OBSTACLE) {
                 g.setFill(Color.GREY);
             }
+            else if (b.getType() == Boid.Type.PREDATOR) {
+                g.setFill(Color.DARKRED);
+            }
+
             g.fillOval((b.x - b.radius) * xScale, (b.y - b.radius) * yScale, 2 * b.radius * xScale, 2 * b.radius * yScale);
 
             float len = Utils.vecLength(b.dx, b.dy);

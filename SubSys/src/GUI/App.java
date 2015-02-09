@@ -28,10 +28,10 @@ public class App extends Application {
 
     private static AnimationTimer loop;
 
-    public static int SIZE_CANVAS_WIDTH = 600;
-    public static int SIZE_CANVAS_HEIGHT = 600;
-    public static int SIZE_SCENE_WIDTH = 800;
-    public static int SIZE_SCENE_HEIGHT = 600;
+    public static int SIZE_CANVAS_WIDTH = 1200;
+    public static int SIZE_CANVAS_HEIGHT = 900;
+    public static int SIZE_SCENE_WIDTH = 1600;
+    public static int SIZE_SCENE_HEIGHT = 900;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -92,6 +92,8 @@ public class App extends Application {
             this.world.addBoid(Boid.Type.BIRD);
         }
         this.world.addBoid(Boid.Type.OBSTACLE);
+        this.world.addBoid(Boid.Type.OBSTACLE);
+        this.world.addBoid(Boid.Type.PREDATOR);
     }
 
     public static void main(String[] args) {

@@ -11,9 +11,9 @@ import java.util.List;
  */
 public class BoidWorld implements Tickable{
 
-    public static final float BOUNDS_WORLD_WIDTH = 100.0f;
-    public static final float BOUNDS_WORLD_HEIGHT = 100.0f;
-    public static int NUMBER_BIRDS = 100;
+    public static final float BOUNDS_WORLD_WIDTH = 200.0f;
+    public static final float BOUNDS_WORLD_HEIGHT = 200.0f;
+    public static int NUMBER_BIRDS = 400;
 
     private ArrayList<Boid> boids;
 
@@ -32,7 +32,9 @@ public class BoidWorld implements Tickable{
         else if (type == Boid.Type.OBSTACLE) {
             b = new Obstacle(x, y);
         }
-
+        else if (type == Boid.Type.PREDATOR) {
+            b = new Predator(x, y);
+        }
 
         if (b != null) {
             boids.add(b);

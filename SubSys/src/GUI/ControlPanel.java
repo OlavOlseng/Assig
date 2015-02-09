@@ -23,6 +23,7 @@ public class ControlPanel extends VBox {
     Slider cohesionSlider;
     Slider alignmentSlider;
     Slider separationSlider;
+    Slider evasionSlider;
 
     public ControlPanel(int width, int height) {
         this.setWidth(width);
@@ -74,12 +75,31 @@ public class ControlPanel extends VBox {
             }
         });
 
+        evasionSlider = new Slider();
+        evasionSlider.setMax(Bird.SCALE_EVASION_MAX);
+        evasionSlider.setMin(0);
+        evasionSlider.setBlockIncrement(50);
+        evasionSlider.setMajorTickUnit(200);
+
+        evasionSlider.setValue(Bird.SCALE_EVASION);
+        evasionSlider.valueProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                Bird.SCALE_EVASION = newValue.floatValue();
+            }
+        });
+
         addChild(new Text("Cohesion"));
         addChild(cohesionSlider);
         addChild(new Text("Alignment"));
         addChild(alignmentSlider);
         addChild(new Text("Separation"));
         addChild(separationSlider);
+        addChild(new Text("Evasion"));
+        addChild(evasionSlider);
+
+
+
     }
 
     private void addChild(Node n) {
