@@ -92,7 +92,6 @@ public class App extends Application {
             this.world.addBoid(Boid.Type.BIRD);
         }
         this.world.addBoid(Boid.Type.OBSTACLE);
-        this.world.addBoid(Boid.Type.OBSTACLE);
     }
 
     public static void main(String[] args) {

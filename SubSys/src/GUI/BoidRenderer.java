@@ -1,5 +1,6 @@
 package GUI;
 
+import boids.Bird;
 import boids.Boid;
 import boids.BoidWorld;
 import javafx.scene.canvas.Canvas;
@@ -28,10 +29,17 @@ public class BoidRenderer extends Canvas implements Tickable{
 
         g.setFill(Color.WHITE);
         g.fillRect(0, 0, this.getWidth(), this.getHeight());
-        g.setFill(Color.DEEPPINK);
         for (Boid b : world.getAllBoids()) {
-            g.fillOval((b.x - b.radius) * xScale, (b.y - b.radius) * yScale, 2 * b.radius * xScale, 2 * b.radius * yScale);
             g.setFill(Color.GREEN);
+            if(b.getType() == Boid.Type.BIRD) {
+                if (((Bird)b).obstacles.size() > 0) {
+                    g.setFill(Color.BLUE);
+                }
+            }
+            if (b.getType() == Boid.Type.OBSTACLE) {
+                g.setFill(Color.GREY);
+            }
+            g.fillOval((b.x - b.radius) * xScale, (b.y - b.radius) * yScale, 2 * b.radius * xScale, 2 * b.radius * yScale);
 
             float len = Utils.vecLength(b.dx, b.dy);
             g.setLineWidth(2.0);

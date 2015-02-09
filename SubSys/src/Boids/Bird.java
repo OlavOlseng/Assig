@@ -2,6 +2,7 @@ package boids;
 
 import utils.Utils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -13,9 +14,13 @@ public class Bird extends Boid {
     public static float SCALE_COHESION = 100.f;
     public static float SCALE_ALIGNMENT = 0.5000f;
     public static float SCALE_SEPARATION = 10.f;
+    public static float SCALE_EVASION = 2500.0f;
+
     public static final float SCALE_COHESION_MAX = 400.0f;
     public static final float SCALE_ALIGNMENT_MAX = 2.0f;
     public static final float SCALE_SEPARATION_MAX = 50.0f;
+
+    public List<Boid> obstacles;
 
     public Bird(float x, float y) {
         super(x, y, Type.BIRD);
@@ -27,9 +32,11 @@ public class Bird extends Boid {
     public void doPreTickCalculations() {
         ddx = 0;
         ddy = 0;
+        this.obstacles = new ArrayList<Boid>();
         calculateCohesion(neighbours);
         calculateAlignment(neighbours);
         calculateSeparation(neighbours);
+        calculateObstacleEvasion(obstacles);
     }
 
     private void calculateCohesion(List<Boid> neighbours) {
@@ -38,6 +45,9 @@ public class Bird extends Boid {
 
         for (Boid b : neighbours) {
             if(b.getType() != Type.BIRD) {
+                if (b.getType() == Type.OBSTACLE){
+                    this.obstacles.add(b);
+                }
                 continue;
             }
             float x = b.x - this.x;
@@ -89,6 +99,37 @@ public class Bird extends Boid {
         }
         if(sY != 0.0) {
             this.ddy += sY * SCALE_SEPARATION;
+        }
+    }
+
+    private void calculateObstacleEvasion(List<Boid> obstacles) {
+        for (Boid o : obstacles) {
+
+            float sx = o.x - this.x;
+            float sy = o.y - this.y;
+            float sLen = Utils.vecLength(sx, sy);
+
+            sx /= sLen;
+            sy /= sLen;
+
+            //Generate normals
+            float v1x = sy;
+            float v1y = -sx;
+            float v2x = -sy;
+            float v2y = sx;
+
+            float vx = v1x;
+            float vy = v1y;
+
+            //Choose normal that aligns the best with direction
+            if (Utils.vecDot(v1x, v1y, dx, dy) < Utils.vecDot(v2x, v2y, dx, dy)) {
+                vx = v2x;
+                vy = v2y;
+            }
+
+            this.ddx += vx / sLen * SCALE_EVASION;
+            this.ddy += vy / sLen * SCALE_EVASION;
+
         }
     }
 }
