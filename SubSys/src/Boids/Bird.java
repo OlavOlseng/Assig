@@ -89,7 +89,7 @@ public class Bird extends Boid {
 
             float len = Utils.vecLength(cX, cY);
             if (len < (this.radius + b.radius) * 1.2f) {
-                len = 0.00001f;
+                len = 0.0001f;
             }
             sX += cX / len;
             sY += cY / len;
