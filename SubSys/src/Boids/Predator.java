@@ -11,16 +11,14 @@ public class Predator extends Boid {
 
     public static float SCALE_COHESION = 100.f;
     public static float SCALE_SEPARATION = 0.1f;
-    public static float SCALE_EVASION = 2000.0f;
+    public static float SCALE_EVASION = 4000.0f;
 
-    public static final float SCALE_COHESION_MAX = 400.0f;
-    public static final float SCALE_SEPARATION_MAX = 50.0f;
-    public static final float SCALE_EVASION_MAX = 4000.0f;
+
 
     public Predator(float x, float y) {
         super(x, y, Type.PREDATOR);
-        maxSpeed = 35.0f;
-        maxAcceleration = 350.0f;
+        maxSpeed = 40.0f;
+        maxAcceleration = 150.0f;
     }
 
     @Override

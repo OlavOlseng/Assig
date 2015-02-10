@@ -1,19 +1,18 @@
 package GUI;
 
 import boids.Bird;
+import boids.Boid;
+import boids.BoidWorld;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
-import javafx.scene.Group;
 import javafx.scene.Node;
-import javafx.scene.control.Slider;
+import javafx.scene.control.*;
+import javafx.scene.control.Button;
 import javafx.scene.layout.*;
-import javafx.scene.paint.*;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
-
-import java.awt.*;
 
 /**
  * Created by Olav on 03.02.2015.
@@ -25,11 +24,23 @@ public class ControlPanel extends VBox {
     Slider separationSlider;
     Slider evasionSlider;
 
-    public ControlPanel(int width, int height) {
+    FlowPane obstaclePane;
+    FlowPane predatorPane;
+
+    Button addPredatorButton;
+    Button wipePredatorButton;
+    Button addObstacleButton;
+    Button wipeObstacleButton;
+
+    BoidWorld world;
+
+    public ControlPanel(int width, int height, BoidWorld world) {
         this.setWidth(width);
         this.setHeight(height);
         this.setPadding(new Insets(5, 5, 5, 5));
+        this.world = world;
         initSliders();
+        initButtons();
     }
 
 
@@ -100,6 +111,47 @@ public class ControlPanel extends VBox {
 
 
 
+    }
+
+    private void initButtons() {
+        obstaclePane = new FlowPane();
+        addObstacleButton = new Button("Add");
+        addObstacleButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                world.addBoid(Boid.Type.OBSTACLE);
+            }
+        });
+        wipeObstacleButton = new Button("Wipe");
+        wipeObstacleButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                world.wipe(Boid.Type.OBSTACLE);
+            }
+        });
+        obstaclePane.getChildren().addAll(addObstacleButton, wipeObstacleButton);
+
+        predatorPane = new FlowPane();
+        addPredatorButton = new Button("Add");
+        addPredatorButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                world.addBoid(Boid.Type.PREDATOR);
+            }
+        });
+        wipePredatorButton = new Button("Wipe");
+        wipePredatorButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                world.wipe(Boid.Type.PREDATOR);
+            }
+        });
+        predatorPane.getChildren().addAll(addPredatorButton, wipePredatorButton);
+
+        this.addChild(new Text("Obstacles"));
+        this.addChild(obstaclePane);
+        this.addChild(new Text("Preadtors"));
+        this.addChild(predatorPane);
     }
 
     private void addChild(Node n) {

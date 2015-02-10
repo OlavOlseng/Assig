@@ -11,9 +11,9 @@ import java.util.List;
  */
 public class BoidWorld implements Tickable{
 
-    public static final float BOUNDS_WORLD_WIDTH = 200.0f;
-    public static final float BOUNDS_WORLD_HEIGHT = 200.0f;
-    public static int NUMBER_BIRDS = 400;
+    public static final float BOUNDS_WORLD_WIDTH = 300.0f;
+    public static final float BOUNDS_WORLD_HEIGHT = 300.0f;
+    public static int NUMBER_BIRDS = 300;
 
     private ArrayList<Boid> boids;
 
@@ -22,22 +22,27 @@ public class BoidWorld implements Tickable{
     }
 
     public void addBoid(Boid.Type type) {
+        System.out.println("Adding boid...");
         float y = (float)Math.random() * BOUNDS_WORLD_HEIGHT;
         float x = (float)Math.random() * BOUNDS_WORLD_WIDTH;
         Boid b = null;
 
         if (type == Boid.Type.BIRD) {
+            System.out.println("Bird selected...");
             b = new Bird(x, y);
         }
         else if (type == Boid.Type.OBSTACLE) {
+            System.out.println("Obstacle selected...");
             b = new Obstacle(x, y);
         }
         else if (type == Boid.Type.PREDATOR) {
+            System.out.println("Predator selected...");
             b = new Predator(x, y);
         }
 
         if (b != null) {
             boids.add(b);
+            System.out.println("Added boid successfully");
         }
     }
 
@@ -54,6 +59,18 @@ public class BoidWorld implements Tickable{
 
     public List<Boid> getAllBoids() {
         return this.boids;
+    }
+
+    public void wipe(Boid.Type type) {
+        ArrayList<Boid> toWipe = new ArrayList<Boid>();
+        for (Boid b : this.boids) {
+            if (b.getType() == type) {
+                toWipe.add(b);
+            }
+        }
+        for (Boid b : toWipe) {
+            this.boids.remove(b);
+        }
     }
 
     public void collisionCheck(List<Boid> allBoids) {

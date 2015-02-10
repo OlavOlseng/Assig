@@ -28,10 +28,10 @@ public class App extends Application {
 
     private static AnimationTimer loop;
 
-    public static int SIZE_CANVAS_WIDTH = 1200;
-    public static int SIZE_CANVAS_HEIGHT = 900;
-    public static int SIZE_SCENE_WIDTH = 1600;
-    public static int SIZE_SCENE_HEIGHT = 900;
+    public static int SIZE_CANVAS_WIDTH = 1000;
+    public static int SIZE_CANVAS_HEIGHT = 720;
+    public static int SIZE_SCENE_WIDTH = 1280;
+    public static int SIZE_SCENE_HEIGHT = 720;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -58,7 +58,7 @@ public class App extends Application {
 
     public void initButtonGroup() {
 
-        this.controlPanel = new ControlPanel(SIZE_SCENE_WIDTH - SIZE_CANVAS_WIDTH, SIZE_SCENE_HEIGHT);
+        this.controlPanel = new ControlPanel(SIZE_SCENE_WIDTH - SIZE_CANVAS_WIDTH, SIZE_SCENE_HEIGHT, this.world);
         controlPanel.setTranslateX(SIZE_CANVAS_WIDTH);
 
     }
@@ -87,13 +87,9 @@ public class App extends Application {
     }
 
     public void initBoidWorld() {
-        this.world = new BoidWorld();
         for (int i = 0; i < world.NUMBER_BIRDS; i++) {
             this.world.addBoid(Boid.Type.BIRD);
         }
-        this.world.addBoid(Boid.Type.OBSTACLE);
-        this.world.addBoid(Boid.Type.OBSTACLE);
-        this.world.addBoid(Boid.Type.PREDATOR);
     }
 
     public static void main(String[] args) {

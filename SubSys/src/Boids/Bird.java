@@ -147,7 +147,6 @@ public class Bird extends Boid {
 
     private void calculatePredatorFlee(List<Boid> predators) {
         for (Boid p : predators) {
-            System.out.println("PREDATOR");
             float sx = this.x - p.x;
             float sy = this.y - p.y;
             float sLen = Utils.vecLength(sx, sy);
