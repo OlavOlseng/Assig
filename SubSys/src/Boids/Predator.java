@@ -17,8 +17,8 @@ public class Predator extends Boid {
 
     public Predator(float x, float y) {
         super(x, y, Type.PREDATOR);
-        maxSpeed = 40.0f;
-        maxAcceleration = 150.0f;
+        maxSpeed = 35.0f;
+        maxAcceleration = 350.0f;
     }
 
     @Override

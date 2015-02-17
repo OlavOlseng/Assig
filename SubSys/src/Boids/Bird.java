@@ -12,15 +12,15 @@ import java.util.Random;
 public class Bird extends Boid {
 
     public static float SCALE_COHESION = 100.f;
-    public static float SCALE_ALIGNMENT = 0.5000f;
-    public static float SCALE_SEPARATION = 10.f;
-    public static float SCALE_EVASION = 2000.0f;
+    public static float SCALE_ALIGNMENT = 0.75000f;
+    public static float SCALE_SEPARATION = 15.f;
+    public static float SCALE_EVASION = 4000.0f;
     public static float SCALE_FLEE = 1000000.0f;
 
-    public static final float SCALE_COHESION_MAX = 400.0f;
-    public static final float SCALE_ALIGNMENT_MAX = 2.0f;
-    public static final float SCALE_SEPARATION_MAX = 50.0f;
-    public static final float SCALE_EVASION_MAX = 6000.0f;
+    public static final float SCALE_COHESION_MAX = 500.0f;
+    public static final float SCALE_ALIGNMENT_MAX = 3.0f;
+    public static final float SCALE_SEPARATION_MAX = 80.0f;
+    public static final float SCALE_EVASION_MAX = 10000.0f;
     public static final float SCALE_FLEE_MAX = 10000000.0f;
 
     public List<Boid> obstacles;
@@ -29,7 +29,7 @@ public class Bird extends Boid {
     public Bird(float x, float y) {
         super(x, y, Type.BIRD);
         maxSpeed = 40.0f;
-        maxAcceleration = 400.0f;
+        maxAcceleration = 500.0f;
     }
 
     @Override
