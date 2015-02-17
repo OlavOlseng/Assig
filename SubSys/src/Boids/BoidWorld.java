@@ -11,9 +11,9 @@ import java.util.List;
  */
 public class BoidWorld implements Tickable{
 
-    public static final float BOUNDS_WORLD_WIDTH = 150.0f;
-    public static final float BOUNDS_WORLD_HEIGHT = 150.0f;
-    public static int NUMBER_BIRDS = 200;
+    public static final float BOUNDS_WORLD_WIDTH = 250.0f;
+    public static final float BOUNDS_WORLD_HEIGHT = 250.0f;
+    public static int NUMBER_BIRDS = 300;
 
     private ArrayList<Boid> boids;
 
@@ -61,6 +61,10 @@ public class BoidWorld implements Tickable{
         return this.boids;
     }
 
+    /**
+     * Removes all boids from the world that matches the type parameter.
+     * @param type
+     */
     public void wipe(Boid.Type type) {
         ArrayList<Boid> toWipe = new ArrayList<Boid>();
         for (Boid b : this.boids) {
@@ -73,6 +77,11 @@ public class BoidWorld implements Tickable{
         }
     }
 
+
+    /**
+     * This method performs collision checks, which in this case is a vision check.
+     * @param allBoids
+     */
     public void collisionCheck(List<Boid> allBoids) {
         for (int i = 0; i < allBoids.size() - 1; i++) {
             for (int j = i+1; j < allBoids.size(); j++) {

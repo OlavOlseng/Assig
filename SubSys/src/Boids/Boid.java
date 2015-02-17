@@ -27,9 +27,9 @@ public abstract class Boid extends Entity {
     public static final float RADIUS_PREDATOR = 2.0f;
     public static final float RADIUS_DEFAULT = 15.0f;
 
-    public static final float VISION_RADIUS_BIRD = 15.0f;
+    public static final float VISION_RADIUS_BIRD = 17.5f;
     public static final float VISION_RADIUS_OBSTACLE = 0.0f;
-    public static final float VISION_RADIUS_PREDATOR = 30.0f;
+    public static final float VISION_RADIUS_PREDATOR = 35.0f;
     public static final float VISION_RADIUS_DEFAULT = 15.0f;
 
     protected List<Boid> neighbours = null;
@@ -71,16 +71,21 @@ public abstract class Boid extends Entity {
         return this.type;
     }
 
+    /**
+     * This function should do all the calculations and apply correct impulses to the boid. This is the first thing called in every timestep (before the tick() function).
+     */
     public abstract void doPreTickCalculations();
 
     @Override
     public void tick(double dt) {
         super.tick(dt);
+
+       //handle world wrapping.
         this.x += BoidWorld.BOUNDS_WORLD_WIDTH * 100;
         this.y += BoidWorld.BOUNDS_WORLD_HEIGHT * 100;
-
         this.x %= BoidWorld.BOUNDS_WORLD_WIDTH;
         this.y %= BoidWorld.BOUNDS_WORLD_HEIGHT;
+
         this.neighbours = new ArrayList<Boid>();
     }
 }

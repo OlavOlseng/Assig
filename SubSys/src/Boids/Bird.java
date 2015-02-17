@@ -12,9 +12,9 @@ import java.util.Random;
 public class Bird extends Boid {
 
     public static float SCALE_COHESION = 100.f;
-    public static float SCALE_ALIGNMENT = 0.75000f;
-    public static float SCALE_SEPARATION = 15.f;
-    public static float SCALE_EVASION = 4000.0f;
+    public static float SCALE_ALIGNMENT = 0.5000f;
+    public static float SCALE_SEPARATION = 10.f;
+    public static float SCALE_EVASION = 5000.0f;
     public static float SCALE_FLEE = 1000000.0f;
 
     public static final float SCALE_COHESION_MAX = 500.0f;
@@ -80,7 +80,6 @@ public class Bird extends Boid {
         float cY = 0;
 
         for (Boid b : neighbours) {
-            float len = Utils.vecLength(b.x - this.x, b.y - this.y) + 0.5f;
             cX += b.dx;
             cY += b.dy;
         }

@@ -17,8 +17,8 @@ public class Predator extends Boid {
 
     public Predator(float x, float y) {
         super(x, y, Type.PREDATOR);
-        maxSpeed = 35.0f;
-        maxAcceleration = 350.0f;
+        maxSpeed = 45.0f;
+        maxAcceleration = 300.0f;
     }
 
     @Override
@@ -70,37 +70,6 @@ public class Predator extends Boid {
         }
         if(sY != 0.0) {
             this.ddy += sY * SCALE_SEPARATION;
-        }
-    }
-
-    private void calculateObstacleEvasion(List<Boid> obstacles) {
-        for (Boid o : obstacles) {
-
-            float sx = o.x - this.x;
-            float sy = o.y - this.y;
-            float sLen = Utils.vecLength(sx, sy);
-
-            sx /= sLen;
-            sy /= sLen;
-
-            //Generate normals
-            float v1x = sy;
-            float v1y = -sx;
-            float v2x = -sy;
-            float v2y = sx;
-
-            float vx = v1x;
-            float vy = v1y;
-
-            //Choose normal that aligns the best with direction
-            if (Utils.vecDot(v1x, v1y, dx, dy) < Utils.vecDot(v2x, v2y, dx, dy)) {
-                vx = v2x;
-                vy = v2y;
-            }
-
-            this.ddx += vx / sLen * SCALE_EVASION;
-            this.ddy += vy / sLen * SCALE_EVASION;
-
         }
     }
 }
