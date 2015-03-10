@@ -1,27 +1,24 @@
+package olseng.ea.olseng.ea.bitvec;
+
+import olseng.ea.Genotype;
+
 import java.util.BitSet;
 
 /**
  * Only supports fixed size genes atm.
  * Created by Olav on 03.03.2015.
  */
-public class Genotype {
-    BitSet genotype;
-    public final int geneCount;
-    public final int geneSize;
+public class BinaryGenome extends Genotype<BitSet> {
 
-    /**
-     * @param geneCount
-     * @param geneSize
-     * @param bitSet
-     */
-    public Genotype(int geneCount, int geneSize, BitSet bitSet) {
-        this.geneCount = geneCount;
-        this.geneSize = geneSize;
-        this.genotype = bitSet;
+    BitSet genotype;
+
+    public BinaryGenome(int geneCount, int geneSize) {
+        this(geneCount, geneSize, new BitSet());
     }
 
-    public Genotype(int geneCount, int geneSize) {
-        this(geneCount, geneSize, new BitSet());
+    public BinaryGenome(int geneCount, int geneSize, BitSet bitset) {
+        super(geneCount, geneSize);
+        this.genotype = bitset;
     }
 
     public BitSet getGene(int geneIndex) {
@@ -42,23 +39,36 @@ public class Genotype {
         }
     }
 
-    public Genotype randomize() {
+    public void randomize() {
         for (int i = 0; i < geneCount * geneSize; i++) {
             genotype.set(i, Math.random() < 0.5);
         }
-        return this;
     }
 
-    //=========================================================
+    /**
+     * @return The amount of bits in the genome.
+     */
+    public int getSize() {
+        return geneSize * geneCount;
+    }
+
+    @Override
+    public Genotype<BitSet> dupe() {
+        return new BinaryGenome(geneCount, geneSize, (BitSet)genotype.clone());
+    }
+
+    //============================TEST=================================
     public static void main(String[] args) {
-        Genotype g = new Genotype(2, 2);
+        BinaryGenome g = new BinaryGenome(2, 2);
         BitSet set = g.getGene(0);
         System.out.println(set.length());
-        for (int i = 0; i<g.geneCount * g.geneSize; i++) {
+        for (int i = 0; i < g.geneCount * g.geneSize; i++) {
             System.out.println(g.genotype.get(i));
         }
         System.out.println("LOL\n");
-        g.setGene((new Genotype(1, 2)).randomize().getGene(0), 0);
+        BinaryGenome bsg = new BinaryGenome(1, 2);
+        bsg.randomize();
+        g.setGene(bsg.getGene(0), 0);
         for (int i = 0; i<g.geneCount * g.geneSize; i++) {
             System.out.println(g.genotype.get(i));
         }
