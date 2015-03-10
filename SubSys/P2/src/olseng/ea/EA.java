@@ -30,7 +30,7 @@ public class EA {
     /**
      * Chance that a gene chosen for mutation will actually mutate.
      */
-    public double geneComponentMutationRate = 0.2;
+    public double geneComponentMutationRate = 0.0;
 
     /**
      * The probability that genes will swap during crossover
@@ -113,7 +113,6 @@ public class EA {
 
     private void calculateStatistics() {
         avgUtility = 0;
-
         variance = 0;
         standardDeviation = 0;
 

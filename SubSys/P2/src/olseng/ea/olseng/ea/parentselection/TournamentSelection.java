@@ -47,7 +47,7 @@ public class TournamentSelection implements ParentSelector {
         else {
             best = tournament.get(0);
         }
-        genotypes.add(best.genotype);
+        genotypes.add(best.genotype.dupe());
 
         if(sexual) {
             tournament = getTournament(best);
@@ -59,7 +59,7 @@ public class TournamentSelection implements ParentSelector {
                 best = tournament.get(0);
 
             }
-            genotypes.add(best.genotype);
+            genotypes.add(best.genotype.dupe());
         }
         return genotypes;
     }

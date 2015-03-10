@@ -31,6 +31,7 @@ public class Plot extends Group{
     }
 
     public void init() {
+        chart.getData().clear();
         bestUtils = new XYChart.Series();
         bestUtils.setName("Best");
         avgUtils = new XYChart.Series();

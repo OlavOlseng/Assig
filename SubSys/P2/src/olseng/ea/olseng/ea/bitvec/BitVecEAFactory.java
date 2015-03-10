@@ -55,7 +55,7 @@ public class BitVecEAFactory {
     }
 
     public static PS_MODE PS = PS_MODE.PROPORTIONATE;
-    public static int BOLTZMANN_T = 500;
+    public static int BOLTZMANN_T = 50;
     public static int PS_TOURNAMENT_K = 10;
     public static double PS_TOURNAMENT_EPSILON = 0.1;
 

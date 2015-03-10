@@ -55,6 +55,9 @@ public class App extends Application {
                 while(running) {
                     running = !ea.step();
                     System.out.println(ea);
+                    if(ea.variance == 0) {
+                        System.out.println("LOL");
+                    }
                     plotter.addData(ea.currentGeneration, ea.bestUtility, ea.avgUtility, ea.standardDeviation);
                 }
                 Platform.runLater(new Runnable() {

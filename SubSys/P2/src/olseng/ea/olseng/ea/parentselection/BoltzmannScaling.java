@@ -7,28 +7,32 @@ import olseng.ea.Phenotype;
  */
 public class BoltzmannScaling extends GlobalSelector {
 
-    private double T = 0;
+    private final double initialT;
+    private double currentT = 0;
     private double avgFitnessExp;
 
     public BoltzmannScaling(double initialT) {
-        this.T = initialT;
+        this.initialT = initialT;
+        this.currentT = initialT;
+
     }
 
     @Override
     public void additionalPrecalcs() {
-        if(T > 1) {
-            T--;
+        if(currentT > 1) {
+            currentT--;
         }
+        double T = currentT / initialT;
         avgFitnessExp = 0;
 
         for (Phenotype p : pool) {
-            avgFitnessExp += Math.pow(Math.E,p.getUtilty()/T);
+            avgFitnessExp += Math.pow(Math.E,p.getUtilty()/ T);
         }
         avgFitnessExp /= pool.size();
     }
 
     @Override
     public double scalingFunction(double originalUtility) {
-        return Math.pow(Math.E, originalUtility/T) / avgFitnessExp;
+        return Math.pow(Math.E, originalUtility/ (currentT/ initialT)) / avgFitnessExp;
     }
 }
