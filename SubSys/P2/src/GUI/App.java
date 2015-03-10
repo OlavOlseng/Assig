@@ -1,6 +1,7 @@
 package GUI;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -12,13 +13,15 @@ import olseng.ea.olseng.ea.bitvec.BitVecEAFactory;
  */
 public class App extends Application {
 
-    public static final int WIDTH = 1600;
-    public static final int HEIGHT = 900;
+    public static final int WIDTH = 800;
+    public static final int HEIGHT = 600;
 
 
     Group root;
     ControlPanel cp;
     EA ea;
+    Plot plotter;
+
     private boolean running;
 
 
@@ -29,19 +32,41 @@ public class App extends Application {
         root = new Group();
 
         cp = new ControlPanel(this);
-        root.getChildren().add(cp);
+        plotter = new Plot();
+        plotter.setTranslateX(300);
+
+
+        root.getChildren().addAll(cp, plotter);
         Scene s =  new Scene(root, WIDTH, HEIGHT);
         primaryStage.setScene(s);
         primaryStage.show();
     }
 
     public void runEa() {
-        this.ea = BitVecEAFactory.buildEa();
-        running = true;
-        while(running) {
-            running = !ea.step();
-            System.out.println(ea);
+        if(running) {
+            return;
         }
+        running = true;
+        this.ea = BitVecEAFactory.buildEa();
+        plotter.init();
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                while(running) {
+                    running = !ea.step();
+                    System.out.println(ea);
+                    plotter.addData(ea.currentGeneration, ea.bestUtility, ea.avgUtility, ea.standardDeviation);
+                }
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        plotter.plot();
+                    }
+                });
+            }
+        };
+        Thread t = new Thread(r);
+        t.start();
     }
 
     public void stopEa() {

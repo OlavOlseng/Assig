@@ -5,6 +5,7 @@ import olseng.ea.Phenotype;
 import sun.plugin.dom.exception.InvalidStateException;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -44,7 +45,7 @@ public class TournamentSelection implements ParentSelector {
             best = tournament.get(index);
         }
         else {
-            best = getBest(tournament);
+            best = tournament.get(0);
         }
         genotypes.add(best.genotype);
 
@@ -55,7 +56,8 @@ public class TournamentSelection implements ParentSelector {
                 best = tournament.get(index);
             }
             else {
-                best = getBest(tournament);
+                best = tournament.get(0);
+
             }
             genotypes.add(best.genotype);
         }
@@ -79,32 +81,26 @@ public class TournamentSelection implements ParentSelector {
 
     private List<Phenotype> getTournament(Phenotype drop) {
         ArrayList<Phenotype> tournament = new ArrayList<Phenotype>(pool.size());
-        tournament.addAll(pool);
-        tournament.remove(drop);
 
         //OMGOMGOMGOMG
-        while(tournament.size() > k) {
-            int removeIndex = (int)(Math.random() * tournament.size());
-            tournament.remove(removeIndex);
-        }
-        return tournament;
-    }
-
-    private Phenotype getBest(List<Phenotype> tournament) {
-        Phenotype best = null;
-        double bestUtil = -1000000000;
-        for (Phenotype p : tournament) {
-            if (p.getUtilty() < bestUtil) {
-                continue;
+        if (k > pool.size() / 2) {
+            tournament.addAll(pool);
+            tournament.remove(drop);
+            while(tournament.size() > k) {
+                int removeIndex = (int)(Math.random() * tournament.size());
+                tournament.remove(removeIndex);
             }
-            else if(p.getUtilty() == bestUtil) {
-                if(Math.random() < 0.5) {
+        }
+        else {
+            while (tournament.size() < k) {
+                Phenotype p = pool.get((int)(Math.random() * pool.size()));
+                if (tournament.contains(p) || p == drop) {
                     continue;
                 }
+                tournament.add(p);
             }
-            best = p;
-            bestUtil = p.getUtilty();
         }
-        return best;
+        Collections.sort(tournament);
+        return tournament;
     }
 }

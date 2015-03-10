@@ -19,7 +19,7 @@ import java.util.List;
  */
 public class EA {
 
-    Generation generation;
+    public Generation generation;
     List<Phenotype> adultPool;
 
     /**
@@ -40,14 +40,15 @@ public class EA {
     private AdultSelector adultSelector;
     private ParentSelector parentSelector;
 
-    private int currentGeneration = 0;
+    public int currentGeneration = 0;
     private int generationCap;
 
     private double utilityThreshold;
 
-    private double avgUtility;
-    private double variance;
-    private double standardDeviation;
+    public double bestUtility;
+    public double avgUtility;
+    public double variance;
+    public double standardDeviation;
 
     public EA(Generation initialGenotypes, int generationCap, double utilityThreshold) {
         this.generation = initialGenotypes;
@@ -127,6 +128,7 @@ public class EA {
         }
         variance /= adultPool.size();
         standardDeviation = Math.sqrt(variance);
+        this.bestUtility = adultPool.get(0).getUtilty();
     }
 
     //====================GETTERS & SETTERS========================

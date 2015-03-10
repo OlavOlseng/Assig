@@ -19,9 +19,15 @@ public class BinaryGenomeOperators extends GeneticOperators<BinaryGenome> {
         for (int i = 0; i < genome.geneCount; i++) {
             //check if gene should mutate
             if((Math.random() < geneMutationRate)) {
-                int geneIndex = (int)(Math.random() * genome.geneSize);
-                genome.genotype.flip(i * genome.geneSize + geneIndex);
+                //int geneIndex = (int)(Math.random() * genome.geneSize);
+                //genome.genotype.flip(i * genome.geneSize + geneIndex);
             }
+        }
+        if((Math.random() < geneMutationRate)) {
+            //int geneIndex = (int)(Math.random() * genome.geneSize);
+            //genome.genotype.flip(i * genome.geneSize + geneIndex);
+            int geneIndex = (int) (Math.random() * genome.getSize());
+            genome.genotype.flip(geneIndex);
         }
 
         return genome;
