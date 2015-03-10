@@ -2,7 +2,7 @@ package olseng.ea;
 
 import olseng.ea.olseng.ea.bitvec.BinaryGenome;
 import olseng.ea.olseng.ea.bitvec.BitToIntVec;
-import olseng.ea.olseng.ea.bitvec.IntVecEvaluator;
+import olseng.ea.olseng.ea.bitvec.MaxOneEvaluator;
 
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -70,7 +70,7 @@ public class Generation<G extends Genotype> {
         bs.set(0,20);
         gs.add(new BinaryGenome(20,1, bs));
 
-        Generation<BinaryGenome> p = new Generation<BinaryGenome>(new BitToIntVec(), new IntVecEvaluator(), null, gs);
+        Generation<BinaryGenome> p = new Generation<BinaryGenome>(new BitToIntVec(), new MaxOneEvaluator(), null, gs);
         p.developGenotypes();
         p.evaluatePhenotypes();
         for(Phenotype ph : p.phenotypes) {

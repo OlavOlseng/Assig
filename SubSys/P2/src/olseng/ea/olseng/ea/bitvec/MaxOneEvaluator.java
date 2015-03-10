@@ -5,7 +5,7 @@ import olseng.ea.FitnessEvaluator;
 /**
  * Created by Olav on 05.03.2015.
  */
-public class IntVecEvaluator implements FitnessEvaluator<IntVec> {
+public class MaxOneEvaluator implements FitnessEvaluator<IntVec> {
 
     @Override
     public double evaluate(IntVec phenotype) {

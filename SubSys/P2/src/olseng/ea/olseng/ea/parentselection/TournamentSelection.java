@@ -57,7 +57,6 @@ public class TournamentSelection implements ParentSelector {
             }
             else {
                 best = tournament.get(0);
-
             }
             genotypes.add(best.genotype.dupe());
         }

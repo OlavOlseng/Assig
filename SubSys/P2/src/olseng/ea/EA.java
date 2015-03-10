@@ -1,13 +1,11 @@
 package olseng.ea;
 
 import olseng.ea.olseng.ea.adultselectors.AdultSelector;
-import olseng.ea.olseng.ea.adultselectors.FullReplacement;
 import olseng.ea.olseng.ea.adultselectors.GenerationalMixing;
-import olseng.ea.olseng.ea.adultselectors.OverProduction;
 import olseng.ea.olseng.ea.bitvec.BinaryGenome;
 import olseng.ea.olseng.ea.bitvec.BinaryGenomeOperators;
 import olseng.ea.olseng.ea.bitvec.BitToIntVec;
-import olseng.ea.olseng.ea.bitvec.IntVecEvaluator;
+import olseng.ea.olseng.ea.bitvec.MaxOneEvaluator;
 import olseng.ea.olseng.ea.parentselection.*;
 
 import java.util.ArrayList;
@@ -167,7 +165,7 @@ public class EA {
             g.randomize();
             genomes.add(g);
         }
-        Generation<BinaryGenome> generation = new Generation<BinaryGenome>(new BitToIntVec(), new IntVecEvaluator(), new BinaryGenomeOperators(), genomes);
+        Generation<BinaryGenome> generation = new Generation<BinaryGenome>(new BitToIntVec(), new MaxOneEvaluator(), new BinaryGenomeOperators(), genomes);
         EA ea = new EA(generation, 500, 1.0).setAdultSelector(new GenerationalMixing(100, 150, 5)).setParentSelector(new FitnessProportionate());
         ea.geneMutationRate = 0.01;
 

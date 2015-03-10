@@ -1,6 +1,7 @@
 package olseng.ea.olseng.ea.bitvec;
 
 import olseng.ea.EA;
+import olseng.ea.FitnessEvaluator;
 import olseng.ea.Generation;
 import olseng.ea.olseng.ea.adultselectors.AdultSelector;
 import olseng.ea.olseng.ea.adultselectors.FullReplacement;
@@ -20,12 +21,12 @@ public class BitVecEAFactory {
     public static int POPULATION_CAP = 100;
     public static int GENERATION_CAP = 500;
     public static double UTILITY_CAP = 1.0;
-
     public static double GENE_MUTATION_RATE = 0.005;
 
     public static double CROSSOVER_RATE = 0.2;
 
     public static int GENE_COUNT = 40;
+
     public static int GENE_SIZE = 1;
 
     public enum Problem {
@@ -33,9 +34,22 @@ public class BitVecEAFactory {
         LOLZ,
         SS_LOCAL,
         SS_GLOBAL;
+
     }
 
     public static Problem PROBLEM = Problem.ONE_MAX;
+    public static int LOLZ_THRESHOLD = 21;
+
+    public static FitnessEvaluator getFitnessEvaluator() {
+        switch(PROBLEM) {
+            case ONE_MAX:
+                return new MaxOneEvaluator();
+            case LOLZ:
+                return new LOLZEvaluator(LOLZ_THRESHOLD);
+            default:
+                return null;
+        }
+    }
 
     public enum AS_MODE {
         REPLACE,
@@ -100,9 +114,12 @@ public class BitVecEAFactory {
             g.randomize();
             initialPopulation.add(g);
         }
+
+        FitnessEvaluator fg = getFitnessEvaluator();
+
         Generation<BinaryGenome> generation = new Generation<BinaryGenome>(
                 new BitToIntVec(),
-                new IntVecEvaluator(),
+                new MaxOneEvaluator(),
                 new BinaryGenomeOperators(),
                 initialPopulation);
 
