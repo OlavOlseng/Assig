@@ -16,7 +16,6 @@ public class App extends Application {
     public static final int WIDTH = 800;
     public static final int HEIGHT = 600;
 
-
     Group root;
     ControlPanel cp;
     EA ea;
@@ -33,7 +32,7 @@ public class App extends Application {
 
         cp = new ControlPanel(this);
         plotter = new Plot();
-        plotter.setTranslateX(300);
+        plotter.setTranslateX(250);
 
 
         root.getChildren().addAll(cp, plotter);
@@ -55,9 +54,6 @@ public class App extends Application {
                 while(running) {
                     running = !ea.step();
                     System.out.println(ea);
-                    if(ea.variance == 0) {
-                        System.out.println("LOL");
-                    }
                     plotter.addData(ea.currentGeneration, ea.bestUtility, ea.avgUtility, ea.standardDeviation);
                 }
                 Platform.runLater(new Runnable() {

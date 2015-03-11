@@ -1,5 +1,6 @@
 package olseng.ea.olseng.ea.bitvec;
 
+import olseng.ea.DevelopmentalMethod;
 import olseng.ea.EA;
 import olseng.ea.FitnessEvaluator;
 import olseng.ea.Generation;
@@ -22,7 +23,6 @@ public class BitVecEAFactory {
     public static int GENERATION_CAP = 500;
     public static double UTILITY_CAP = 1.0;
     public static double GENE_MUTATION_RATE = 0.005;
-
     public static double CROSSOVER_RATE = 0.2;
 
     public static int GENE_COUNT = 40;
@@ -38,7 +38,9 @@ public class BitVecEAFactory {
     }
 
     public static Problem PROBLEM = Problem.ONE_MAX;
+
     public static int LOLZ_THRESHOLD = 21;
+    public static int ALPHABET_SIZE = 5;
 
     public static FitnessEvaluator getFitnessEvaluator() {
         switch(PROBLEM) {
@@ -46,6 +48,8 @@ public class BitVecEAFactory {
                 return new MaxOneEvaluator();
             case LOLZ:
                 return new LOLZEvaluator(LOLZ_THRESHOLD);
+            case SS_LOCAL:
+                return new LSSEvaluator();
             default:
                 return null;
         }
@@ -115,11 +119,14 @@ public class BitVecEAFactory {
             initialPopulation.add(g);
         }
 
-        FitnessEvaluator fg = getFitnessEvaluator();
-
+        FitnessEvaluator fe = getFitnessEvaluator();
+        BitToIntVec dm = new BitToIntVec();
+        if(PROBLEM == Problem.SS_GLOBAL || PROBLEM == Problem.SS_LOCAL) {
+            dm.setMaxVal(ALPHABET_SIZE);
+        }
         Generation<BinaryGenome> generation = new Generation<BinaryGenome>(
-                new BitToIntVec(),
-                new MaxOneEvaluator(),
+                dm,
+                fe,
                 new BinaryGenomeOperators(),
                 initialPopulation);
 
@@ -140,6 +147,4 @@ public class BitVecEAFactory {
             System.out.println(ea);
         }
     }
-
-
 }

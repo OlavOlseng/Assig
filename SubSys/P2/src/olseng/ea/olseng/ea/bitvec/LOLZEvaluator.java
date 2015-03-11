@@ -23,7 +23,7 @@ public class LOLZEvaluator implements FitnessEvaluator<IntVec> {
             checkTo = threshold;
         }
 
-        double hits = 0;
+        double hits = 1;
 
         for (int i = 1; i < checkTo; i++) {
             if(phenotype.data.get(i) == initialVal){

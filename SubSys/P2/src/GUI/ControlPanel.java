@@ -38,6 +38,7 @@ public class ControlPanel extends GridPane {
     TextField geneSize = new TextField(Integer.toString(BitVecEAFactory.GENE_SIZE));
 
     TextField lolzThreshold = new TextField(Integer.toString(BitVecEAFactory.LOLZ_THRESHOLD));
+    TextField alphabetSize = new TextField(Integer.toString(BitVecEAFactory.ALPHABET_SIZE));
 
     TextField overpop = new TextField(Integer.toString(BitVecEAFactory.AS_OVERPOPULATE_COUNT));
     TextField adultRetention = new TextField(Integer.toString(BitVecEAFactory.AS_RETENTION));
@@ -169,6 +170,17 @@ public class ControlPanel extends GridPane {
         this.add(new Text("LOLZ Z: "), 0, y);
         this.add(lolzThreshold, 1, y);
         y++;
+
+        alphabetSize.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                BitVecEAFactory.ALPHABET_SIZE = Integer.parseInt(alphabetSize.getText());
+            }
+        });
+        this.add(new Text("Alphabet Size: "), 0, y);
+        this.add(alphabetSize, 1, y);
+        y++;
+
 
         this.add(new Text("Adult Selection: "), 0, y);
         asModeComboBox.setValue(BitVecEAFactory.AS);

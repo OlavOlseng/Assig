@@ -9,13 +9,11 @@ import java.util.ArrayList;
  */
 public class BitToIntVec implements DevelopmentalMethod<BinaryGenome,IntVec> {
 
+    private int maxVal = 0;
 
-
-    public static void main(String[] args) {
-        BinaryGenome g = new BinaryGenome(1,8);
-        g.randomize();
-        DevelopmentalMethod dm = new BitToIntVec();
-        System.out.println(dm.getPhenotype(g));
+    public BitToIntVec setMaxVal(int val) {
+        this.maxVal = val;
+        return this;
     }
 
     @Override
@@ -27,9 +25,20 @@ public class BitToIntVec implements DevelopmentalMethod<BinaryGenome,IntVec> {
             if(gene.length > 0) {
                 val += (int)gene[0];
             }
+            if (maxVal != 0) {
+                val %= maxVal;
+            }
             list.add(val);
         }
         return new IntVec(g, list);
+    }
+
+    public static void main(String[] args) {
+        BinaryGenome g = new BinaryGenome(1,8);
+        g.genotype.flip(0, 6);
+        DevelopmentalMethod dm = new BitToIntVec();
+        ((BitToIntVec)dm).maxVal = 80;
+        System.out.println(dm.getPhenotype(g));
     }
 }
 
