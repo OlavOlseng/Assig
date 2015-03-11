@@ -50,6 +50,8 @@ public class BitVecEAFactory {
                 return new LOLZEvaluator(LOLZ_THRESHOLD);
             case SS_LOCAL:
                 return new LSSEvaluator();
+            case SS_GLOBAL:
+                return new GSSEvaluator();
             default:
                 return null;
         }
@@ -120,6 +122,7 @@ public class BitVecEAFactory {
         }
 
         FitnessEvaluator fe = getFitnessEvaluator();
+
         BitToIntVec dm = new BitToIntVec();
         if(PROBLEM == Problem.SS_GLOBAL || PROBLEM == Problem.SS_LOCAL) {
             dm.setMaxVal(ALPHABET_SIZE);

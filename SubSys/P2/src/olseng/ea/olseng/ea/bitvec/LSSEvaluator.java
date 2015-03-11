@@ -34,7 +34,7 @@ public class LSSEvaluator implements FitnessEvaluator<IntVec> {
     }
 
     public static void main(String[] args) {
-        List<Integer> data = new ArrayList<Integer>(Arrays.asList(0,1,1,0));
+        List<Integer> data = new ArrayList<Integer>(Arrays.asList(0,1,1,0,0));
         double util = 0;
 
         for (int i = 0; i < data.size() - 2; i++) {

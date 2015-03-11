@@ -175,6 +175,8 @@ public class ControlPanel extends GridPane {
             @Override
             public void handle(ActionEvent event) {
                 BitVecEAFactory.ALPHABET_SIZE = Integer.parseInt(alphabetSize.getText());
+                geneSize.setText(Integer.toString(32 - Integer.numberOfLeadingZeros(BitVecEAFactory.ALPHABET_SIZE)));
+                geneSize.getOnAction().handle(null);
             }
         });
         this.add(new Text("Alphabet Size: "), 0, y);
