@@ -19,7 +19,7 @@ public class ControlPanel extends GridPane {
     private App app;
 
     Button b_run;
-    Button b_stop;
+    Button b_clear;
 
     ComboBox<BitVecEAFactory.Problem> problemModeComboBox;
     ComboBox<BitVecEAFactory.AS_MODE> asModeComboBox;
@@ -254,12 +254,13 @@ public class ControlPanel extends GridPane {
         });
         this.add(b_run, 0, y);
 
-        b_stop = new Button("Stop");
-        b_stop.setOnAction(new EventHandler<ActionEvent>() {
+        b_clear = new Button("Clear");
+        b_clear.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                app.stopEa();
+                app.clearPlot();
             }
         });
+        this.add(b_clear, 1, y);
     }
 }

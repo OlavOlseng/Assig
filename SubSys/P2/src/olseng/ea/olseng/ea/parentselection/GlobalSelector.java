@@ -84,10 +84,6 @@ public abstract class GlobalSelector implements ParentSelector{
         return getParentFromList(value);
     }
 
-    public double getAvgUtility() {
-        return this.avgUtility;
-    }
-
     /**
      * Function that is latched onto the end of the initialization function.
      * Override to do any additional calculations post initialization, pre selection.

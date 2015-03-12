@@ -13,7 +13,7 @@ public interface ParentSelector {
     /**
      *Returns a list from the pool the module was initialized with.
      * @param sexual If true, returns two individuals. Else it returns one.
-     * @return The parent(s) chosen to mate/mutate.
+     * @return Deep copies of the parent(s) chosen to mate/mutate.
      * @throws sun.plugin.dom.exception.InvalidStateException
      */
     public List<Genotype> getParents(boolean sexual);
@@ -23,6 +23,4 @@ public interface ParentSelector {
      * @param adultPool
      */
     public void initialize(List<Phenotype> adultPool);
-
-    public double getAvgUtility();
 }

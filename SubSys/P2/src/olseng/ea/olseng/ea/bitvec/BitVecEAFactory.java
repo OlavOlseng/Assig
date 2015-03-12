@@ -19,7 +19,7 @@ import java.util.List;
  */
 public class BitVecEAFactory {
 
-    public static int POPULATION_CAP = 100;
+    public static int POPULATION_CAP = 300;
     public static int GENERATION_CAP = 500;
     public static double UTILITY_CAP = 1.0;
     public static double GENE_MUTATION_RATE = 0.005;

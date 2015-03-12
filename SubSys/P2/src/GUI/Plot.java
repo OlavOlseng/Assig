@@ -23,21 +23,26 @@ public class Plot extends Group{
         chart = new LineChart<Number,Number>(xAxis,yAxis);
 
         chart.setTitle("Generation development");
-
+        chart.setCreateSymbols(false);
 
         init();
 
         this.getChildren().add(chart);
     }
-
+    private int run = 0;
     public void init() {
-        chart.getData().clear();
         bestUtils = new XYChart.Series();
-        bestUtils.setName("Best");
+        bestUtils.setName("Best r: " + run);
         avgUtils = new XYChart.Series();
-        avgUtils.setName("Average");
+        avgUtils.setName("Average r: " + run);
         standardDeviations = new XYChart.Series();
-        standardDeviations.setName("SD");
+        standardDeviations.setName("SD r: " + run);
+        run++;
+    }
+
+    public void clearPlot() {
+        chart.getData().clear();
+        this.run = 1;
     }
 
     public void addData(int generation, double bestUtil, double avgUtil, double standardDeviation) {

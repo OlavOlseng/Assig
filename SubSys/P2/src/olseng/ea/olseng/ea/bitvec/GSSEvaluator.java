@@ -20,10 +20,10 @@ public class GSSEvaluator implements FitnessEvaluator<IntVec> {
         double util = 0;
         double maxUtil = 0;
 
-        for (int d = 1; d < data.size() - 1; d++) {
-            for (int i = 0; i + d < data.size() - 2; i++) {
+        for (int d = 1; d < data.size(); d++) {
+            for (int i = 0; i + d < data.size() - 1; i++) {
                 int currentI = data.get(i);
-                for (int j = i + d; j < data.size() - d; j++) {
+                for (int j = i + 1; j + d < data.size(); j++) {
                     if(data.get(j) == currentI) {
                         if(data.get(i + d) == data.get(j + d)) {
                             maxUtil++;
@@ -39,7 +39,7 @@ public class GSSEvaluator implements FitnessEvaluator<IntVec> {
     }
 
     public static void main(String[] args) {
-        List<Integer> data = new ArrayList<Integer>(Arrays.asList(0, 1, 1, 0, 0));
+        List<Integer> data = new ArrayList<Integer>(Arrays.asList(2, 1, 1, 0, 0, 0));
 
         double util = 0;
         double maxUtil = 0;

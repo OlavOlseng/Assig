@@ -22,7 +22,6 @@ public class TournamentSelection implements ParentSelector {
      */
     public double randomRate;
     private List<Phenotype> pool;
-    double avgUtil = 0;
 
     public TournamentSelection(int K, double randomRate) {
         this.k = K;
@@ -67,15 +66,6 @@ public class TournamentSelection implements ParentSelector {
     public void initialize(List<Phenotype> adultPool) {
         this.pool = adultPool;
         this.k = Math.min(k, pool.size());
-        for (Phenotype p : pool) {
-            avgUtil += p.getUtilty();
-        }
-        avgUtil /= pool.size();
-    }
-
-    @Override
-    public double getAvgUtility() {
-        return avgUtil;
     }
 
     private List<Phenotype> getTournament(Phenotype drop) {
