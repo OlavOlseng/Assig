@@ -1,6 +1,5 @@
 package olseng.ea.olseng.ea.bitvec;
 
-import jdk.nashorn.internal.runtime.BitVector;
 import olseng.ea.FitnessEvaluator;
 
 import java.util.ArrayList;
