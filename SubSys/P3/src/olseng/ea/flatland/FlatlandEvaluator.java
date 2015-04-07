@@ -10,7 +10,7 @@ import java.util.ArrayList;
 public class FlatlandEvaluator implements FitnessEvaluator<ANN>{
 
     private static final int MAX_MOVES = 60;
-    private static final double MIN_THRESHOLD = 0.10;
+    private static final double MIN_THRESHOLD = 0.5;
 
     private final double poisonChance;
     private final double foodChance;

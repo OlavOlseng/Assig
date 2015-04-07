@@ -10,7 +10,7 @@ import java.util.ArrayList;
  */
 public class BitToANN implements DevelopmentalMethod<BinaryGenome, ANN> {
 
-    public static final int[] layerSizes = {6,8,3};
+    public static final int[] layerSizes = {6,4,3};
 
     @Override
     public ANN getPhenotype(BinaryGenome g) {

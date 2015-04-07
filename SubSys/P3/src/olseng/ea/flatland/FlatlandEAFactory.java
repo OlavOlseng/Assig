@@ -20,15 +20,15 @@ import java.util.List;
  */
 public class FlatlandEAFactory {
 
-    public static int POPULATION_CAP = 50;
+    public static int POPULATION_CAP = 100;
     public static int GENERATION_CAP = 300;
     public static double UTILITY_CAP = 1.0;
     public static double GENE_MUTATION_RATE = 0.1;
-    public static double CROSSOVER_RATE = 0.2;
+    public static double CROSSOVER_RATE = 0.3;
 
     public static int GENE_COUNT = 36;
 
-    public static int GENE_SIZE = 8;
+    public static int GENE_SIZE = 16;
 
     public static FitnessEvaluator getFitnessEvaluator() {
         return new FlatlandEvaluator(5, 0.3, 0.3);
@@ -41,7 +41,7 @@ public class FlatlandEAFactory {
     }
 
     public static AS_MODE AS = AS_MODE.GENERATIONAL_MIX;
-    public static int AS_OVERPOPULATE_COUNT = 20;
+    public static int AS_OVERPOPULATE_COUNT = 50;
     public static int AS_RETENTION = 2;
 
     public enum PS_MODE {
@@ -51,8 +51,8 @@ public class FlatlandEAFactory {
         TOURNAMENT;
     }
 
-    public static PS_MODE PS = PS_MODE.PROPORTIONATE;
-    public static int BOLTZMANN_T = 50;
+    public static PS_MODE PS = PS_MODE.BOLTZMANN;
+    public static int BOLTZMANN_T = 150;
     public static int PS_TOURNAMENT_K = 10;
     public static double PS_TOURNAMENT_EPSILON = 0.1;
 
