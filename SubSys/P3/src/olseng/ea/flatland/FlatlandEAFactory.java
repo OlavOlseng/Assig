@@ -42,7 +42,7 @@ public class FlatlandEAFactory {
 
     public static AS_MODE AS = AS_MODE.GENERATIONAL_MIX;
     public static int AS_OVERPOPULATE_COUNT = 20;
-    public static int AS_RETENTION = 5;
+    public static int AS_RETENTION = 2;
 
     public enum PS_MODE {
         PROPORTIONATE,

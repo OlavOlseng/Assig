@@ -17,7 +17,7 @@ public class FlatlandEvaluator implements FitnessEvaluator<ANN>{
 
     public final int levelCount;
     private final double foodWorth = 1;
-    private final double poisonWorth = 0.5;
+    private final double poisonWorth = 0.2;
 
     private ArrayList<Level> levels;
 

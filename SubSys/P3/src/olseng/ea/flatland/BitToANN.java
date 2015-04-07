@@ -14,7 +14,7 @@ public class BitToANN implements DevelopmentalMethod<BinaryGenome, ANN> {
 
     @Override
     public ANN getPhenotype(BinaryGenome g) {
-        ArrayList<Integer> list = new ArrayList<Integer>();
+        ArrayList<Double> list = new ArrayList<Double>();
         for (int i = 0; i < g.geneCount; i++) {
             int val = 0;
             int maxVal = (int)Math.pow(2, g.geneSize);
@@ -25,10 +25,9 @@ public class BitToANN implements DevelopmentalMethod<BinaryGenome, ANN> {
             if (maxVal != 0) {
                 val %= maxVal;
             }
-            list.add(val - maxVal/2);
+            list.add((double)(val - maxVal/2) / maxVal);
         }
         ANN n =  new ANN(g);
-        n.weightList = list;
         n.initializeLayers(layerSizes);
         int counter = 0;
         for(int i = 1; i < n.nodes.size(); i++) {
