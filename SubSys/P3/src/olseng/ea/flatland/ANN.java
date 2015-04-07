@@ -1,5 +1,7 @@
 package olseng.ea.flatland;
 
+import olseng.ea.Phenotype;
+import olseng.ea.olseng.ea.bitvec.BinaryGenome;
 import sun.plugin.dom.exception.InvalidStateException;
 
 import java.util.ArrayList;
@@ -8,36 +10,29 @@ import java.util.Arrays;
 /**
  * Created by Olav on 07.04.2015.
  */
-public class ANN {
+public class ANN extends Phenotype<BinaryGenome> {
 
     public ArrayList<double[][]> weights;
     public ArrayList<double[]> nodes;
     public double beta = 1.0;
+    private int weightCount = 0;
+    public ArrayList<Integer> weightList = new ArrayList<Integer>();
 
-    public ANN() {
+    public ANN(BinaryGenome genotype) {
+        super(genotype);
         this.weights = new ArrayList<double[][]>();
         this.nodes = new ArrayList<double[]>();
     }
 
     /**
-     * initilises the layers and weights.
+     * initilises the layers. Should only be called once.
      */
-    private void initializeLayers() {
-        nodes.add(new double[6]);
-        nodes.add(new double[4]);
-        nodes.add(new double[3]);
-
-
-        //weights are randomised here, needs to be moved into phenotype development and made not random.
-        for(int i = 1; i < nodes.size(); i++) {
-            double[][] layer  = new double[nodes.get(i).length][nodes.get(i - 1).length];
-
-            for (int j = 0; j < nodes.get(i).length; j++) {
-                for (int k = 0; k < nodes.get(i - 1).length; k++) {
-                    layer[j][k] = Math.random() * 2 - 1;
-                }
+    public void initializeLayers(int[] layerSizes) {
+        for (int i = 0; i < layerSizes.length; i++) {
+            nodes.add(new double[layerSizes[i]]);
+            if (i > 0) {
+                weightCount += layerSizes[i] * layerSizes[i - 1];
             }
-            weights.add(layer);
         }
     }
 
@@ -70,13 +65,17 @@ public class ANN {
         return nodes.get(nodes.size() - 1);
     }
 
+    public int getWeightCount() {
+        return weightCount;
+    }
+
+//==============================TESTS===============================
     public static void main(String[] args) {
-        ANN b = new ANN();
-        b.initializeLayers();
+        ANN b = new ANN(new BinaryGenome(6,6));
+        b.initializeLayers(new int[]{6,4,3});
         b.setInputs(new double[]{1,0,0,1,0,0});
         b.propagate();
         double[] out  = b.getOutput();
         System.out.println(Arrays.toString(out));
     }
-
 }

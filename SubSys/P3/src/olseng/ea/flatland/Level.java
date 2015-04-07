@@ -14,15 +14,15 @@ public class Level {
     public static final int TILE_FOOD = 2;
     public static final int TILE_POISON = 3;
 
-    public static final int DIR_FORWARD = 1;
-    public static final int DIR_LEFT = 2;
-    public static final int DIR_RIGHT = 3;
+    public static final int DIR_FORWARD = 0;
+    public static final int DIR_LEFT = 1;
+    public static final int DIR_RIGHT = 2;
 
     public int consumedFood = 0;
     public int consumedPoison = 0;
 
-    private int foodCount = 0;
-    private int poisonCount = 0;
+    public int foodCount = 0;
+    public int poisonCount = 0;
 
     public int[][] map;
     public int[][] shadow;
@@ -138,15 +138,84 @@ public class Level {
         }
     }
 
-    /**
-     * @return A new level object with a copied map object, and player location and orientation. Nothing else is copied.
-     */
+    public double[] getSensorData() {
+        double[] readings = new double[6];
+        int fx, fy, lx, ly, rx, ry;
+
+        //forward
+        if (orientation == 0) {
+            fx = playerX + 1;
+            fy = playerY;
+
+            lx = playerX;
+            ly = playerY - 1;
+
+            rx = playerX;
+            ry = playerY + 1;
+        }
+        else if (orientation == 90) {
+            fx = playerX;
+            fy = playerY - 1;
+
+            lx = playerX - 1;
+            ly = playerY;
+
+            rx = playerX + 1;
+            ry = playerY;
+        }
+        else if (orientation == 180) {
+            fx = playerX - 1;
+            fy = playerY;
+
+            lx = playerX;
+            ly = playerY - 1;
+
+            rx = playerX;
+            ry = playerY + 1;
+        }
+        else if (orientation == 270) {
+            fx = playerX;
+            fy = playerY + 1;
+
+            lx = playerX + 1;
+            ly = playerY;
+
+            rx = playerX - 1;
+            ry = playerY;
+        }
+        else {
+            throw new InvalidStateException("Agent disoriented");
+        }
+
+        fx = (fx + map[0].length) % map[0].length;
+        fy = (fy + map.length) % map.length;
+        lx = (lx + map[0].length) % map[0].length;
+        ly = (ly + map.length) % map.length;
+        rx = (rx + map[0].length) % map[0].length;
+        ry = (ry + map.length) % map.length;
+
+        readings[0] = map[fy][fx] == TILE_FOOD ? 1 : 0;
+        readings[1] = map[ly][lx] == TILE_FOOD ? 1 : 0;
+        readings[2] = map[ry][rx] == TILE_FOOD ? 1 : 0;
+        readings[3] = map[fy][fx] == TILE_POISON ? 1 : 0;
+        readings[4] = map[ly][lx] == TILE_POISON ? 1 : 0;
+        readings[5] = map[ry][rx] == TILE_POISON ? 1 : 0;
+
+        return readings;
+    }
+
     public Level copy() {
         Level copy = new Level(map.length, map[0].length);
-        copy.map = this.map.clone();
+        for (int y = 0; y < map.length; y++) {
+            for (int x = 0; x  < map[0].length; x++) {
+                copy.map[y][x] = this.map[y][x];
+            }
+        }
         copy.playerX = this.playerX;
         copy.playerY = this.playerY;
         copy.orientation = this.orientation;
+        copy.foodCount = this.foodCount;
+        copy.poisonCount = this.poisonCount;
         return copy;
     }
 
@@ -169,5 +238,11 @@ public class Level {
         l.movePlayer(DIR_RIGHT);
         l.print();
         System.out.println("\nFE: " + l.consumedFood + " PE: " + l.consumedPoison);
+
+        l = new Level(3,3);
+        l.initialize(0.3, 0.3);
+        l.setPlayer(1,1);
+        l.print();
+        System.out.println(Arrays.toString(l.getSensorData()));
     }
 }
