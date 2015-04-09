@@ -10,11 +10,16 @@ import java.util.ArrayList;
  */
 public class BitToANN implements DevelopmentalMethod<BinaryGenome, ANN> {
 
-    public static final int[] layerSizes = {6,4,3};
+    private int[] layerSizes;
+
+    public BitToANN(int[] layers) {
+        this.layerSizes = layers;
+    }
 
     @Override
     public ANN getPhenotype(BinaryGenome g) {
         ArrayList<Double> list = new ArrayList<Double>();
+        double threshold = 0;
         for (int i = 0; i < g.geneCount; i++) {
             int val = 0;
             int maxVal = (int)Math.pow(2, g.geneSize);
@@ -25,9 +30,13 @@ public class BitToANN implements DevelopmentalMethod<BinaryGenome, ANN> {
             if (maxVal != 0) {
                 val %= maxVal;
             }
+            if (i == 1) {
+                threshold = (double)val / maxVal;
+            }
             list.add((double)(val - maxVal/2) / maxVal);
         }
         ANN n =  new ANN(g);
+        n.outputThreshold = threshold;
         n.initializeLayers(layerSizes);
         int counter = 0;
         for(int i = 1; i < n.nodes.size(); i++) {

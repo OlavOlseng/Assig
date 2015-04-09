@@ -10,21 +10,22 @@ import java.util.ArrayList;
 public class FlatlandEvaluator implements FitnessEvaluator<ANN>{
 
     private static final int MAX_MOVES = 60;
-    private static final double MIN_THRESHOLD = 0.5;
 
     private final double poisonChance;
     private final double foodChance;
 
-    public final int levelCount;
-    private final double foodWorth = 1;
-    private final double poisonWorth = 0.2;
+    public int levelCount;
+    private double foodWorth;
+    private double poisonWorth;
 
-    private ArrayList<Level> levels;
+    public ArrayList<Level> levels;
 
-    public FlatlandEvaluator(int levels, double foodChance, double poisonChance) {
+    public FlatlandEvaluator(int levels, double foodChance, double poisonChance, double foodWorth, double poisonWorth) {
         this.levelCount = levels;
         this.foodChance = foodChance;
         this.poisonChance = poisonChance;
+        this.foodWorth = foodWorth;
+        this.poisonWorth = poisonWorth;
         generateLevels();
     }
 
@@ -40,7 +41,6 @@ public class FlatlandEvaluator implements FitnessEvaluator<ANN>{
     @Override
     public double evaluate(ANN phenotype) {
         double utilSum = 0;
-
         for (int l = 0; l < levelCount; l++) {
             Level level = levels.get(l).copy();
             for (int i = 0; i < MAX_MOVES; i++) {
@@ -54,14 +54,14 @@ public class FlatlandEvaluator implements FitnessEvaluator<ANN>{
         return utilSum / (double)levelCount;
     }
 
-    public int getMove(Level level, ANN phenotype) {
+    public static int getMove(Level level, ANN phenotype) {
         phenotype.setInputs(level.getSensorData());
         phenotype.propagate();
         double[] output = phenotype.getOutput();
         int move = -1;
         double max = 0;
         for (int i = 0; i < output.length; i++) {
-            if (output[i] > MIN_THRESHOLD && output[i] > max) {
+            if (output[i] > phenotype.outputThreshold && output[i] > max) {
                 move = i;
                 max = output[i];
             }

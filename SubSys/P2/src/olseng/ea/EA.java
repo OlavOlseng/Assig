@@ -18,7 +18,7 @@ import java.util.List;
 public class EA {
 
     public Generation generation;
-    List<Phenotype> adultPool;
+    public List<Phenotype> adultPool;
 
     /**
      * Probability that a gene is chosen for mutation.
@@ -47,6 +47,7 @@ public class EA {
     public double avgUtility;
     public double variance;
     public double standardDeviation;
+    public boolean reevaluateAdults = false;
 
     public EA(Generation initialGenotypes, int generationCap, double utilityThreshold) {
         this.generation = initialGenotypes;
@@ -93,7 +94,10 @@ public class EA {
     public boolean step() {
         this.currentGeneration++;
         this.generation.developGenotypes();
-        this.generation.evaluatePhenotypes();
+        if(reevaluateAdults) {
+            this.generation.evaluatePhenotypes((this.adultPool));
+        }
+        this.generation.evaluatePhenotypes(generation.phenotypes);
         this.adultPool = this.adultSelector.getSelection(adultPool, generation.phenotypes);
         Collections.sort(adultPool);
         calculateStatistics();

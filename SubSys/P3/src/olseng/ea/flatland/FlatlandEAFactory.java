@@ -20,18 +20,25 @@ import java.util.List;
  */
 public class FlatlandEAFactory {
 
+    public static long SLEEPTIME = 33;
     public static int POPULATION_CAP = 100;
-    public static int GENERATION_CAP = 300;
+    public static int GENERATION_CAP = 200;
     public static double UTILITY_CAP = 1.0;
     public static double GENE_MUTATION_RATE = 0.1;
-    public static double CROSSOVER_RATE = 0.3;
+    public static double CROSSOVER_RATE = 0.2;
+    public static int GENE_COUNT = 0;
 
-    public static int GENE_COUNT = 36;
+    public static int GENE_SIZE = 8;
 
-    public static int GENE_SIZE = 16;
+    public static double VALUE_FOOD = 1;
 
-    public static FitnessEvaluator getFitnessEvaluator() {
-        return new FlatlandEvaluator(5, 0.3, 0.3);
+    public static double VALUE_POISON = 1.5;
+    public static int[] LAYERS = {6, 8, 4, 3};
+    public static int MAPS_COUNT = 5;
+
+    private static FlatlandEvaluator fe = new FlatlandEvaluator(MAPS_COUNT, 0.3, 0.3, VALUE_FOOD, VALUE_POISON);
+    public static FlatlandEvaluator getFitnessEvaluator() {
+        return fe;
     }
 
     public enum AS_MODE {
@@ -41,7 +48,7 @@ public class FlatlandEAFactory {
     }
 
     public static AS_MODE AS = AS_MODE.GENERATIONAL_MIX;
-    public static int AS_OVERPOPULATE_COUNT = 50;
+    public static int AS_OVERPOPULATE_COUNT = 10;
     public static int AS_RETENTION = 2;
 
     public enum PS_MODE {
@@ -52,11 +59,16 @@ public class FlatlandEAFactory {
     }
 
     public static PS_MODE PS = PS_MODE.BOLTZMANN;
-    public static int BOLTZMANN_T = 150;
+    public static int BOLTZMANN_T = 50;
     public static int PS_TOURNAMENT_K = 10;
     public static double PS_TOURNAMENT_EPSILON = 0.1;
 
+    public enum LEVEL_MODE {
+        STATIC,
+        DYNAMIC;
+    }
 
+    public static LEVEL_MODE LM = LEVEL_MODE.STATIC;
 
     private static AdultSelector getAsModule() {
         switch (AS) {
@@ -86,15 +98,19 @@ public class FlatlandEAFactory {
         }
     }
 
+    public static void generateLevels() {
+        fe.generateLevels();
+    }
+
     /**
      * Builds a binary EA given the set parameters.
      * @return
      */
     public static EA buildEa() {
         List<BinaryGenome> initialPopulation = new ArrayList<BinaryGenome>();
-        int genes = 0;
-        for(int i = 1; i < BitToANN.layerSizes.length; i++) {
-            genes += BitToANN.layerSizes[i] * BitToANN.layerSizes[i - 1];
+        int genes = 1;
+        for(int i = 1; i < LAYERS.length; i++) {
+            genes += LAYERS[i] * LAYERS[i - 1];
         }
         GENE_COUNT = genes;
         for (int i = 0; i < POPULATION_CAP; i++) {
@@ -103,9 +119,10 @@ public class FlatlandEAFactory {
             initialPopulation.add(g);
         }
 
+        fe = new FlatlandEvaluator(MAPS_COUNT, 0.3, 0.3, VALUE_FOOD, VALUE_POISON);
         FitnessEvaluator fe = getFitnessEvaluator();
 
-        BitToANN dm = new BitToANN();
+        BitToANN dm = new BitToANN(LAYERS);
         Generation<BinaryGenome> generation = new Generation<BinaryGenome>(
                 dm,
                 fe,

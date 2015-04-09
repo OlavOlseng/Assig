@@ -10,6 +10,8 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
 import olseng.ea.flatland.FlatlandEAFactory;
 
+import java.util.Arrays;
+
 
 /**
  * Created by Olav on 09.03.2015.
@@ -20,27 +22,36 @@ public class ControlPanel extends GridPane {
 
     Button b_run;
     Button b_clear;
+    Button b_sequence;
 
+    Button b_random;
     ComboBox<FlatlandEAFactory.AS_MODE> asModeComboBox;
-    ComboBox<FlatlandEAFactory.PS_MODE> psModeComboBox;
 
+
+    ComboBox<FlatlandEAFactory.PS_MODE> psModeComboBox;
+    ComboBox<FlatlandEAFactory.LEVEL_MODE> levelModeComboBox;
 
     TextField popCap = new TextField(Integer.toString(FlatlandEAFactory.POPULATION_CAP));
+
     TextField genCap = new TextField(Integer.toString(FlatlandEAFactory.GENERATION_CAP));
+
     TextField utilCap = new TextField(Double.toString(FlatlandEAFactory.UTILITY_CAP));
 
     TextField geneMutaRate = new TextField(Double.toString(FlatlandEAFactory.GENE_MUTATION_RATE));
-
     TextField crossoverRate = new TextField(Double.toString(FlatlandEAFactory.CROSSOVER_RATE));
 
     TextField geneSize = new TextField(Integer.toString(FlatlandEAFactory.GENE_SIZE));
-
     TextField overpop = new TextField(Integer.toString(FlatlandEAFactory.AS_OVERPOPULATE_COUNT));
     TextField adultRetention = new TextField(Integer.toString(FlatlandEAFactory.AS_RETENTION));
-
     TextField boltzmannT = new TextField(Integer.toString(FlatlandEAFactory.BOLTZMANN_T));
     TextField tourneySize = new TextField(Integer.toString(FlatlandEAFactory.PS_TOURNAMENT_K));
+
     TextField tourneyWinnerChance = new TextField(Double.toString(FlatlandEAFactory.PS_TOURNAMENT_EPSILON));
+    TextField sleepTimer = new TextField(Long.toString(FlatlandEAFactory.SLEEPTIME));
+    TextField mapCount = new TextField(Integer.toString(FlatlandEAFactory.MAPS_COUNT));
+    TextField layers = new TextField(Arrays.toString(FlatlandEAFactory.LAYERS));
+    TextField foodValue = new TextField(Double.toString(FlatlandEAFactory.VALUE_FOOD));
+    TextField poisonValue = new TextField(Double.toString(FlatlandEAFactory.VALUE_POISON));
 
     public ControlPanel(App mainApp) {
         this.app = mainApp;
@@ -65,6 +76,14 @@ public class ControlPanel extends GridPane {
             @Override
             public void handle(ActionEvent event) {
                 FlatlandEAFactory.PS = psModeComboBox.getValue();
+            }
+        });
+
+        levelModeComboBox = new ComboBox<FlatlandEAFactory.LEVEL_MODE>(FXCollections.observableArrayList(FlatlandEAFactory.LEVEL_MODE.values()));
+        levelModeComboBox.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                FlatlandEAFactory.LM = levelModeComboBox.getValue();
             }
         });
     }
@@ -194,7 +213,62 @@ public class ControlPanel extends GridPane {
         this.add(tourneyWinnerChance, 1, y);
         y++;
 
-        b_run = new Button("Run");
+        sleepTimer.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                FlatlandEAFactory.SLEEPTIME = Long.parseLong(sleepTimer.getText());
+            }
+        });
+        this.add(new Text("Sleep Time: "), 0, y);
+        this.add(sleepTimer, 1, y);
+        y++;
+
+        mapCount.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                FlatlandEAFactory.MAPS_COUNT = Integer.parseInt(mapCount.getText());
+            }
+        });
+        this.add(new Text("Map count: "), 0, y);
+        this.add(mapCount, 1, y);
+        y++;
+
+        layers.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                FlatlandEAFactory.LAYERS = parseStringToArray(layers.getText());
+            }
+        });
+        this.add(new Text("Layers: "), 0, y);
+        this.add(layers, 1, y);
+        y++;
+
+        levelModeComboBox.setValue(FlatlandEAFactory.LM);
+        this.add(new Text("Level Mode: "), 0, y);
+        this.add(levelModeComboBox, 1, y);
+        y++;
+
+        foodValue.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                FlatlandEAFactory.VALUE_FOOD = Double.parseDouble(foodValue.getText());
+            }
+        });
+        this.add(new Text("Food Value: "), 0, y);
+        this.add(foodValue, 1, y);
+        y++;
+
+        poisonValue.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                FlatlandEAFactory.VALUE_POISON = Double.parseDouble(poisonValue.getText());
+            }
+        });
+        this.add(new Text("Poison Value: "), 0, y);
+        this.add(poisonValue, 1, y);
+        y++;
+
+        b_run = new Button("Run EA");
         b_run.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -211,5 +285,36 @@ public class ControlPanel extends GridPane {
             }
         });
         this.add(b_clear, 1, y);
+        y++;
+
+        b_random = new Button("Random Test");
+        b_random.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                app.testAgent(true);
+            }
+        });
+        this.add(b_random, 0, y);
+
+        b_sequence = new Button("Sequence Test");
+        b_sequence.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                app.testAgent(false);
+            }
+        });
+        this.add(b_sequence, 1, y);
+    }
+
+    private int[] parseStringToArray(String text) {
+        text = text.replace("[","");
+        text = text.replace("]","");
+        text = text.replace(" ","");
+        String[] vals = text.split(",");
+        int[] array = new int[vals.length];
+        for (int i = 0; i < array.length; i++) {
+            array[i] = Integer.parseInt(vals[i]);
+        }
+        return array;
     }
 }

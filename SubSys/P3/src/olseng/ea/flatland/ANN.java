@@ -14,9 +14,9 @@ public class ANN extends Phenotype<BinaryGenome> {
 
     public ArrayList<double[][]> weights;
     public ArrayList<double[]> nodes;
-    public double beta = 1.0;
+    public double beta = 3.0;
     private int weightCount = 0;
-    public ArrayList<Integer> weightList = new ArrayList<Integer>();
+    public double outputThreshold = 0;
 
     public ANN(BinaryGenome genotype) {
         super(genotype);

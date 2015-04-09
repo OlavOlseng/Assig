@@ -30,7 +30,7 @@ public class Level {
     private int playerX = -1;
     private int playerY = -1;
 
-    private int orientation = 0;
+    public int orientation = 0;
 
     private boolean shadowing = false;
     private boolean initialized = false;
@@ -45,6 +45,7 @@ public class Level {
             return;
         }
         initialized = true;
+        orientation = (int)(Math.random() * 4) * 90;
         int px = (int)(Math.random() * map[0].length);
         int py = (int)(Math.random() * map.length);
 

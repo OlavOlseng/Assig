@@ -17,14 +17,12 @@ public class Plot extends Group{
 
     public Plot() {
         final NumberAxis xAxis = new NumberAxis();
-        final NumberAxis yAxis = new NumberAxis();
+        final NumberAxis yAxis = new NumberAxis(0, 1, 0.1);
         xAxis.setLabel("Generation");
         //creating the chart
         chart = new LineChart<Number,Number>(xAxis,yAxis);
-
         chart.setTitle("Generation development");
         chart.setCreateSymbols(false);
-
         init();
 
         this.getChildren().add(chart);

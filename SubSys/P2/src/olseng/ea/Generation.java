@@ -46,11 +46,11 @@ public class Generation<G extends Genotype> {
      * Must have called developGenotypes() before calling this function, else
      * @throws java.lang.NullPointerException
      */
-    public void evaluatePhenotypes() {
+    public void evaluatePhenotypes(List<Phenotype<G>> phenotypes) {
         for (Phenotype p : phenotypes) {
-            if (p.getUtilty() == 0.0) {
+            //if (p.getUtilty() == 0.0) {
                 p.setUtility(fe.evaluate(p));
-            }
+            //}
         }
     }
 
@@ -72,7 +72,7 @@ public class Generation<G extends Genotype> {
 
         Generation<BinaryGenome> p = new Generation<BinaryGenome>(new BitToIntVec(), new MaxOneEvaluator(), null, gs);
         p.developGenotypes();
-        p.evaluatePhenotypes();
+        p.evaluatePhenotypes(p.phenotypes);
         for(Phenotype ph : p.phenotypes) {
             System.out.println(ph);
         }
