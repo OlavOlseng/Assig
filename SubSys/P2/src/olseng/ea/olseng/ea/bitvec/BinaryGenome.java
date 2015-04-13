@@ -39,6 +39,9 @@ public class BinaryGenome extends Genotype<BitSet> {
         }
     }
 
+    /**
+     * Randomizes the entire genotype
+     */
     public void randomize() {
         for (int i = 0; i < geneCount * geneSize; i++) {
             genotype.set(i, Math.random() < 0.5);

@@ -11,6 +11,7 @@ import java.util.ArrayList;
 public class BitToANN implements DevelopmentalMethod<BinaryGenome, ANN> {
 
     private int[] layerSizes;
+    private double weightSpan = 3.0;
 
     public BitToANN(int[] layers) {
         this.layerSizes = layers;
@@ -33,7 +34,7 @@ public class BitToANN implements DevelopmentalMethod<BinaryGenome, ANN> {
             if (i == 1) {
                 threshold = (double)val / maxVal;
             }
-            list.add((double)(val - maxVal/2) / maxVal);
+            list.add((double)(val - maxVal/2) / maxVal * weightSpan);
         }
         ANN n =  new ANN(g);
         n.outputThreshold = threshold;

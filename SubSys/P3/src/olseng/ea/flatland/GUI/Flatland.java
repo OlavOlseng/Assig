@@ -18,7 +18,7 @@ import olseng.ea.flatland.Level;
 /**
  * Created by Olav on 09.03.2015.
  */
-public class App extends Application {
+public class Flatland extends Application {
 
     public static final int WIDTH = 1200;
     public static final int HEIGHT = 600;

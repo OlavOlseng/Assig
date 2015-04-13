@@ -18,7 +18,7 @@ import java.util.Arrays;
  */
 public class ControlPanel extends GridPane {
 
-    private App app;
+    private Flatland app;
 
     Button b_run;
     Button b_clear;
@@ -53,7 +53,7 @@ public class ControlPanel extends GridPane {
     TextField foodValue = new TextField(Double.toString(FlatlandEAFactory.VALUE_FOOD));
     TextField poisonValue = new TextField(Double.toString(FlatlandEAFactory.VALUE_POISON));
 
-    public ControlPanel(App mainApp) {
+    public ControlPanel(Flatland mainApp) {
         this.app = mainApp;
 
 
