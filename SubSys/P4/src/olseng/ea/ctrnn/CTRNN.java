@@ -25,11 +25,10 @@ public class CTRNN extends Phenotype<BinaryGenome> {
 
     public CTRNN(int[] layerSizes, BinaryGenome genotype) {
         super(genotype);
+        this.layerSizes = layerSizes;
         this.feedForwardWeights = new ArrayList<double[][]>();
         this.internalLayerWeights = new ArrayList<double[][]>();
-        this.layerSizes = layerSizes;
-        this.nodes = buildTopology();
-        this.outputs = buildTopology();
+        flush();
     }
 
     /**
@@ -86,6 +85,11 @@ public class CTRNN extends Phenotype<BinaryGenome> {
                 outputs[i][node] = sigmoid(nodes[i][node], this.gains[i - 1][node]);
             }
         }
+    }
+
+    public void flush() {
+        this.nodes = buildTopology();
+        this.outputs = buildTopology();
     }
 
     public void setInputs(double[] inputs) {

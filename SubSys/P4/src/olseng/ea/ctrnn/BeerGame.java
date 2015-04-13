@@ -40,7 +40,7 @@ public class BeerGame {
 
         this.playerPosition = rand.nextInt(width);
 
-        this.objectSize = rand.nextInt(5) + 1;
+        this.objectSize = rand.nextInt(6) + 1;
         this.objectPositionY = height - 1;
 
         this.objectPositionX = rand.nextInt(width - objectSize);
@@ -73,6 +73,17 @@ public class BeerGame {
         pulled = true;
         objectPositionY = 1;
         calculateResult();
+    }
+
+    public double[] getSensorReadings() {
+        double[] sensors = new double[playerSize];
+
+        for (int i = 0; i < playerSize; i++) {
+            if (playerPosition + i >= objectPositionX && playerPosition + i < objectPositionX + objectSize) {
+                sensors[i] = 1;
+            }
+        }
+        return sensors;
     }
 
     private void calculateResult() {
@@ -111,7 +122,7 @@ public class BeerGame {
             String s = "";
             if (objectPositionY == y) {
                 for (int x = 0; x < width; x++) {
-                    if (x >= objectPositionX && x <= objectPositionX + objectSize) {
+                    if (x >= objectPositionX && x < objectPositionX + objectSize) {
                         s += "X";
                     }
                     else {
@@ -121,7 +132,7 @@ public class BeerGame {
             }
             else if (y == 0) {
                 for (int x = 0; x < width; x++) {
-                    if (x >= playerPosition && x <= playerPosition + playerSize) {
+                    if (x >= playerPosition && x < playerPosition + playerSize) {
                         s += "O";
                     }
                     else {
@@ -143,6 +154,7 @@ public class BeerGame {
         while(!bg.done) {
             System.out.println();
             bg.print();
+            System.out.println(Arrays.toString(bg.getSensorReadings()));
             s = input.nextLine();
             if (s.equals("a")) {
                 bg.step(-1);
