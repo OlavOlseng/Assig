@@ -101,7 +101,7 @@ public class EA {
         this.adultPool = this.adultSelector.getSelection(adultPool, generation.phenotypes);
         Collections.sort(adultPool);
         calculateStatistics();
-        if(adultPool.get(0).getUtilty() >= utilityThreshold) {
+        if( utilityThreshold != 0 && adultPool.get(0).getUtilty() >= utilityThreshold) {
             System.out.println("Utility cap reached at generation: " + this.currentGeneration);
             return true;
         }

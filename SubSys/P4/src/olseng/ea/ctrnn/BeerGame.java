@@ -14,12 +14,12 @@ public class BeerGame {
 
     public final int playerSize = 5;
 
-    private int playerPosition;
-    private int objectSize;
-    private int objectPositionX;
-    private int objectPositionY;
+    public int playerPosition;
+    public int objectSize;
+    public int objectPositionX;
+    public int objectPositionY;
 
-    boolean done = false;
+    public boolean done = false;
 
     public boolean wrapping = true;
     public boolean pulled = false;
@@ -31,6 +31,8 @@ public class BeerGame {
     public BeerGame(int width, int height) {
         this.width = width;
         this.height = height;
+
+        newDrop();
     }
 
     public void newDrop() {
@@ -38,12 +40,22 @@ public class BeerGame {
         this.pulled = false;
         this.result = null;
 
-        this.playerPosition = rand.nextInt(width);
-
         this.objectSize = rand.nextInt(6) + 1;
-        this.objectPositionY = height - 1;
 
-        this.objectPositionX = rand.nextInt(width - objectSize);
+        int playerPlace = width;
+        int objectPlace = width;
+        if(!wrapping) {
+            playerPlace = width - playerSize;
+            objectPlace = width - objectSize;
+        }
+        this.playerPosition = rand.nextInt(playerPlace);
+
+        this.objectPositionX = rand.nextInt(objectPlace);
+        this.objectPositionY = height;
+
+
+        if(wrapping) {
+        }
     }
 
     public void step(int move) {
@@ -62,7 +74,7 @@ public class BeerGame {
                 playerPosition = width - playerSize;
             }
         }
-        if (objectPositionY <= 1) {
+        if (objectPositionY <= 0) {
             calculateResult();
             return;
         }
@@ -77,9 +89,10 @@ public class BeerGame {
 
     public double[] getSensorReadings() {
         double[] sensors = new double[playerSize];
-
+        int tempPlayer = playerPosition + width;
+        int tempObject = objectPositionX + width;
         for (int i = 0; i < playerSize; i++) {
-            if (playerPosition + i >= objectPositionX && playerPosition + i < objectPositionX + objectSize) {
+            if (tempPlayer + i >= tempObject && tempPlayer + i < tempObject + objectSize) {
                 sensors[i] = 1;
             }
         }
@@ -104,7 +117,7 @@ public class BeerGame {
         else {
             result[0] = -1;
         }
-        result[1] = objectSize <= 5 ? 1 : 0;
+        result[1] = objectSize < 5 ? 1 : 0;
         playerPosition -= width;
         objectPositionX -= width;
     }
