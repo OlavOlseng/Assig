@@ -89,6 +89,14 @@ public class BitToCTRNN implements DevelopmentalMethod<BinaryGenome, CTRNN> {
         if (mode == MODE_PULL) {
             n.pullThreshold = list.get(list.size() - 1) * 5;
         }
+        if(mode == MODE_NO_WRAP) {
+            double[][] layer = n.feedForwardWeights.get(0);
+            for (int node = layer.length - 2; node < layer.length; node ++) {
+                for (int weight = 0; weight < layer[node].length; weight++) {
+                    layer[node][weight] *= 5;
+                }
+            }
+        }
         return n;
     }
 

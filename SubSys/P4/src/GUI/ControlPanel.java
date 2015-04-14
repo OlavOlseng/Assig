@@ -8,6 +8,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
+import olseng.ea.ctrnn.BeerGame;
 import olseng.ea.ctrnn.BeerGameEAFactory;
 
 import java.util.Arrays;
@@ -86,6 +87,10 @@ public class ControlPanel extends GridPane {
             @Override
             public void handle(ActionEvent event) {
                 BeerGameEAFactory.LM = levelModeComboBox.getValue();
+                if (BeerGameEAFactory.LM == BeerGameEAFactory.LEVEL_MODE.NO_WRAP) {
+                    layers.setText("[7, 2, 2]");
+                    layers.fireEvent(new ActionEvent());
+                }
             }
         });
     }

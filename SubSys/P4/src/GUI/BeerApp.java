@@ -124,8 +124,15 @@ public class BeerApp extends Application {
     double[] results;
     public void testAgent() {
         bg.newDrop();
+        if(BeerGameEAFactory.LM == BeerGameEAFactory.LEVEL_MODE.NO_WRAP) {
+            bg.wrapping = false;
+        }
+        else {
+            bg.wrapping = true;
+        }
         results = new double[4];
         renderMap(bg);
+
 
         Runnable r = new Runnable() {
             @Override
@@ -163,7 +170,7 @@ public class BeerApp extends Application {
                     if (bg.done) {
                         BeerGameEvaluator.addResult(bg, results);
                         bg.newDrop();
-                        agent.flush();
+                        //agent.flush();
                         continue;
                     }
                     BeerGameEvaluator.move(bg, agent);

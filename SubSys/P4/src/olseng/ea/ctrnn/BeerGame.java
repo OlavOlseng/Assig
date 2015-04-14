@@ -31,7 +31,7 @@ public class BeerGame {
     public BeerGame(int width, int height) {
         this.width = width;
         this.height = height;
-
+        this.playerPosition = rand.nextInt(width - playerSize);
         newDrop();
     }
 
@@ -48,7 +48,6 @@ public class BeerGame {
             playerPlace = width - playerSize;
             objectPlace = width - objectSize;
         }
-        this.playerPosition = rand.nextInt(playerPlace);
 
         this.objectPositionX = rand.nextInt(objectPlace);
         this.objectPositionY = height;
@@ -67,7 +66,10 @@ public class BeerGame {
                 playerPosition = 0;
             }
             else if(playerPosition + move + playerSize > width) {
-                playerPosition = width - playerSize;
+                playerPosition = 1 + width - playerSize;
+            }
+            else {
+                playerPosition += move;
             }
         }
         objectPositionY -= 1;
@@ -84,12 +86,21 @@ public class BeerGame {
     }
 
     public double[] getSensorReadings() {
-        double[] sensors = new double[playerSize];
+        int size = wrapping ? playerSize : playerSize + 2;
+        double[] sensors = new double[size];
         int tempPlayer = playerPosition + width;
         int tempObject = objectPositionX + width;
         for (int i = 0; i < playerSize; i++) {
             if (tempPlayer + i >= tempObject && tempPlayer + i < tempObject + objectSize) {
                 sensors[i] = 1;
+            }
+        }
+        if(!wrapping) {
+            if (playerPosition <= 0) {
+                sensors[sensors.length - 2] = 1;
+            }
+            if (playerPosition + playerSize > width ){
+                sensors[sensors.length - 1] = 1;
             }
         }
         return sensors;
@@ -158,7 +169,7 @@ public class BeerGame {
         BeerGame bg = new BeerGame(30, 15);
         Scanner input = new Scanner(System.in);
         System.out.println();
-        String s = "poop";
+        String s = "";
         bg.newDrop();
         while(!bg.done) {
             System.out.println();

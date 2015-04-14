@@ -134,7 +134,7 @@ public class CTRNN extends Phenotype<BinaryGenome> {
                 for (int k = 0; k < n.nodes[i].length; k++) {
                     intLayer[j][k] = Math.random();
                 }
-                n.gains[i - 1][j] = Math.random() * 5;
+                n.gains[i - 1][j] = Math.random() * 2;
                 n.biasWeights[i - 1][j] = Math.random();
             }
 

@@ -20,7 +20,7 @@ import java.util.List;
  */
 public class BeerGameEAFactory {
 
-    public static long SLEEPTIME = 10;
+    public static long SLEEPTIME = 30;
     public static int POPULATION_CAP = 100;
     public static int GENERATION_CAP = 300;
     public static double UTILITY_CAP = 0.0;
@@ -115,6 +115,10 @@ public class BeerGameEAFactory {
             dm.mode = BitToCTRNN.MODE_PULL;
             genes += 1;
         }
+        if(LM == LEVEL_MODE.NO_WRAP) {
+            dm.mode = BitToCTRNN.MODE_NO_WRAP;
+            genes += 2;
+        }
         GENE_COUNT = genes;
         for (int i = 0; i < POPULATION_CAP; i++) {
             BinaryGenome g = new BinaryGenome(GENE_COUNT, GENE_SIZE);
@@ -125,6 +129,9 @@ public class BeerGameEAFactory {
         fe = new BeerGameEvaluator(VALUE_CAPTURE_SMALL, VALUE_AVOID_BIG, VALUE_MISS_SMALL, VALUE_HIT_BIG);
         if (LM == LEVEL_MODE.PULL) {
             BeerGameEvaluator.MODE = BeerGameEvaluator.MODE_PULL;
+        }
+        else if(LM == LEVEL_MODE.NO_WRAP) {
+            BeerGameEvaluator.MODE = BeerGameEvaluator.MODE_NO_WRAP;
         }
         else {
             BeerGameEvaluator.MODE = BeerGameEvaluator.MODE_STANDARD;

@@ -33,6 +33,9 @@ public class BeerGameEvaluator implements FitnessEvaluator<CTRNN> {
         double[] results = new double[4];
         int stepsLeft = timesteps;
         BeerGame bg = new BeerGame(30, 15);
+        if (MODE == MODE_NO_WRAP) {
+            bg.wrapping = false;
+        }
         bg.newDrop();
         phenotype.flush();
 
@@ -41,16 +44,25 @@ public class BeerGameEvaluator implements FitnessEvaluator<CTRNN> {
                 addResult(bg, results);
                 gamesPlayed++;
                 bg.newDrop();
-                phenotype.flush();
+                //phenotype.flush();
             }
             move(bg, phenotype);
             stepsLeft--;
         }
         double util = 0;
-        util += results[0] * captureSmall;
-        util -= (results[1] - results[0]) * avoidSmall;
-        util += results[2] * avoidBig;
-        util -= (results[3] - results[2]) * captureBig;
+        if (MODE != MODE_PULL) {
+            double util1 = results[0] * captureSmall;
+            double util2 = results[2] * avoidBig;
+            util1 /= results[1];
+            util2 /= results[3];
+            util += (util1 + util2) / 2;
+        }
+        else {
+            util += results[0] * captureSmall;
+            util -= (results[1] - results[0]) * avoidSmall;
+            util += results[2] * avoidBig;
+            util -= (results[3] - results[2]) * captureBig;
+        }
         return util;
     }
 
