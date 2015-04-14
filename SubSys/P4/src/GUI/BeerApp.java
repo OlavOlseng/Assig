@@ -6,6 +6,7 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.TextArea;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import olseng.ea.EA;
@@ -36,6 +37,7 @@ public class BeerApp extends Application {
     EA ea;
     Plot plotter;
     Canvas canvas;
+    TextArea stats;
 
     private boolean renderBufferFlushed = true;
     private boolean plotBufferFlushed = true;
@@ -57,7 +59,13 @@ public class BeerApp extends Application {
         canvas = new Canvas(400, 400);
         canvas.setTranslateX(775);
 
-        root.getChildren().addAll(cp, plotter, canvas);
+        stats = new TextArea("Stats go here!");
+        stats.setTranslateX(775);
+        stats.setTranslateY(405);
+        stats.setPrefColumnCount(33);
+        stats.setEditable(false);
+
+        root.getChildren().addAll(cp, plotter, canvas, stats);
         Scene s =  new Scene(root, WIDTH, HEIGHT);
         primaryStage.setScene(s);
         primaryStage.show();
@@ -113,8 +121,10 @@ public class BeerApp extends Application {
     int move = -1;
     CTRNN agent;
     BeerGame bg = new BeerGame(30,15);
+    double[] results;
     public void testAgent() {
         bg.newDrop();
+        results = new double[4];
         renderMap(bg);
 
         Runnable r = new Runnable() {
@@ -146,10 +156,12 @@ public class BeerApp extends Application {
                         @Override
                         public void run() {
                             renderMap(bg);
+                            updateStats(results);
                             renderBufferFlushed = true;
                         }
                     });
                     if (bg.done) {
+                        BeerGameEvaluator.addResult(bg, results);
                         bg.newDrop();
                         agent.flush();
                         continue;
@@ -167,10 +179,19 @@ public class BeerApp extends Application {
         t.start();
     }
 
+    private void updateStats(double[] results) {
+        String s = String.format("Current test run:\n\nSmall captured: %.0f / %.0f\nBig avoided: %.0f / %.0f", results[0], results[1], results[2], results[3]);
+        stats.clear();
+        stats.setText(s);
+    }
+
     private void renderMap(BeerGame bg) {
         GraphicsContext g = canvas.getGraphicsContext2D();
 
         g.setFill(Color.DIMGREY);
+        if (bg.pulled) {
+            g.setFill(Color.LIGHTGOLDENRODYELLOW);
+        }
         g.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
 
         //DRAW AGENT
@@ -191,7 +212,7 @@ public class BeerApp extends Application {
             int x = (bg.objectPositionX + i) % (bg.width + 1);
             g.fillRect(x * TILE_WIDTH, CANVAS_WIDTH - (bg.objectPositionY + 1) * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);
         }
-
+        /*
         if(bg.done) {
             int[] res = bg.getResult();
             String s = "";
@@ -213,6 +234,7 @@ public class BeerApp extends Application {
             }
             System.out.println(s);
         }
+        */
     }
 
     public static void main(String[] args) {

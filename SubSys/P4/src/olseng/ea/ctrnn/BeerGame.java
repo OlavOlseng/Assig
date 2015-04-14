@@ -52,10 +52,6 @@ public class BeerGame {
 
         this.objectPositionX = rand.nextInt(objectPlace);
         this.objectPositionY = height;
-
-
-        if(wrapping) {
-        }
     }
 
     public void step(int move) {
@@ -74,11 +70,11 @@ public class BeerGame {
                 playerPosition = width - playerSize;
             }
         }
+        objectPositionY -= 1;
         if (objectPositionY <= 0) {
             calculateResult();
             return;
         }
-        objectPositionY -= 1;
     }
 
     public void pull() {

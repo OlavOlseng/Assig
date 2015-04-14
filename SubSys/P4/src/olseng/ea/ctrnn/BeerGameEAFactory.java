@@ -20,12 +20,12 @@ import java.util.List;
  */
 public class BeerGameEAFactory {
 
-    public static long SLEEPTIME = 50;
+    public static long SLEEPTIME = 10;
     public static int POPULATION_CAP = 100;
     public static int GENERATION_CAP = 300;
     public static double UTILITY_CAP = 0.0;
-    public static double GENE_MUTATION_RATE = 0.06;
-    public static double CROSSOVER_RATE = 0.1;
+    public static double GENE_MUTATION_RATE = 0.09;
+    public static double CROSSOVER_RATE = 0.05;
     public static int GENE_COUNT = 0;
 
     public static int GENE_SIZE = 8;
@@ -33,10 +33,9 @@ public class BeerGameEAFactory {
     public static double VALUE_CAPTURE_SMALL = 0.502;
     public static double VALUE_AVOID_BIG = 0.611;
     public static double VALUE_MISS_SMALL = 0.409;
-    public static double VALUE_HIT_BIG = 0.503;
+    public static double VALUE_HIT_BIG = 0.603;
 
     public static int[] LAYERS = {5, 2, 2};
-    public static int MAPS_COUNT = 5;
 
     private static BeerGameEvaluator fe = new BeerGameEvaluator(VALUE_CAPTURE_SMALL, VALUE_AVOID_BIG, VALUE_MISS_SMALL ,VALUE_HIT_BIG);
     public static BeerGameEvaluator getFitnessEvaluator() {
@@ -111,6 +110,11 @@ public class BeerGameEAFactory {
         for(int i = 1; i < LAYERS.length; i++) {
             genes += LAYERS[i] * LAYERS[i - 1] + LAYERS[i] * LAYERS[i] + LAYERS[i] * 3;
         }
+        BitToCTRNN dm = new BitToCTRNN(LAYERS);
+        if(LM == LEVEL_MODE.PULL) {
+            dm.mode = BitToCTRNN.MODE_PULL;
+            genes += 1;
+        }
         GENE_COUNT = genes;
         for (int i = 0; i < POPULATION_CAP; i++) {
             BinaryGenome g = new BinaryGenome(GENE_COUNT, GENE_SIZE);
@@ -119,9 +123,14 @@ public class BeerGameEAFactory {
         }
 
         fe = new BeerGameEvaluator(VALUE_CAPTURE_SMALL, VALUE_AVOID_BIG, VALUE_MISS_SMALL, VALUE_HIT_BIG);
+        if (LM == LEVEL_MODE.PULL) {
+            BeerGameEvaluator.MODE = BeerGameEvaluator.MODE_PULL;
+        }
+        else {
+            BeerGameEvaluator.MODE = BeerGameEvaluator.MODE_STANDARD;
+        }
         FitnessEvaluator fe = getFitnessEvaluator();
 
-        BitToCTRNN dm = new BitToCTRNN(LAYERS);
         Generation<BinaryGenome> generation = new Generation<BinaryGenome>(
                 dm,
                 fe,

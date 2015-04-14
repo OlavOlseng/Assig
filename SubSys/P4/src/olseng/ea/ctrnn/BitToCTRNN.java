@@ -21,6 +21,12 @@ public class BitToCTRNN implements DevelopmentalMethod<BinaryGenome, CTRNN> {
     private double timeConstSpan = 1;
     private double timeConstMax = 2;
 
+    public static final int MODE_STANDARD = 0;
+    public static final int MODE_PULL = 1;
+    public static final int MODE_NO_WRAP = 2;
+
+    public int mode = MODE_STANDARD;
+
     public BitToCTRNN(int[] layers) {
         this.layerSizes = layers;
     }
@@ -79,6 +85,9 @@ public class BitToCTRNN implements DevelopmentalMethod<BinaryGenome, CTRNN> {
             }
             n.feedForwardWeights.add(layer);
             n.internalLayerWeights.add(intLayer);
+        }
+        if (mode == MODE_PULL) {
+            n.pullThreshold = list.get(list.size() - 1) * 5;
         }
         return n;
     }

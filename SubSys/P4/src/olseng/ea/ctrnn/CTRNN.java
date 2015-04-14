@@ -22,12 +22,14 @@ public class CTRNN extends Phenotype<BinaryGenome> {
     public double[][] timeConstants;
 
     private int[] weightCounts;
+    public double pullThreshold = 5;
 
     public CTRNN(int[] layerSizes, BinaryGenome genotype) {
         super(genotype);
         this.layerSizes = layerSizes;
         this.feedForwardWeights = new ArrayList<double[][]>();
         this.internalLayerWeights = new ArrayList<double[][]>();
+        this.outputs = buildTopology();
         flush();
     }
 
@@ -67,6 +69,9 @@ public class CTRNN extends Phenotype<BinaryGenome> {
     }
 
     public void propagate() {
+        double[][] prevOuts = outputs;
+        outputs = buildTopology();
+        outputs[0] = prevOuts[0];
         for(int i = 1; i < nodes.length; i++) {
 
             for(int node = 0; node < nodes[i].length; node++) {
@@ -79,7 +84,7 @@ public class CTRNN extends Phenotype<BinaryGenome> {
                 }
 
                 for (int j = 0; j < nodes[i].length; j++) {
-                    sum += selfLayer[j][node] * outputs[i][j]; //Node j in same layer, to current node.
+                    sum += selfLayer[j][node] * prevOuts[i][j]; //Node j in same layer, to current node.
                 }
                 nodes[i][node] += 1 / this.timeConstants[i - 1][node] * (-nodes[i][node] + sum + biasWeights[i - 1][node]);
                 outputs[i][node] = sigmoid(nodes[i][node], this.gains[i - 1][node]);
@@ -89,7 +94,7 @@ public class CTRNN extends Phenotype<BinaryGenome> {
 
     public void flush() {
         this.nodes = buildTopology();
-        this.outputs = buildTopology();
+        //this.outputs = buildTopology();
     }
 
     public void setInputs(double[] inputs) {

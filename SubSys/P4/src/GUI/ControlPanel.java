@@ -48,7 +48,6 @@ public class ControlPanel extends GridPane {
 
     TextField tourneyWinnerChance = new TextField(Double.toString(BeerGameEAFactory.PS_TOURNAMENT_EPSILON));
     TextField sleepTimer = new TextField(Long.toString(BeerGameEAFactory.SLEEPTIME));
-    TextField mapCount = new TextField(Integer.toString(BeerGameEAFactory.MAPS_COUNT));
     TextField layers = new TextField(Arrays.toString(BeerGameEAFactory.LAYERS));
     TextField captureSmall = new TextField(Double.toString(BeerGameEAFactory.VALUE_CAPTURE_SMALL));
     TextField avoidBig = new TextField(Double.toString(BeerGameEAFactory.VALUE_AVOID_BIG));
@@ -224,16 +223,6 @@ public class ControlPanel extends GridPane {
         });
         this.add(new Text("Sleep Time: "), 0, y);
         this.add(sleepTimer, 1, y);
-        y++;
-
-        mapCount.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                BeerGameEAFactory.MAPS_COUNT = Integer.parseInt(mapCount.getText());
-            }
-        });
-        this.add(new Text("Map count: "), 0, y);
-        this.add(mapCount, 1, y);
         y++;
 
         layers.setOnAction(new EventHandler<ActionEvent>() {

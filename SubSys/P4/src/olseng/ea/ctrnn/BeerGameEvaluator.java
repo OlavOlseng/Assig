@@ -18,7 +18,7 @@ public class BeerGameEvaluator implements FitnessEvaluator<CTRNN> {
 
     private int timesteps = 600;
 
-    public int mode = 0;
+    public static int MODE = 0;
 
     public BeerGameEvaluator(double captureSmall, double avoidBig, double avoidSmall, double captureBig) {
         this.captureSmall = captureSmall;
@@ -64,11 +64,17 @@ public class BeerGameEvaluator implements FitnessEvaluator<CTRNN> {
         agent.propagate();
         double[] outputs = agent.getOutput();
         double moveD = (-outputs[0] + outputs[1]) * 4.0;
+        if (MODE == MODE_PULL) {
+            if (moveD < agent.pullThreshold) {
+                bg.pull();
+                return;
+            }
+        }
         int move = (int)Math.round(moveD);
         bg.step(move);
     }
 
-    public void addResult(BeerGame bg, double[] current) {
+    public static void addResult(BeerGame bg, double[] current) {
         int[] results = bg.getResult();
         if (results[1] == 1) {
             current[1]++;
