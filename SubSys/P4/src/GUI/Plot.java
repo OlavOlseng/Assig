@@ -20,6 +20,8 @@ public class Plot extends Group{
     ArrayList<XYChart.Data> avgBuffer;
     ArrayList<XYChart.Data> sdBuffer;
 
+    private boolean rendering = false;
+
     public Plot() {
         final NumberAxis xAxis = new NumberAxis();
         final NumberAxis yAxis = new NumberAxis();
@@ -59,12 +61,21 @@ public class Plot extends Group{
     }
 
     public void addData(int generation, double bestUtil, double avgUtil, double standardDeviation) {
+        while (rendering) {
+            try {
+                wait(1);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                return;
+            }
+        }
         bestBuffer.add(new XYChart.Data(generation, bestUtil));
         avgBuffer.add(new XYChart.Data(generation, avgUtil));
         sdBuffer.add(new XYChart.Data(generation, standardDeviation));
     }
 
     public void plot() {
+        rendering = true;
         if(!bestBuffer.isEmpty()) {
             bestUtils.getData().addAll(bestBuffer);
             bestBuffer.clear();
@@ -73,5 +84,6 @@ public class Plot extends Group{
             standardDeviations.getData().addAll(sdBuffer);
             sdBuffer.clear();
         }
+        rendering = false;
     }
 }

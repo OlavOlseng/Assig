@@ -42,10 +42,8 @@ public class BeerGame {
 
         this.objectSize = rand.nextInt(6) + 1;
 
-        int playerPlace = width;
         int objectPlace = width;
         if(!wrapping) {
-            playerPlace = width - playerSize;
             objectPlace = width - objectSize;
         }
 

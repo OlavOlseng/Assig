@@ -24,14 +24,14 @@ public class BeerGameEAFactory {
     public static int POPULATION_CAP = 100;
     public static int GENERATION_CAP = 300;
     public static double UTILITY_CAP = 0.0;
-    public static double GENE_MUTATION_RATE = 0.09;
-    public static double CROSSOVER_RATE = 0.05;
+    public static double GENE_MUTATION_RATE = 0.13;
+    public static double CROSSOVER_RATE = 0.01;
     public static int GENE_COUNT = 0;
 
     public static int GENE_SIZE = 8;
 
     public static double VALUE_CAPTURE_SMALL = 0.502;
-    public static double VALUE_AVOID_BIG = 0.611;
+    public static double VALUE_AVOID_BIG = 0.311;
     public static double VALUE_MISS_SMALL = 0.409;
     public static double VALUE_HIT_BIG = 0.603;
 

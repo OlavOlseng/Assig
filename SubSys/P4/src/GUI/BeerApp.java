@@ -91,6 +91,7 @@ public class BeerApp extends Application {
                     System.out.println(ea);
                     plotter.addData(ea.currentGeneration, ea.bestUtility, ea.avgUtility, ea.standardDeviation);
                     if (plotBufferFlushed) {
+                        plotBufferFlushed = false;
                         Platform.runLater(new Runnable() {
                             @Override
                             public void run() {
@@ -98,12 +99,9 @@ public class BeerApp extends Application {
                                 plotBufferFlushed = true;
                             }
                         });
-                        plotBufferFlushed = false;
                     }
                 }
                 running = false;
-
-
             }
         };
         Thread t = new Thread(r);
@@ -122,6 +120,7 @@ public class BeerApp extends Application {
     CTRNN agent;
     BeerGame bg = new BeerGame(30,15);
     double[] results;
+
     public void testAgent() {
         bg.newDrop();
         if(BeerGameEAFactory.LM == BeerGameEAFactory.LEVEL_MODE.NO_WRAP) {
@@ -132,7 +131,6 @@ public class BeerApp extends Application {
         }
         results = new double[4];
         renderMap(bg);
-
 
         Runnable r = new Runnable() {
             @Override

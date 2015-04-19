@@ -40,18 +40,18 @@ public class Plot extends Group{
         run++;
     }
 
-    public void clearPlot() {
+    public synchronized void clearPlot() {
         chart.getData().clear();
         this.run = 1;
     }
 
-    public void addData(int generation, double bestUtil, double avgUtil, double standardDeviation) {
+    public synchronized void  addData(int generation, double bestUtil, double avgUtil, double standardDeviation) {
         bestUtils.getData().add(new XYChart.Data(generation, bestUtil));
         avgUtils.getData().add(new XYChart.Data(generation, avgUtil));
         standardDeviations.getData().add(new XYChart.Data(generation, standardDeviation));
     }
 
-    public void plot() {
+    public synchronized void plot() {
         chart.getData().addAll(bestUtils, avgUtils, standardDeviations);
     }
 }
