@@ -55,7 +55,7 @@ public class BeerGameEvaluator implements FitnessEvaluator<CTRNN> {
             double util2 = results[2] * avoidBig;
             util1 /= results[1];
             util2 /= results[3];
-            util += (util1 + util2) / 2;
+            util += (util1 + util2);
         }
         else {
             util += results[0] * captureSmall;
