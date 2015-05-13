@@ -4,8 +4,12 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+
+import java.io.IOException;
+import java.util.Arrays;
 
 
 /**
@@ -16,20 +20,27 @@ public class QApp extends Application {
     public static final int WIDTH = 1200;
     public static final int HEIGHT = 600;
 
-    public static final int CANVAS_WIDTH = 400;
+    private static int CANVAS_WIDTH = 1000;
+    private static int CANVAS_HEIGTH = 550;
     public static final int CANVAS_TILE_PADDING = 2;
-    public static final int MAP_DIMESNSIONS = 10;
+    private static double MAP_DIMESNSIONS_X = 10;
+    private static double MAP_DIMESNSIONS_Y = 10;
 
-    private int tileWidth = CANVAS_WIDTH/MAP_DIMESNSIONS;
+    private double tileSize = CANVAS_HEIGTH/MAP_DIMESNSIONS_Y;
 
 
     Group root;
     ControlPanel cp;
-    Plot plotter;
     Canvas canvas;
+    ProgressBar progressBar;
+
 
     private boolean running;
     private boolean stop;
+    private Level selectedLevel;
+    private Level levelCopy;
+    QLearner learner;
+    public double delay = 100;
 
 
     @Override
@@ -38,115 +49,231 @@ public class QApp extends Application {
 
         root = new Group();
 
+        this.learner = new QLearner(4);
+        canvas = new Canvas(CANVAS_WIDTH, CANVAS_HEIGTH);
+        canvas.setTranslateX(200);
         cp = new ControlPanel(this);
-        plotter = new Plot();
-        plotter.setTranslateX(250);
+        progressBar = new ProgressBar(0);
+        progressBar.setPrefWidth(WIDTH);
+        progressBar.setPrefHeight(40);
+        progressBar.setTranslateY(560);
 
-        canvas = new Canvas(400, 400);
-        canvas.setTranslateX(775);
-
-        root.getChildren().addAll(cp, plotter, canvas);
+        root.getChildren().addAll(cp, progressBar, canvas);
         Scene s =  new Scene(root, WIDTH, HEIGHT);
         primaryStage.setScene(s);
         primaryStage.show();
     }
 
-    public void runEa() {
+    double progress = 0;
+    boolean progressDirty = false;
+
+    public void runQL(boolean fresh, final int iterations) {
         if(running) {
-            stopEa();
+            stopQL();
             return;
         }
         else {
             running = true;
             stop = false;
         }
-        plotter.init();
-        /*
+        if (fresh) {
+            this.learner.initialize();
+        }
         Runnable r = new Runnable() {
             @Override
             public void run() {
+                int passes = 0;
+                progress = 0;
+                System.out.println("Running q - learner");
                 while(running && !stop) {
-                    running = !ea.step();
-                    System.out.println(ea);
-                    plotter.addData(ea.currentGeneration, ea.bestUtility, ea.avgUtility, ea.standardDeviation);
-                    if (FlatlandEAFactory.LM == FlatlandEAFactory.LEVEL_MODE.DYNAMIC) {
-                        FlatlandEAFactory.generateLevels();
+
+                    progress = (double)passes / iterations;
+                    learner.train(progress);
+                    passes++;
+                    running = passes < iterations;
+                    //Update progress bar here
+                    if(!progressDirty) {
+                        progressDirty = true;
+                        Platform.runLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                setProgress(progress);
+                                progressDirty = false;
+                            }
+                        });
                     }
                 }
+                System.out.println("Finished training!");
                 running = false;
-
                 Platform.runLater(new Runnable() {
                     @Override
                     public void run() {
-                        plotter.plot();
+                        renderMap(selectedLevel);
+                        setProgress(progress);
                     }
                 });
             }
         };
         Thread t = new Thread(r);
         t.start();
-*/
     }
 
-    public void stopEa() {
+    public void stopQL() {
         this.stop = true;
+        this.learner.escape = true;
     }
 
-    public void clearPlot() {
-        plotter.clearPlot();
-    }
+    boolean renderBufferFlushed;
+    int[][] policy;
+    long eaten;
+    boolean testing = false;
 
-    Level l;
-    int mapCounter = 0;
-    int move = -1;
-    boolean bufferFlushed = true;
+    public void testAgent() {
+        if(testing) {
+            testing = false;
+            return;
+        }
+        testing = true;
+        levelCopy = selectedLevel.copy();
+        eaten = levelCopy.foodEaten;
+        policy = learner.getPolicy(eaten);
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+            renderBufferFlushed = true;
+            int i = 0;
+            long wakeupTime = 0;
 
-    public void testAgent(boolean random) {
+            while (!levelCopy.gameOver() && testing) {
+                if (!renderBufferFlushed || System.currentTimeMillis() < wakeupTime) {
+                    try {
+                        Thread.sleep((long)delay);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                        return;
+                    }
+                }
+                i++;
+                int action = policy[levelCopy.getPlayerY()][levelCopy.getPlayerX()];
+                if (action < 0) {
+                    testing = false;
+                    return;
+                }
+                levelCopy.movePlayer(action);
+
+                if(eaten != levelCopy.foodEaten) {
+                    eaten = levelCopy.foodEaten;
+                    policy = learner.getPolicy(eaten);
+                }
+                //Do post shit here
+
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        renderMap(levelCopy);
+                        renderBufferFlushed = true;
+                    }
+                });
+                renderBufferFlushed = false;
+                wakeupTime = System.currentTimeMillis() + (long)delay;
+            }
+            //Print stats here
+            System.out.println("RESULTS: \nSteps: " +  i + "\nPoisonEaten: " + levelCopy.consumedPoison);
+            testing = false;
+        }
+    };
+    Thread t = new Thread(r);
+    t.start();
+}
+
+    private void setProgress(double progress) {
+        progressBar.setProgress(progress);
     }
 
     private void renderMap(Level l) {
         GraphicsContext g = canvas.getGraphicsContext2D();
+        g.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGTH);
         l.setShadowing(true);
-        for (int y = 0; y < MAP_DIMESNSIONS; y++){
-            for (int x = 0; x < MAP_DIMESNSIONS; x++) {
-                g.setFill(Color.gray(0.95 - 0.95*Math.min((l.shadow[y][x]/8.0), 1)));
-                g.fillRect(x * tileWidth + CANVAS_TILE_PADDING, y * tileWidth + CANVAS_TILE_PADDING, tileWidth - 2 * CANVAS_TILE_PADDING, tileWidth - 2 * CANVAS_TILE_PADDING);
+        int[][] policy = learner.getPolicy(l.foodEaten);
 
-                if (l.map[y][x] == Level.TILE_FOOD) {
+        for (int y = 0; y < MAP_DIMESNSIONS_Y; y++){
+            for (int x = 0; x < MAP_DIMESNSIONS_X; x++) {
+                g.setFill(Color.gray(0.95 - 0.95*Math.min((l.shadow[y][x]/8.0), 1)));
+                if (x == l.startX && y == l.startY) {
+                    g.setFill(Color.DARKSLATEBLUE);
+                }
+                g.fillRect(x * tileSize + CANVAS_TILE_PADDING, y * tileSize + CANVAS_TILE_PADDING, tileSize - 2 * CANVAS_TILE_PADDING, tileSize - 2 * CANVAS_TILE_PADDING);
+
+                if (l.map[y][x] > 0) {
                     g.setFill(Color.INDIANRED);
-                    g.fillOval(x * tileWidth + 3 * CANVAS_TILE_PADDING, y * tileWidth + 3 * CANVAS_TILE_PADDING, tileWidth - 6 * CANVAS_TILE_PADDING, tileWidth - 6 * CANVAS_TILE_PADDING);
+                    g.fillOval(x * tileSize + 3 * CANVAS_TILE_PADDING, y * tileSize + 3 * CANVAS_TILE_PADDING, tileSize - 6 * CANVAS_TILE_PADDING, tileSize - 6 * CANVAS_TILE_PADDING);
                 }
                 else if (l.map[y][x] == Level.TILE_POISON) {
                     g.setFill(Color.CHARTREUSE);
-                    g.fillOval(x * tileWidth + 3 * CANVAS_TILE_PADDING, y * tileWidth + 3 * CANVAS_TILE_PADDING, tileWidth - 6 * CANVAS_TILE_PADDING, tileWidth - 6 * CANVAS_TILE_PADDING);
+                    g.fillOval(x * tileSize + 3 * CANVAS_TILE_PADDING, y * tileSize + 3 * CANVAS_TILE_PADDING, tileSize - 6 * CANVAS_TILE_PADDING, tileSize - 6 * CANVAS_TILE_PADDING);
                 }
                 else if (l.map[y][x] == Level.TILE_PLAYER) {
                     g.setFill(Color.CORNFLOWERBLUE);
-                    g.fillOval(x * tileWidth + 2 * CANVAS_TILE_PADDING, y * tileWidth + 2 * CANVAS_TILE_PADDING, tileWidth - 4 * CANVAS_TILE_PADDING, tileWidth - 4 * CANVAS_TILE_PADDING);
-                    g.setStroke(Color.BLACK);
-                    double x1 = (x + 0.5) * tileWidth;
-                    double y1 = (y + 0.5) * tileWidth;
-                    double x2 = x1;
-                    double y2 = y1;
-                    if (l.orientation == 0) {
-                        x2 = (x + 1) * tileWidth - 2 * CANVAS_TILE_PADDING;
-                    }
-                    else if (l.orientation == 90) {
-                        y2 = y * tileWidth + 2 * CANVAS_TILE_PADDING;
-                    }
-                    else if (l.orientation == 180) {
-                        x2 = x * tileWidth + 2 * CANVAS_TILE_PADDING;
-                    }
-                    else if (l.orientation == 270) {
-                        y2 = (y + 1) * tileWidth - 2 * CANVAS_TILE_PADDING;
-                    }
-                    g.strokeLine(x1, y1, x2, y2);
+                    g.fillOval(x * tileSize + 2 * CANVAS_TILE_PADDING, y * tileSize + 2 * CANVAS_TILE_PADDING, tileSize - 4 * CANVAS_TILE_PADDING, tileSize - 4 * CANVAS_TILE_PADDING);
                 }
+
+                drawArrow(x, y, policy[y][x], g);
             }
         }
+
+    }
+
+    public void drawArrow(int x, int y, int orientation, GraphicsContext g) {
+        g.setStroke(Color.BLACK);
+        g.setLineWidth(2);
+
+        double x1 = (x + 0.5) * tileSize;
+        double y1 = (y + 0.5) * tileSize;
+        double x2 = x1;
+        double y2 = y1;
+        double dx = 0;
+        double dy = 0;
+
+        if (orientation == 3) {
+            x2 += (tileSize * 0.2);
+            dy = tileSize * 0.15;
+        }
+        else if (orientation == 2) {
+            y2 += (tileSize * 0.2);
+            dx = tileSize * 0.15;
+        }
+        else if (orientation == 1) {
+            x2 -= (tileSize * 0.2);
+            dy = tileSize * 0.15;
+        }
+        else if (orientation == 0) {
+            y2 -= (tileSize  * 0.2);
+            dx = tileSize * 0.15;
+        }
+        else {
+            //No action found
+            return;
+        }
+
+        //g.strokeLine(x1, y1, x2, y2);
+        g.strokeLine(x2, y2, x1 + dx, y1 - dy);
+        g.strokeLine(x2, y2, x1 - dx, y1 + dy);
     }
 
     public static void main(String[] args) {
         launch(args);
+    }
+
+    public void loadLevel(String value) {
+        try {
+            this.selectedLevel = Level.fromFile(value);
+            this.MAP_DIMESNSIONS_X = (double)selectedLevel.width;
+            this.MAP_DIMESNSIONS_Y = (double)selectedLevel.height;
+            this.tileSize = Math.min((double)CANVAS_HEIGTH/MAP_DIMESNSIONS_Y,(double)CANVAS_WIDTH/MAP_DIMESNSIONS_X);
+            learner.setMap(this.selectedLevel.copy());
+            renderMap(this.selectedLevel);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

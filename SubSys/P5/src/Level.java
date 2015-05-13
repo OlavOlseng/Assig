@@ -36,10 +36,12 @@ public class Level {
 
     private int playerX = -1;
     private int playerY = -1;
-    private int startX, startY;
+    public int startX, startY;
 
     private boolean shadowing = false;
     private boolean initialized = false;
+
+    long foodEaten = 0;
 
     public Level(int width, int height) {
         this.width = width;
@@ -88,6 +90,7 @@ public class Level {
         int consumed = map[y][x];
         if(consumed > 0) {
             consumedFood++;
+            foodEaten |= 1L << (consumed - 1);
         }
         else if (consumed == TILE_POISON) {
             consumedPoison++;
@@ -185,23 +188,17 @@ public class Level {
     }
 
     public static Level fromFile(String path) throws IOException {
-        BufferedReader rd = new BufferedReader(new InputStreamReader(Level.class.getResourceAsStream(path)));
-
-        //These lines are gold
-        URL resource = Level.class.getResource("Levels");
-        File folder = new File(resource.getFile());
-        System.out.println(Arrays.toString(folder.listFiles()));
+        BufferedReader rd = new BufferedReader(new InputStreamReader(Level.class.getResourceAsStream("Levels/" + path)));
 
         String[] line  = rd.readLine().split(" ");
         Level level = new Level(Integer.parseInt(line[0]), Integer.parseInt(line[1]));
-        //level.setPlayer(Integer.parseInt(line[2]), Integer.parseInt(line[3]));
 
         level.foodCount = Integer.parseInt(line[4]);
 
         for (int y = 0; y < level.height; y++) {
             line  = rd.readLine().split(" ");
 
-            for (int x = 0; x < level.width; x++) {
+            for (int x = 0; x < line.length; x++) {
                 switch (Integer.parseInt(line[x])) {
                     case -2:
                         level.map[y][x] = TILE_PLAYER;
@@ -240,6 +237,7 @@ public class Level {
         copy.orientation = this.orientation;
         copy.foodCount = this.foodCount;
         copy.poisonCount = this.poisonCount;
+        copy.foodEaten = this.foodEaten;
         return copy;
     }
 
@@ -247,7 +245,7 @@ public class Level {
         Level l = null;
 
         try {
-            l = Level.fromFile("Levels/1-simple.txt");
+            l = Level.fromFile("1-simple.txt");
         } catch (IOException e) {
             e.printStackTrace();
             System.exit(-1);

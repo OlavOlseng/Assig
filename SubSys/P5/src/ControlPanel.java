@@ -1,13 +1,17 @@
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
 
-import java.util.Arrays;
+import java.io.File;
+import java.net.URL;
 
 
 /**
@@ -18,248 +22,264 @@ public class ControlPanel extends GridPane {
     private QApp app;
 
     Button b_run;
-    Button b_clear;
-    Button b_sequence;
+    Button b_extend;
+    Button b_test;
 
-    Button b_random;
+    TextField iterations;
+    TextField foodValue;
+    TextField poisonValue;
+    TextField stepCost;
+    TextField tdCount;
+
+    TextField discountFactor;
+    TextField learningRate;
+    TextField wobble;
+
+    Slider delay;
+
+    ComboBox<String> filePaths;
+
 
     public ControlPanel(QApp mainApp) {
         this.app = mainApp;
-
+        this.setPrefWidth(200);
+        initSpecials();
         initPanel();
 
     }
 
+    private void initSpecials() {
+        URL resource = Level.class.getResource("Levels");
+        File folder = new File(resource.getFile());
+        String[] paths = folder.list();
+        this.filePaths = new ComboBox<String>(FXCollections.observableArrayList(paths));
+        this.filePaths.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                app.loadLevel(filePaths.getValue());
+            }
+        });
+        this.filePaths.setValue(paths[0]);
+        this.filePaths.setPrefWidth(this.getPrefWidth());
+
+        this.iterations = new TextField("10000");
+        this.iterations.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                int nums = 10000;
+                try {
+                    nums = Integer.valueOf(iterations.getText());
+                }
+                catch (Exception e) {
+                    iterations.setText("10000");
+                }
+            }
+        });
+
+        this.discountFactor = new TextField("" + app.learner.discountRate);
+        this.discountFactor.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                double nums = 0.99;
+                try {
+                    nums = Double.parseDouble(discountFactor.getText());
+                }
+                catch (Exception e) {
+                    discountFactor.setText("0.9");
+                }
+                app.learner.discountRate = nums;
+            }
+        });
+
+
+        this.learningRate = new TextField("" + app.learner.learningRate);
+        this.learningRate.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                double nums = 0.5;
+                try {
+                    nums = Double.parseDouble(learningRate.getText());
+                }
+                catch (Exception e) {
+                    learningRate.setText("0.5");
+                }
+                app.learner.learningRate = nums;
+            }
+        });
+
+        this.wobble = new TextField("" + app.learner.wobble);
+        this.wobble.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                double nums = 0.5;
+                try {
+                    nums = Double.parseDouble(wobble.getText());
+                }
+                catch (Exception e) {
+                    discountFactor.setText("0.5");
+                }
+                app.learner.wobble= nums;
+            }
+        });
+
+        this.foodValue = new TextField("" + app.learner.SCORE_FOOD);
+        this.foodValue.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                double nums = 20;
+                try {
+                    nums = Double.parseDouble(foodValue.getText());
+                }
+                catch (Exception e) {
+                    foodValue.setText("20");
+                }
+                app.learner.SCORE_FOOD = nums;
+            }
+        });
+
+        this.poisonValue = new TextField("" + app.learner.SCORE_POISON * -1f);
+        this.poisonValue.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                double nums = 20;
+                try {
+                    nums = Double.parseDouble(poisonValue.getText());
+                }
+                catch (Exception e) {
+                    poisonValue.setText("20");
+                }
+                app.learner.SCORE_POISON = -nums;
+            }
+        });
+
+        this.stepCost = new TextField("" + app.learner.SCORE_NOTHING * -1f);
+        this.stepCost.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                double nums = 0.01;
+                try {
+                    nums = Double.parseDouble(stepCost.getText());
+                }
+                catch (Exception e) {
+                    stepCost.setText("0.01");
+                }
+                app.learner.SCORE_NOTHING = -nums;
+            }
+        });
+
+        this.tdCount = new TextField("" + app.learner.maxBackstack);
+        this.tdCount.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                int nums = 5;
+                try {
+                    nums = Integer.valueOf(tdCount.getText());
+                }
+                catch (Exception e) {
+                    tdCount.setText("5");
+                }
+            }
+        });
+
+        this.delay = new Slider(1,1000,100);
+        delay.setBlockIncrement(10);
+        delay.valueProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                app.delay = delay.getValue();
+                System.out.println("New delay: " + app.delay);
+            }
+        });
+    }
+
     private void initPanel() {
-        /*
+
         int y = 1;
-
-        popCap.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                FlatlandEAFactory.POPULATION_CAP = Integer.parseInt(popCap.getText());
-            }
-        });
-        this.add(new Text("Population Cap: "), 0, y);
-        this.add(popCap, 1, y);
+        this.add(new Text("Level:"), 0, y);
+        y++;
+        this.add(filePaths, 0, y);
         y++;
 
-        genCap.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                FlatlandEAFactory.GENERATION_CAP = Integer.parseInt(genCap.getText());
-            }
-        });
-        this.add(new Text("Generation Cap: "), 0, y);
-        this.add(genCap, 1, y);
+        this.add(new Text("Iterations:"), 0, y);
+        y++;
+        this.add(iterations, 0, y);
         y++;
 
-        this.utilCap.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                FlatlandEAFactory.UTILITY_CAP = Double.parseDouble(utilCap.getText());
-            }
-        });
-        this.add(new Text("Utility Cap: "), 0, y);
-        this.add(utilCap, 1, y);
+        this.add(new Text("Learning Rate: "), 0, y);
+        y++;
+        this.add(learningRate, 0, y);
         y++;
 
-        geneSize.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                FlatlandEAFactory.GENE_SIZE = Integer.parseInt(geneSize.getText());
-            }
-        });
-        this.add(new Text("Gene Size: "), 0 ,y);
-        this.add(geneSize, 1, y);
+        this.add(new Text("Discount Factor: "), 0, y);
+        y++;
+        this.add(discountFactor, 0, y);
         y++;
 
-        geneMutaRate.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                FlatlandEAFactory.GENE_MUTATION_RATE = Double.parseDouble(geneMutaRate.getText());
-            }
-        });
-        this.add(new Text("Mutation Rate: "), 0, y);
-        this.add(geneMutaRate, 1, y);
+        this.add(new Text("Wobble: "), 0, y);
+        y++;
+        this.add(wobble, 0, y);
         y++;
 
-        crossoverRate.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                FlatlandEAFactory.CROSSOVER_RATE = Double.parseDouble(crossoverRate.getText());
-            }
-        });
-        this.add(new Text("Crossover Rate: "), 0, y);
-        this.add(crossoverRate, 1, y);
+        this.add(new Text("TD-N: "), 0, y);
+        y++;
+        this.add(tdCount, 0, y);
         y++;
 
-
-        this.add(new Text("Adult Selection: "), 0, y);
-        asModeComboBox.setValue(FlatlandEAFactory.AS);
-        this.add(asModeComboBox, 1, y);
+        this.add(new Text("Food Value:"), 0, y);
+        y++;
+        this.add(foodValue, 0, y);
         y++;
 
-
-        overpop.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                FlatlandEAFactory.AS_OVERPOPULATE_COUNT = Integer.parseInt(overpop.getText());
-            }
-        });
-        this.add(new Text("Overpopulate: "), 0, y);
-        this.add(overpop, 1, y);
-        y++;
-
-        adultRetention.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                FlatlandEAFactory.AS_RETENTION = Integer.parseInt(adultRetention.getText());
-            }
-        });
-        this.add(new Text("Retain: "), 0, y);
-        this.add(adultRetention, 1, y);
-        y++;
-
-        this.add(new Text("Parent Selection: "), 0, y);
-        psModeComboBox.setValue(FlatlandEAFactory.PS);
-        this.add(psModeComboBox, 1, y);
-        y++;
-
-        boltzmannT.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                FlatlandEAFactory.BOLTZMANN_T = Integer.parseInt(boltzmannT.getText());
-            }
-        });
-        this.add(new Text("Boltzmann T: "), 0, y);
-        this.add(boltzmannT, 1, y);
-        y++;
-
-        tourneySize.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                FlatlandEAFactory.PS_TOURNAMENT_K = Integer.parseInt(tourneySize.getText());
-            }
-        });
-        this.add(new Text("Tournament Size: "), 0, y);
-        this.add(tourneySize, 1, y);
-        y++;
-
-        tourneyWinnerChance.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                FlatlandEAFactory.PS_TOURNAMENT_EPSILON = Double.parseDouble(tourneyWinnerChance.getText());
-            }
-        });
-        this.add(new Text("Random Chance: "), 0, y);
-        this.add(tourneyWinnerChance, 1, y);
-        y++;
-
-        sleepTimer.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                FlatlandEAFactory.SLEEPTIME = Long.parseLong(sleepTimer.getText());
-            }
-        });
-        this.add(new Text("Sleep Time: "), 0, y);
-        this.add(sleepTimer, 1, y);
-        y++;
-
-        mapCount.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                FlatlandEAFactory.MAPS_COUNT = Integer.parseInt(mapCount.getText());
-            }
-        });
-        this.add(new Text("Map count: "), 0, y);
-        this.add(mapCount, 1, y);
-        y++;
-
-        layers.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                FlatlandEAFactory.LAYERS = parseStringToArray(layers.getText());
-            }
-        });
-        this.add(new Text("Layers: "), 0, y);
-        this.add(layers, 1, y);
-        y++;
-
-        levelModeComboBox.setValue(FlatlandEAFactory.LM);
-        this.add(new Text("Level Mode: "), 0, y);
-        this.add(levelModeComboBox, 1, y);
-        y++;
-
-        foodValue.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                FlatlandEAFactory.VALUE_FOOD = Double.parseDouble(foodValue.getText());
-            }
-        });
-        this.add(new Text("Food Value: "), 0, y);
-        this.add(foodValue, 1, y);
-        y++;
-
-        poisonValue.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                FlatlandEAFactory.VALUE_POISON = Double.parseDouble(poisonValue.getText());
-            }
-        });
         this.add(new Text("Poison Value: "), 0, y);
-        this.add(poisonValue, 1, y);
+        y++;
+        this.add(poisonValue, 0, y);
         y++;
 
-        b_run = new Button("Run EA");
+        this.add(new Text("Step Cost: "), 0, y);
+        y++;
+        this.add(stepCost, 0, y);
+        y++;
+
+
+
+        this.add(new Text("Delay: "), 0, y);
+        y++;
+        this.add(delay, 0, y);
+        y++;
+
+        b_run = new Button("New");
+        b_run.setPrefWidth(this.getPrefWidth());
         b_run.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                app.runEa();
+                app.runQL(true, Integer.valueOf(iterations.getText()));
             }
         });
         this.add(b_run, 0, y);
-
-        b_clear = new Button("Clear");
-        b_clear.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                app.clearPlot();
-            }
-        });
-        this.add(b_clear, 1, y);
         y++;
 
-        b_random = new Button("Random Test");
-        b_random.setOnAction(new EventHandler<ActionEvent>() {
+        b_extend = new Button("Extend");
+        b_extend.setPrefWidth(this.getPrefWidth());
+        b_extend.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                app.testAgent(true);
+                app.runQL(false, Integer.valueOf(iterations.getText()));
             }
         });
-        this.add(b_random, 0, y);
+        this.add(b_extend, 0, y);
+        y++;
 
-        b_sequence = new Button("Sequence Test");
-        b_sequence.setOnAction(new EventHandler<ActionEvent>() {
+        b_test = new Button("Test");
+        b_test.setPrefWidth(this.getPrefWidth());
+        b_test.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                app.testAgent(false);
+                app.testAgent();
             }
         });
-        this.add(b_sequence, 1, y);
-    }
+        this.add(b_test, 0, y);
+        y++;
 
-    private int[] parseStringToArray(String text) {
-        text = text.replace("[","");
-        text = text.replace("]","");
-        text = text.replace(" ","");
-        String[] vals = text.split(",");
-        int[] array = new int[vals.length];
-        for (int i = 0; i < array.length; i++) {
-            array[i] = Integer.parseInt(vals[i]);
-        }
-        return array;
-*/
     }
 
 }
