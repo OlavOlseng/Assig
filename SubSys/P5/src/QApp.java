@@ -64,7 +64,7 @@ public class QApp extends Application {
         primaryStage.show();
     }
 
-    double progress = 0;
+    float progress = 0;
     boolean progressDirty = false;
 
     public void runQL(boolean fresh, final int iterations) {
@@ -76,18 +76,24 @@ public class QApp extends Application {
             running = true;
             stop = false;
         }
+
+        setProgressStyle("");
+
         if (fresh) {
             this.learner.initialize();
+            cp.setStatusMessage("Started new run!");
+        }
+        else {
+            cp.setStatusMessage("Expanding training!");
         }
         Runnable r = new Runnable() {
             @Override
             public void run() {
                 int passes = 0;
                 progress = 0;
-                System.out.println("Running q - learner");
                 while(running && !stop) {
 
-                    progress = (double)passes / iterations;
+                    progress = (float)passes / iterations;
                     learner.train(progress);
                     passes++;
                     running = passes < iterations;
@@ -103,7 +109,7 @@ public class QApp extends Application {
                         });
                     }
                 }
-                System.out.println("Finished training!");
+                cp.setStatusMessage("Finished training!");
                 running = false;
                 Platform.runLater(new Runnable() {
                     @Override
@@ -140,6 +146,7 @@ public class QApp extends Application {
         Runnable r = new Runnable() {
             @Override
             public void run() {
+            cp.setStatusMessage("Testing agent!");
             renderBufferFlushed = true;
             int i = 0;
             long wakeupTime = 0;
@@ -157,7 +164,7 @@ public class QApp extends Application {
                 int action = policy[levelCopy.getPlayerY()][levelCopy.getPlayerX()];
                 if (action < 0) {
                     testing = false;
-                    return;
+                    break;
                 }
                 levelCopy.movePlayer(action);
 
@@ -172,13 +179,21 @@ public class QApp extends Application {
                     public void run() {
                         renderMap(levelCopy);
                         renderBufferFlushed = true;
+
                     }
                 });
                 renderBufferFlushed = false;
                 wakeupTime = System.currentTimeMillis() + (long)delay;
             }
             //Print stats here
-            System.out.println("RESULTS: \nSteps: " +  i + "\nPoisonEaten: " + levelCopy.consumedPoison);
+            cp.setStatusMessage("Result: \nSteps: " + i + "\nPoisonEaten: " + levelCopy.consumedPoison);
+            if (levelCopy.consumedPoison > 0) {
+                setProgressStyle("-fx-accent: red");
+
+            }
+            else {
+                setProgressStyle("");
+            }
             testing = false;
         }
     };
@@ -188,6 +203,15 @@ public class QApp extends Application {
 
     private void setProgress(double progress) {
         progressBar.setProgress(progress);
+    }
+
+    private void setProgressStyle(final String style) {
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                progressBar.setStyle(style);
+            }
+        });
     }
 
     private void renderMap(Level l) {

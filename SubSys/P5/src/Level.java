@@ -39,7 +39,6 @@ public class Level {
     public int startX, startY;
 
     private boolean shadowing = false;
-    private boolean initialized = false;
 
     long foodEaten = 0;
 
@@ -215,7 +214,6 @@ public class Level {
                 }
             }
         }
-        level.initialized = true;
         return level;
     }
 

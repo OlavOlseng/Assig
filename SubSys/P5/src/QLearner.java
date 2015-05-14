@@ -1,5 +1,6 @@
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -10,36 +11,35 @@ import java.util.Random;
  */
 public class QLearner {
 
-    public static double SCORE_FOOD = 1;
-    public static double SCORE_POISON = -2;
-    public static double SCORE_NOTHING = -0.5;
+    public static float SCORE_FOOD = 10f;
+    public static float SCORE_POISON = -50f;
+    public static float SCORE_NOTHING = -2.701f;
 
     private int width, height, actionCount;
-
+    private Random random = new Random(System.currentTimeMillis());
     private Level map;
-    public double learningRate = 0.5;
-    public double discountRate = 0.99;
+    public float learningRate = 0.1f;
+    public float discountRate = 0.89f;
 
-    public double wobble = 0.4;
+    public float wobble = 0.5f;
 
-    public int maxBackstack = 1;
+    public int maxBackstack = 3;
 
-    Random random = new Random(System.currentTimeMillis());
-
-    HashMap<Long, HashMap<Integer, double[]>> stateMap;
+    HashMap<Long, HashMap<Integer, float[]>> stateMap;
     ArrayList<int[]> positionQueue;
     ArrayList<Long> eatenQueue;
     ArrayList<Integer> actionQueue;
 
-    ArrayList<Double> rewardQueue;
+    ArrayList<Float> rewardQueue;
     public boolean escape = false;
 
     public QLearner(int actionCount) {
         this.positionQueue = new ArrayList<int[]>();
         this.eatenQueue = new ArrayList<Long>();
-        this.rewardQueue = new ArrayList<Double>();
+        this.rewardQueue = new ArrayList<Float>();
         this.actionQueue = new ArrayList<Integer>();
         this.actionCount = actionCount;
+
     }
 
     public void setMap(Level map) {
@@ -50,7 +50,7 @@ public class QLearner {
     }
 
     public void initialize() {
-        stateMap = new HashMap<Long,HashMap<Integer, double[]>>();
+        stateMap = new HashMap<Long,HashMap<Integer, float[]>>();
         clearBacktrace();
     }
 
@@ -58,7 +58,7 @@ public class QLearner {
     @Deprecated
     public void train(int iterations) {
         int K = 0;
-        double temperature = wobble;
+        float temperature = wobble;
 
         while(K < iterations) {
             Level map = this.map.copy();
@@ -89,20 +89,21 @@ public class QLearner {
                     eaten |= 1L << (result - 1);
                 }
             }
-            temperature = 0.05 + wobble * (double)((iterations - K) / iterations);
+            temperature = 0.05f + wobble * (float)((iterations - K) / iterations);
             clearBacktrace();
             K++;
         }
     }
 
-    public void train(double progress) {
+    public void train(float progress) {
         escape = false;
         Level map = this.map.copy();
         long eaten = 0;
         int[] newPos = new int[2];
         newPos[0] = map.getPlayerX();
         newPos[1] = map.getPlayerY();
-        double temperature = 0.05 + wobble * (1 - progress);
+        float temperature = 0.001f + wobble * (1f - (float)Math.pow(progress, 0.8));
+
 
         while(!map.gameOver() && !escape) {
             int[] oldPos = new int[2];
@@ -125,7 +126,7 @@ public class QLearner {
         clearBacktrace();
     }
 
-    private void addBacktrace(int[] oldPos, long eaten, int action, double reward) {
+    private void addBacktrace(int[] oldPos, long eaten, int action, float reward) {
         this.positionQueue.add(oldPos);
         this.eatenQueue.add(eaten);
         this.rewardQueue.add(reward);
@@ -139,25 +140,52 @@ public class QLearner {
         this.actionQueue.clear();
     }
 
-    private int selectAction(int[] pos, long eaten, double randomChance) {
+    private int selectAction(int[] pos, long eaten, float randomChance) {
         double rand = random.nextDouble();
         if (rand < randomChance) {
-            return (int)(rand * (actionCount));
+            /*
+            float[] indices = new float[actionCount];
+            float[] utilities = getState(pos, eaten);
+            float[] actions = new float[actionCount];
+            float min = actions[0];
+            for (int i = 0; i < indices.length; i++) {
+                if(actions[i] < min) {
+                    min = actions[i];
+                }
+            }
+
+            float sum = -min;
+            for (int i = 0; i < indices.length; i++) {
+                float utility = utilities[i];
+                sum += utility;
+                indices[i] = sum;
+            }
+
+            rand *= sum;
+            int action = 0;
+            for (int i = 0; i < indices.length; i++) {
+                if (indices[i] > rand) {
+                    action = i;
+                }
+            }
+            return action;
+            */
+            return (random.nextInt(actionCount));
         }
         return getBestAction(pos, eaten, false);
     }
 
-    public double[] getState(int[] position, long eaten) {
+    public float[] getState(int[] position, long eaten) {
 
         if (!stateMap.containsKey(eaten)) {
-            stateMap.put(eaten,new HashMap<Integer, double[]>());
+            stateMap.put(eaten,new HashMap<Integer, float[]>());
         }
-        HashMap<Integer, double[]> foodState = stateMap.get(eaten);
+        HashMap<Integer, float[]> foodState = stateMap.get(eaten);
         int pos = (position[0] << 16);
         pos |= position[1];
 
         if (!foodState.containsKey(pos)) {
-            double[] vals = new double[actionCount];
+            float[] vals = new float[actionCount];
             foodState.put(pos, vals);
         }
         return foodState.get(pos);
@@ -172,12 +200,12 @@ public class QLearner {
 
     private void runBacktrace(int[] newPos, long newEaten) {
         for (int i = 0; i < actionQueue.size(); i++) {
-            double resultScore = rewardQueue.get(rewardQueue.size() - 1 - i);
+            float resultScore = rewardQueue.get(rewardQueue.size() - 1 - i);
             int[] oldPos = positionQueue.get(positionQueue.size() - 1 - i);
             long eaten = eatenQueue.get(eatenQueue.size() - 1 - i);
             int action = actionQueue.get(actionQueue.size() - 1 - i);
+            float scoreDiff = learningRate * (resultScore + discountRate * (getMaxValue(newPos, newEaten)) - getState(oldPos, eaten)[action]);
 
-            double scoreDiff = learningRate * (resultScore + discountRate * (getMaxValue(newPos, newEaten)) - getState(oldPos, eaten)[action]);
             getState(oldPos, eaten)[action] += scoreDiff;
 
             newPos = oldPos;
@@ -190,9 +218,8 @@ public class QLearner {
         boolean clear = false;
         if (result > 0) {
             newEaten = map.foodEaten;
-            clear = true;
         }
-        double resultScore = getResultScore(result);
+        float resultScore = getResultScore(result);
 
         addBacktrace(oldPos, eaten, action, resultScore);
 
@@ -206,7 +233,7 @@ public class QLearner {
         }
     }
 
-    private double getResultScore(int result) {
+    private float getResultScore(int result) {
         switch (result) {
             case Level.TILE_EMPTY:
                 return SCORE_NOTHING;
@@ -223,9 +250,9 @@ public class QLearner {
 
     public boolean isStateVisited(int[] position, long eaten) {
         if (!stateMap.containsKey(eaten)) {
-            stateMap.put(eaten,new HashMap<Integer, double[]>());
+            stateMap.put(eaten,new HashMap<Integer, float[]>());
         }
-        HashMap<Integer, double[]> foodState = stateMap.get(eaten);
+        HashMap<Integer, float[]> foodState = stateMap.get(eaten);
         int pos = (position[0] << 16);
         pos |= position[1];
 
@@ -234,13 +261,12 @@ public class QLearner {
 
     public int getBestAction(int[] pos, long eaten, boolean unique) {
         int action = 0;
-        double maxValue = -Double.MAX_VALUE;
 
-
-        double[] stateActionMap = getState(pos, eaten);
+        float[] stateActionMap = getState(pos, eaten);
+        float maxValue = stateActionMap[0];
         boolean isUnique = true;
-        for (int a = 0; a < stateActionMap.length; a++) {
-            double actionScore = stateActionMap[a];
+        for (int a = 1; a < stateActionMap.length; a++) {
+            float actionScore = stateActionMap[a];
             if (actionScore > maxValue) {
                 action = a;
                 maxValue = actionScore;
@@ -250,17 +276,19 @@ public class QLearner {
                 isUnique = false;
             }
         }
+
         action = !isUnique && unique ? -1 : action;
         return action;
+        //return actions.get((int)(random.nextDouble() * actions.size()));
     }
 
-    private double getMaxValue(int[] pos, long eaten) {
-        double maxVal = -Double.MAX_VALUE;
-        double[] stateActionMap = getState(pos, eaten);
+    private float getMaxValue(int[] pos, long eaten) {
+        float[] stateActionMap = getState(pos, eaten);
+        float maxVal = stateActionMap[0];
 
-        for (int a = 0; a < stateActionMap.length; a++) {
+        for (int a = 1; a < stateActionMap.length; a++) {
 
-            double actionScore = stateActionMap[a];
+            float actionScore = stateActionMap[a];
             if (actionScore > maxVal) {
                 maxVal = actionScore;
             }

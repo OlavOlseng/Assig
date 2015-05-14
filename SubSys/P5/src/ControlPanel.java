@@ -1,12 +1,10 @@
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Slider;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
 
@@ -37,8 +35,9 @@ public class ControlPanel extends GridPane {
 
     Slider delay;
 
-    ComboBox<String> filePaths;
+    private ComboBox<String> filePaths;
 
+    private TextArea statusField;
 
     public ControlPanel(QApp mainApp) {
         this.app = mainApp;
@@ -52,7 +51,9 @@ public class ControlPanel extends GridPane {
         URL resource = Level.class.getResource("Levels");
         File folder = new File(resource.getFile());
         String[] paths = folder.list();
+
         this.filePaths = new ComboBox<String>(FXCollections.observableArrayList(paths));
+
         this.filePaths.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -80,9 +81,9 @@ public class ControlPanel extends GridPane {
         this.discountFactor.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                double nums = 0.99;
+                float nums = 0.99f;
                 try {
-                    nums = Double.parseDouble(discountFactor.getText());
+                    nums = Float.parseFloat(discountFactor.getText());
                 }
                 catch (Exception e) {
                     discountFactor.setText("0.9");
@@ -96,9 +97,9 @@ public class ControlPanel extends GridPane {
         this.learningRate.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                double nums = 0.5;
+                float nums = 0.5f;
                 try {
-                    nums = Double.parseDouble(learningRate.getText());
+                    nums = Float.parseFloat(learningRate.getText());
                 }
                 catch (Exception e) {
                     learningRate.setText("0.5");
@@ -111,9 +112,9 @@ public class ControlPanel extends GridPane {
         this.wobble.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                double nums = 0.5;
+                float nums = 0.5f;
                 try {
-                    nums = Double.parseDouble(wobble.getText());
+                    nums = Float.parseFloat(wobble.getText());
                 }
                 catch (Exception e) {
                     discountFactor.setText("0.5");
@@ -126,9 +127,9 @@ public class ControlPanel extends GridPane {
         this.foodValue.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                double nums = 20;
+                float nums = 20;
                 try {
-                    nums = Double.parseDouble(foodValue.getText());
+                    nums = Float.parseFloat(foodValue.getText());
                 }
                 catch (Exception e) {
                     foodValue.setText("20");
@@ -141,9 +142,9 @@ public class ControlPanel extends GridPane {
         this.poisonValue.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                double nums = 20;
+                float nums = 20;
                 try {
-                    nums = Double.parseDouble(poisonValue.getText());
+                    nums = Float.parseFloat(poisonValue.getText());
                 }
                 catch (Exception e) {
                     poisonValue.setText("20");
@@ -156,9 +157,9 @@ public class ControlPanel extends GridPane {
         this.stepCost.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                double nums = 0.01;
+                float nums = 0.01f;
                 try {
-                    nums = Double.parseDouble(stepCost.getText());
+                    nums = Float.parseFloat(stepCost.getText());
                 }
                 catch (Exception e) {
                     stepCost.setText("0.01");
@@ -178,10 +179,11 @@ public class ControlPanel extends GridPane {
                 catch (Exception e) {
                     tdCount.setText("5");
                 }
+                app.learner.maxBackstack = nums;
             }
         });
 
-        this.delay = new Slider(1,1000,100);
+        this.delay = new Slider(1,300,30);
         delay.setBlockIncrement(10);
         delay.valueProperty().addListener(new ChangeListener<Number>() {
             @Override
@@ -190,6 +192,12 @@ public class ControlPanel extends GridPane {
                 System.out.println("New delay: " + app.delay);
             }
         });
+
+        this.statusField = new TextArea("");
+        this.statusField.setPrefWidth(this.getPrefWidth());
+        this.statusField.setPrefHeight(80);
+        this.statusField.setEditable(false);
+
     }
 
     private void initPanel() {
@@ -280,6 +288,18 @@ public class ControlPanel extends GridPane {
         this.add(b_test, 0, y);
         y++;
 
+        this.add(statusField, 0, y);
+        y++;
+
+    }
+
+    public void setStatusMessage(final String message) {
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                statusField.setText(message);
+            }
+        });
     }
 
 }
