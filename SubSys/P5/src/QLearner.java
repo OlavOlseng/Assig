@@ -1,6 +1,6 @@
 
+
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -25,10 +25,10 @@ public class QLearner {
 
     public int maxBackstack = 3;
 
-    HashMap<Long, HashMap<Integer, float[]>> stateMap;
+    HashMap<Long, HashMap<Short, float[]>> stateMap;
     ArrayList<int[]> positionQueue;
     ArrayList<Long> eatenQueue;
-    ArrayList<Integer> actionQueue;
+    ArrayList<Byte> actionQueue;
 
     ArrayList<Float> rewardQueue;
     public boolean escape = false;
@@ -37,9 +37,8 @@ public class QLearner {
         this.positionQueue = new ArrayList<int[]>();
         this.eatenQueue = new ArrayList<Long>();
         this.rewardQueue = new ArrayList<Float>();
-        this.actionQueue = new ArrayList<Integer>();
+        this.actionQueue = new ArrayList<Byte>();
         this.actionCount = actionCount;
-
     }
 
     public void setMap(Level map) {
@@ -50,7 +49,7 @@ public class QLearner {
     }
 
     public void initialize() {
-        stateMap = new HashMap<Long,HashMap<Integer, float[]>>();
+        stateMap = new HashMap<Long,HashMap<Short, float[]>>();
         clearBacktrace();
     }
 
@@ -77,7 +76,7 @@ public class QLearner {
                 oldPos[0] = newPos[0];
                 oldPos[1] = newPos[1];
 
-                int action = selectAction(oldPos, eaten, temperature);
+                byte action = selectAction(oldPos, eaten, temperature);
                 int result = map.movePlayer(action);
 
                 newPos[0] = map.getPlayerX();
@@ -104,20 +103,18 @@ public class QLearner {
         newPos[1] = map.getPlayerY();
         float temperature = 0.001f + wobble * (1f - (float)Math.pow(progress, 0.8));
 
-
         while(!map.gameOver() && !escape) {
             int[] oldPos = new int[2];
             oldPos[0] = newPos[0];
             oldPos[1] = newPos[1];
 
-            int action = selectAction(oldPos, eaten, temperature);
+            byte action = selectAction(oldPos, eaten, temperature);
             int result = map.movePlayer(action);
 
             newPos[0] = map.getPlayerX();
             newPos[1] = map.getPlayerY();
 
             updateStateActionMap(newPos, oldPos, eaten, action, result);
-
             if (result > 0) {
                 eaten |= 1L << (result - 1);
             }
@@ -126,7 +123,7 @@ public class QLearner {
         clearBacktrace();
     }
 
-    private void addBacktrace(int[] oldPos, long eaten, int action, float reward) {
+    private void addBacktrace(int[] oldPos, long eaten, byte action, float reward) {
         this.positionQueue.add(oldPos);
         this.eatenQueue.add(eaten);
         this.rewardQueue.add(reward);
@@ -134,13 +131,13 @@ public class QLearner {
     }
 
     private void clearBacktrace() {
-        this.positionQueue.clear();
-        this.eatenQueue.clear();
-        this.rewardQueue.clear();
-        this.actionQueue.clear();
+        this.positionQueue = new ArrayList<int[]>();
+        this.eatenQueue = new ArrayList<Long>();
+        this.rewardQueue = new ArrayList<Float>();
+        this.actionQueue = new ArrayList<Byte>();
     }
 
-    private int selectAction(int[] pos, long eaten, float randomChance) {
+    private byte selectAction(int[] pos, long eaten, float randomChance) {
         double rand = random.nextDouble();
         if (rand < randomChance) {
             /*
@@ -170,7 +167,7 @@ public class QLearner {
             }
             return action;
             */
-            return (random.nextInt(actionCount));
+            return (byte)(random.nextInt(actionCount));
         }
         return getBestAction(pos, eaten, false);
     }
@@ -178,10 +175,10 @@ public class QLearner {
     public float[] getState(int[] position, long eaten) {
 
         if (!stateMap.containsKey(eaten)) {
-            stateMap.put(eaten,new HashMap<Integer, float[]>());
+            stateMap.put(eaten,new HashMap<Short, float[]>());
         }
-        HashMap<Integer, float[]> foodState = stateMap.get(eaten);
-        int pos = (position[0] << 16);
+        HashMap<Short, float[]> foodState = stateMap.get(eaten);
+        short pos = (short)(position[0] << 8);
         pos |= position[1];
 
         if (!foodState.containsKey(pos)) {
@@ -213,7 +210,7 @@ public class QLearner {
         }
     }
 
-    private void updateStateActionMap(int[] newPos, int[] oldPos, long eaten, int action, int result) {
+    private void updateStateActionMap(int[] newPos, int[] oldPos, long eaten, byte action, int result) {
         long newEaten = eaten;
         boolean clear = false;
         if (result > 0) {
@@ -250,16 +247,16 @@ public class QLearner {
 
     public boolean isStateVisited(int[] position, long eaten) {
         if (!stateMap.containsKey(eaten)) {
-            stateMap.put(eaten,new HashMap<Integer, float[]>());
+            stateMap.put(eaten,new HashMap<Short, float[]>());
         }
-        HashMap<Integer, float[]> foodState = stateMap.get(eaten);
-        int pos = (position[0] << 16);
+        HashMap<Short, float[]> foodState = stateMap.get(eaten);
+        short pos = (short)(position[0] << 8);
         pos |= position[1];
 
         return foodState.containsKey(pos);
     }
 
-    public int getBestAction(int[] pos, long eaten, boolean unique) {
+    public byte getBestAction(int[] pos, long eaten, boolean unique) {
         int action = 0;
 
         float[] stateActionMap = getState(pos, eaten);
@@ -278,8 +275,8 @@ public class QLearner {
         }
 
         action = !isUnique && unique ? -1 : action;
-        return action;
-        //return actions.get((int)(random.nextDouble() * actions.size()));
+        return (byte)action;
+        //return actions.get((int)(random.nextInt(actions.size())));
     }
 
     private float getMaxValue(int[] pos, long eaten) {
@@ -296,8 +293,8 @@ public class QLearner {
         return maxVal;
     }
 
-    public int[][] getPolicy(long eaten) {
-        int[][] policy = new int[height][width];
+    public byte[][] getPolicy(long eaten) {
+        byte[][] policy = new byte[height][width];
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 int[] pos = new int[]{x, y};
@@ -322,15 +319,15 @@ public class QLearner {
         QLearner l =  new QLearner(4);
         l.setMap(map);
         l.train(10);
-        int[][] policy = l.getPolicy(0L);
+        byte[][] policy = l.getPolicy(0L);
         System.out.println();
-        for (int[] row : policy) {
+        for (byte[] row : policy) {
             System.out.println(Arrays.toString(row));
         }
 
         policy = l.getPolicy(1L);
         System.out.println();
-        for (int[] row : policy) {
+        for (byte[] row : policy) {
             System.out.println(Arrays.toString(row));
         }
         l.map.print();

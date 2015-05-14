@@ -130,7 +130,7 @@ public class QApp extends Application {
     }
 
     boolean renderBufferFlushed;
-    int[][] policy;
+    byte[][] policy;
     long eaten;
     boolean testing = false;
 
@@ -218,7 +218,7 @@ public class QApp extends Application {
         GraphicsContext g = canvas.getGraphicsContext2D();
         g.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGTH);
         l.setShadowing(true);
-        int[][] policy = learner.getPolicy(l.foodEaten);
+        byte[][] policy = learner.getPolicy(l.foodEaten);
 
         for (int y = 0; y < MAP_DIMESNSIONS_Y; y++){
             for (int x = 0; x < MAP_DIMESNSIONS_X; x++) {
