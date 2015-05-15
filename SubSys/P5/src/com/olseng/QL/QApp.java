@@ -9,6 +9,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import sun.rmi.runtime.RuntimeUtil;
 
 import java.io.IOException;
 
@@ -90,12 +91,13 @@ public class QApp extends Application {
         Runnable r = new Runnable() {
             @Override
             public void run() {
+                System.gc();
                 int passes = 0;
                 progress = 0;
                 while(running && !stop) {
 
+                    learner.train(passes, iterations);
                     progress = (float)passes / iterations;
-                    learner.train(progress);
                     passes++;
                     running = passes < iterations;
                     //Update progress bar here

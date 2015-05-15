@@ -168,7 +168,7 @@ public class ControlPanel extends GridPane {
             }
         });
 
-        this.tdCount = new TextField("" + app.learner.maxBackstack);
+        this.tdCount = new TextField("" + app.learner.getMaxBackstack());
         this.tdCount.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -179,7 +179,7 @@ public class ControlPanel extends GridPane {
                 catch (Exception e) {
                     tdCount.setText("5");
                 }
-                app.learner.maxBackstack = nums;
+                app.learner.setMaxBackstack(nums);
             }
         });
 
