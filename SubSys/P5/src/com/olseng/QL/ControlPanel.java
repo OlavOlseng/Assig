@@ -50,7 +50,6 @@ public class ControlPanel extends GridPane {
 
     private void initSpecials() {
         File folder = new File("Levels");
-        System.out.println(folder);
         String[] paths = folder.list();
 
         this.filePaths = new ComboBox<String>(FXCollections.observableArrayList(paths));
