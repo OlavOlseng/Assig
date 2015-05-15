@@ -63,11 +63,11 @@ public class ControlPanel extends GridPane {
         this.filePaths.setValue(paths[0]);
         this.filePaths.setPrefWidth(this.getPrefWidth());
 
-        this.iterations = new TextField("10000");
+        this.iterations = new TextField("8000");
         this.iterations.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                int nums = 10000;
+                int nums = 8000;
                 try {
                     nums = Integer.valueOf(iterations.getText());
                 }

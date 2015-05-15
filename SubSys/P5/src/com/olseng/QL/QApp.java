@@ -80,10 +80,10 @@ public class QApp extends Application {
         }
 
         setProgressStyle("");
-
         if (fresh) {
             this.learner.initialize();
             cp.setStatusMessage("Started new run!");
+            System.gc();
         }
         else {
             cp.setStatusMessage("Expanding training!");
@@ -91,7 +91,6 @@ public class QApp extends Application {
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                System.gc();
                 int passes = 0;
                 progress = 0;
                 while(running && !stop) {

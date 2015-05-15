@@ -1,7 +1,6 @@
 package com.olseng.QL;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Random;
@@ -13,7 +12,7 @@ public class QLearner {
 
     public static float SCORE_FOOD = 10f;
     public static float SCORE_POISON = -50f;
-    public static float SCORE_NOTHING = -2.701f;
+    public static float SCORE_NOTHING = -1.801f;
 
     private int width, height, actionCount;
     private Random random = new Random(System.currentTimeMillis());
