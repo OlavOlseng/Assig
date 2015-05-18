@@ -20,7 +20,7 @@ public class QLearner {
     public float learningRate = 0.1f;
     public float discountRate = 0.89f;
 
-    public float wobble = 0.5f;
+    public float wobble = 0.6f;
 
     short shortPos;
 
@@ -78,7 +78,7 @@ public class QLearner {
 
         newPos[0] = map.getPlayerX();
         newPos[1] = map.getPlayerY();
-        float temperature = 0.001f + wobble * (1f - (float)Math.pow(progress, 0.8));
+        float temperature = 0.001f + wobble * (1f - (float)Math.pow(progress, 0.5));
 
         while(!map.gameOver() && !escape) {
             oldPos[0] = newPos[0];
